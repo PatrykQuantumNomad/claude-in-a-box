@@ -258,6 +258,16 @@ ENV DISABLE_AUTOUPDATER=1 \
 COPY --chown=agent:agent scripts/verify-tools.sh /usr/local/bin/verify-tools.sh
 RUN chmod +x /usr/local/bin/verify-tools.sh
 
+# -- Copy entrypoint and health check scripts from build context ----------------
+COPY --chown=agent:agent scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY --chown=agent:agent scripts/healthcheck.sh /usr/local/bin/healthcheck.sh
+COPY --chown=agent:agent scripts/readiness.sh /usr/local/bin/readiness.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh /usr/local/bin/readiness.sh
+
+# -- Docker HEALTHCHECK using liveness probe script ----------------------------
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD ["/usr/local/bin/healthcheck.sh"]
+
 # -- Entrypoint: tini as PID 1 for proper signal handling --------------------
 ENTRYPOINT ["/usr/local/bin/tini", "--"]
-CMD ["bash"]
+CMD ["/usr/local/bin/entrypoint.sh"]
