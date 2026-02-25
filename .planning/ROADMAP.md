@@ -20,6 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Intelligence Layer** - MCP server configuration, DevOps skills library, and cluster-aware CLAUDE.md
 - [x] **Phase 7: Production Packaging** - Helm chart with security profiles and CI/CD pipeline with vulnerability scanning
 - [x] **Phase 8: Documentation & Release** - README with setup guide, architecture overview, and usage instructions
+- [ ] **Phase 9: Tech Debt Cleanup** - Fix dockerignore, wire readiness probe, add BATS to CI, fix cluster name collision, fix README label
 
 ## Phase Details
 
@@ -145,10 +146,27 @@ Plans:
 Plans:
 - [x] 08-01-PLAN.md — Comprehensive README.md with quickstart, architecture diagram, deployment methods, and troubleshooting (DOC-01)
 
+### Phase 9: Tech Debt Cleanup
+**Goal**: Close all tech debt items from v1.0 audit — fix build context bloat, wire readiness probe, add integration tests to CI, fix test cluster isolation, and correct README documentation
+**Depends on**: Phase 8
+**Requirements**: None (tech debt / quality fixes)
+**Gap Closure**: Closes 5 tech debt items + 1 integration gap from v1.0-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. `.dockerignore` at repo root excludes `.git`, `.planning`, and build artifacts from Docker build context
+  2. `readiness.sh` wired as readiness probe in StatefulSet, Helm templates, and dev pod manifest
+  3. CI pipeline runs BATS integration tests in a KIND cluster with Calico on push/PR
+  4. Test KIND cluster uses distinct name (`claude-in-a-box-test`) so `make test-setup` and `make bootstrap` don't collide
+  5. README Helm verification command uses correct label selector (`app=claude-in-a-box`)
+  6. REQUIREMENTS.md checkboxes match actual implementation status (DEV-01, DEV-02, DEV-03, DEV-05, DOC-01 marked `[x]`)
+**Plans**: TBD
+
+Plans:
+- [ ] 09-01-PLAN.md — TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 Note: Phase 5 and Phase 6 can execute in parallel (both depend on Phase 4, neither depends on the other).
 
 | Phase | Plans Complete | Status | Completed |
@@ -161,3 +179,4 @@ Note: Phase 5 and Phase 6 can execute in parallel (both depend on Phase 4, neith
 | 6. Intelligence Layer | 2/2 | Complete | 2026-02-25 |
 | 7. Production Packaging | 2/2 | Complete | 2026-02-25 |
 | 8. Documentation & Release | 1/1 | Complete | 2026-02-25 |
+| 9. Tech Debt Cleanup | 0/1 | Pending | — |
