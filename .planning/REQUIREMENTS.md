@@ -31,7 +31,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **K8S-03**: Egress-only NetworkPolicy allowing Anthropic API (TCP 443), K8s API server (TCP 6443), and DNS (UDP/TCP 53)
 - [x] **K8S-04**: PersistentVolumeClaim for OAuth token and session persistence at ~/.claude/
 - [x] **K8S-05**: Operator-tier ClusterRole (opt-in) adding delete on pods, create on pods/exec, update/patch on deployments and statefulsets
-- [ ] **K8S-06**: Helm chart with parameterized templates and security profile values files (values-readonly.yaml, values-operator.yaml, values-airgapped.yaml)
+- [x] **K8S-06**: Helm chart with parameterized templates and security profile values files (values-readonly.yaml, values-operator.yaml, values-airgapped.yaml)
 
 ### Local Development
 
@@ -106,7 +106,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | K8S-03 | Phase 4: Kubernetes Manifests & RBAC | Complete |
 | K8S-04 | Phase 4: Kubernetes Manifests & RBAC | Complete |
 | K8S-05 | Phase 4: Kubernetes Manifests & RBAC | Complete |
-| K8S-06 | Phase 7: Production Packaging | Pending |
+| K8S-06 | Phase 7: Production Packaging | Complete |
 | DEV-01 | Phase 3: Local Development Environment | Pending |
 | DEV-02 | Phase 3: Local Development Environment | Pending |
 | DEV-03 | Phase 3: Local Development Environment | Pending |

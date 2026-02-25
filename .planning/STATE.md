@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-02-25T20:46:03Z"
+last_updated: "2026-02-25T20:46:44Z"
 progress:
   total_phases: 8
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 16
-  completed_plans: 13
+  completed_plans: 14
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Deploy once, control from anywhere -- an AI-powered DevOps agent running inside your cluster that you can access from your phone without losing context, environment access, or session state.
-**Current focus:** Phase 7 in progress -- CI/CD pipeline complete (07-02). Helm chart (07-01) pending.
+**Current focus:** Phase 7 complete -- Helm chart and CI/CD pipeline both shipped. Phase 8 next.
 
 ## Current Position
 
-Phase: 7 of 8 (Production Packaging) -- IN PROGRESS
-Plan: 1 of 2 in current phase (07-02 complete, 07-01 pending)
-Status: CI/CD pipeline complete -- Docker build, Trivy scan, SBOM generation, Helm validation in GitHub Actions
-Last activity: 2026-02-25 -- Completed 07-02 (CI pipeline with Trivy scan and SBOM)
+Phase: 7 of 8 (Production Packaging) -- COMPLETE
+Plan: 2 of 2 in current phase (all complete)
+Status: Phase 7 complete -- Helm chart with security profiles and CI/CD pipeline with Trivy/SBOM
+Last activity: 2026-02-25 -- Completed 07-01 (Helm chart with templates, security profiles, golden tests)
 
-Progress: [█████████░] 81%
+Progress: [████████░░] 87%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
+- Total plans completed: 14
 - Average duration: 3min
-- Total execution time: 0.63 hours
+- Total execution time: 0.68 hours
 
 **By Phase:**
 
@@ -46,10 +46,10 @@ Progress: [█████████░] 81%
 | 04-kubernetes-manifests-rbac | 2/2 | 4min | 2min |
 | 05-integration-testing | 2/2 | 4min | 2min |
 | 06-intelligence-layer | 2/2 | 4min | 2min |
-| 07-production-packaging | 1/2 | 2min | 2min |
+| 07-production-packaging | 2/2 | 5min | 2.5min |
 
 **Recent Trend:**
-- Last 5 plans: 05-01 (2min), 05-02 (2min), 06-01 (2min), 06-02 (2min), 07-02 (2min)
+- Last 5 plans: 05-02 (2min), 06-01 (2min), 06-02 (2min), 07-02 (2min), 07-01 (3min)
 - Trend: stable/improving
 
 *Updated after each plan completion*
@@ -101,6 +101,10 @@ Recent decisions affecting current work:
 - 07-02: SBOM and artifact upload use if: always() to run even when Trivy finds vulnerabilities
 - 07-02: Workflow-level permissions (not job-level) for contents, packages, security-events
 - 07-02: Push to GHCR on push events, load locally on PRs for Trivy scanning
+- 07-01: fullnameOverride: "claude-agent" forces resource names to match raw manifests regardless of release name
+- 07-01: apiVersion v2 chart format (v3 is HIP-0020 proposal, not yet released)
+- 07-01: Security profiles as minimal overlay files merged on top of values.yaml defaults
+- 07-01: Golden file tests capture full helm template output including Helm metadata
 
 ### Pending Todos
 
@@ -115,5 +119,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 07-02-PLAN.md (CI pipeline with Trivy scan and SBOM generation)
-Resume file: .planning/phases/07-production-packaging/07-02-SUMMARY.md
+Stopped at: Completed 07-01-PLAN.md (Helm chart with templates, security profiles, golden tests) -- Phase 7 COMPLETE
+Resume file: .planning/phases/07-production-packaging/07-01-SUMMARY.md
