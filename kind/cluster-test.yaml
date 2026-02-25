@@ -1,0 +1,13 @@
+# KIND cluster configuration for integration testing.
+# Based on cluster.yaml but with Calico CNI support for NetworkPolicy enforcement.
+# Disables kindnet (default CNI) so Calico can be installed post-creation.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: claude-in-a-box
+networking:
+  disableDefaultCNI: true
+  podSubnet: 192.168.0.0/16
+nodes:
+  - role: control-plane
+  - role: worker
+  - role: worker
