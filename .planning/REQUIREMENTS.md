@@ -43,8 +43,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Intelligence Layer
 
-- [ ] **INT-01**: MCP server configuration (.mcp.json) pre-wired for kubernetes-mcp-server with read-only mode
-- [ ] **INT-02**: Curated DevOps skills library for pod diagnosis, log analysis, incident triage, and network debugging
+- [x] **INT-01**: MCP server configuration (.mcp.json) pre-wired for kubernetes-mcp-server with read-only mode
+- [x] **INT-02**: Curated DevOps skills library for pod diagnosis, log analysis, incident triage, and network debugging
 
 ### Documentation
 
@@ -112,8 +112,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DEV-03 | Phase 3: Local Development Environment | Pending |
 | DEV-04 | Phase 5: Integration Testing | Complete |
 | DEV-05 | Phase 3: Local Development Environment | Pending |
-| INT-01 | Phase 6: Intelligence Layer | Pending |
-| INT-02 | Phase 6: Intelligence Layer | Pending |
+| INT-01 | Phase 6: Intelligence Layer | Complete |
+| INT-02 | Phase 6: Intelligence Layer | Complete |
 | DOC-01 | Phase 8: Documentation & Release | Pending |
 | DOC-02 | Phase 6: Intelligence Layer | Pending |
 

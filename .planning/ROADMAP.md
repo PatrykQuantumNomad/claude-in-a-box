@@ -113,7 +113,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — MCP config, DevOps skills library, and Dockerfile updates (INT-01, INT-02)
+- [x] 06-01-PLAN.md — MCP config, DevOps skills library, and Dockerfile updates (INT-01, INT-02)
 - [ ] 06-02-PLAN.md — CLAUDE.md generation script and entrypoint wiring (DOC-02)
 
 ### Phase 7: Production Packaging
@@ -158,6 +158,6 @@ Note: Phase 5 and Phase 6 can execute in parallel (both depend on Phase 4, neith
 | 3. Local Development Environment | 2/2 | Complete | 2026-02-25 |
 | 4. Kubernetes Manifests & RBAC | 2/2 | Complete | 2026-02-25 |
 | 5. Integration Testing | 2/2 | Complete | 2026-02-25 |
-| 6. Intelligence Layer | 0/2 | Planned | - |
+| 6. Intelligence Layer | 1/2 | In Progress | - |
 | 7. Production Packaging | 0/0 | Not started | - |
 | 8. Documentation & Release | 0/0 | Not started | - |

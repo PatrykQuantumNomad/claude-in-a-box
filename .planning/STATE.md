@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Deploy once, control from anywhere -- an AI-powered DevOps agent running inside your cluster that you can access from your phone without losing context, environment access, or session state.
-**Current focus:** Phase 5 complete -- full 35-test integration suite covering RBAC, networking, tools, persistence, and Remote Control
+**Current focus:** Phase 6 in progress -- MCP config and DevOps skills delivered (06-01), entrypoint wiring next (06-02)
 
 ## Current Position
 
-Phase: 5 of 8 (Integration Testing) -- COMPLETE
-Plan: 2 of 2 in current phase (all complete)
-Status: Phase 5 complete -- ready for Phase 6 (Intelligence Layer)
-Last activity: 2026-02-25 -- Completed 05-02 (Integration test suite: 35 BATS tests across 5 categories)
+Phase: 6 of 8 (Intelligence Layer)
+Plan: 1 of 2 in current phase (06-01 complete)
+Status: Plan 06-01 complete -- MCP config, 4 DevOps skills, and Dockerfile updates shipped
+Last activity: 2026-02-25 -- Completed 06-01 (MCP config, DevOps skills library, Dockerfile updates)
 
-Progress: [██████░░░░] 61%
+Progress: [███████░░░] 68%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
-- Average duration: 4min
-- Total execution time: 0.53 hours
+- Total plans completed: 11
+- Average duration: 3min
+- Total execution time: 0.57 hours
 
 **By Phase:**
 
@@ -32,9 +32,10 @@ Progress: [██████░░░░] 61%
 | 03-local-development-environment | 2/2 | 8min | 4min |
 | 04-kubernetes-manifests-rbac | 2/2 | 4min | 2min |
 | 05-integration-testing | 2/2 | 4min | 2min |
+| 06-intelligence-layer | 1/2 | 2min | 2min |
 
 **Recent Trend:**
-- Last 5 plans: 03-02 (4min), 04-01 (2min), 04-02 (2min), 05-01 (2min), 05-02 (2min)
+- Last 5 plans: 04-01 (2min), 04-02 (2min), 05-01 (2min), 05-02 (2min), 06-01 (2min)
 - Trend: stable/improving
 
 *Updated after each plan completion*
@@ -76,6 +77,9 @@ Recent decisions affecting current work:
 - 05-02: Operator overlay applied in first operator test, removed in teardown_file for clean state
 - 05-02: Remote Control tests validate network path only (HTTPS + TLS) -- full testing requires real OAuth token
 - 05-02: Persistence test uses deterministic marker string with retry loop for exec path readiness
+- 06-01: Skills staged to /opt/claude-skills/ (not /app/.claude/skills/) to survive PVC overlay at /app/.claude/
+- 06-01: MCP server invoked via npx (not direct binary) for kubernetes-mcp-server npm package
+- 06-01: mcp__kubernetes__* wildcard permission grants all MCP kubernetes tools without prompting
 
 ### Pending Todos
 
@@ -84,11 +88,11 @@ None yet.
 ### Blockers/Concerns
 
 - Research flag: Claude Code OAuth persistence in containers has known issues (anthropics/claude-code#22066, #12447, #21765). Validate `CLAUDE_CODE_OAUTH_TOKEN` and `claude setup-token` behavior early in Phase 2.
-- Research flag: MCP server selection (Red Hat Go vs Flux159 Node.js) needs hands-on evaluation in Phase 6.
+- RESOLVED: MCP server selection -- using kubernetes-mcp-server via npx with --read-only and --cluster-provider in-cluster (06-01).
 - Research flag: Helm 4.x chart API has breaking changes from Helm 3. Verify compatibility in Phase 7.
 
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 05-02-PLAN.md (Integration test suite: 35 BATS tests across RBAC, networking, tools, persistence, Remote Control)
-Resume file: .planning/phases/05-integration-testing/05-02-SUMMARY.md
+Stopped at: Completed 06-01-PLAN.md (MCP config, DevOps skills library, Dockerfile updates)
+Resume file: .planning/phases/06-intelligence-layer/06-01-SUMMARY.md
