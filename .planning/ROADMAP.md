@@ -129,7 +129,7 @@ Plans:
 
 Plans:
 - [ ] 07-01-PLAN.md — Helm chart with templates, security profile values files, and golden file tests (K8S-06)
-- [ ] 07-02-PLAN.md — CI pipeline with Docker build, Trivy scan, SBOM generation, and Helm validation (IMG-06)
+- [x] 07-02-PLAN.md — CI pipeline with Docker build, Trivy scan, SBOM generation, and Helm validation (IMG-06)
 
 ### Phase 8: Documentation & Release
 **Goal**: A new user can go from zero to running Claude-in-a-box in their cluster by following the README alone
@@ -159,5 +159,5 @@ Note: Phase 5 and Phase 6 can execute in parallel (both depend on Phase 4, neith
 | 4. Kubernetes Manifests & RBAC | 2/2 | Complete | 2026-02-25 |
 | 5. Integration Testing | 2/2 | Complete | 2026-02-25 |
 | 6. Intelligence Layer | 2/2 | Complete | 2026-02-25 |
-| 7. Production Packaging | 0/0 | Not started | - |
+| 7. Production Packaging | 1/2 | In progress | - |
 | 8. Documentation & Release | 0/0 | Not started | - |

@@ -14,7 +14,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **IMG-03**: Full debugging toolkit (30+ tools) installed as static binaries with pinned versions
 - [x] **IMG-04**: Container runs as non-root user (UID 10000) with tini as PID 1
 - [x] **IMG-05**: Tool verification script confirms all tools execute correctly as non-root
-- [ ] **IMG-06**: CI pipeline with container vulnerability scanning (Trivy) and SBOM generation
+- [x] **IMG-06**: CI pipeline with container vulnerability scanning (Trivy) and SBOM generation
 
 ### Entrypoint & Lifecycle
 
@@ -95,7 +95,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | IMG-03 | Phase 1: Container Foundation | Complete |
 | IMG-04 | Phase 1: Container Foundation | Complete |
 | IMG-05 | Phase 1: Container Foundation | Complete |
-| IMG-06 | Phase 7: Production Packaging | Pending |
+| IMG-06 | Phase 7: Production Packaging | Complete |
 | ENT-01 | Phase 2: Entrypoint & Authentication | Complete |
 | ENT-02 | Phase 2: Entrypoint & Authentication | Complete |
 | ENT-03 | Phase 2: Entrypoint & Authentication | Complete |

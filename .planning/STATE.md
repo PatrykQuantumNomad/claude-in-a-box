@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-02-25T20:04:33.756Z"
+last_updated: "2026-02-25T20:46:03Z"
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 16
-  completed_plans: 12
+  completed_plans: 13
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Deploy once, control from anywhere -- an AI-powered DevOps agent running inside your cluster that you can access from your phone without losing context, environment access, or session state.
-**Current focus:** Phase 6 complete -- Intelligence layer fully wired (MCP, skills, CLAUDE.md generation). Phase 7 next.
+**Current focus:** Phase 7 in progress -- CI/CD pipeline complete (07-02). Helm chart (07-01) pending.
 
 ## Current Position
 
-Phase: 6 of 8 (Intelligence Layer) -- COMPLETE
-Plan: 2 of 2 in current phase (all complete)
-Status: Phase 6 complete -- Intelligence layer fully wired (MCP config, DevOps skills, CLAUDE.md generation, entrypoint wiring)
-Last activity: 2026-02-25 -- Completed 06-02 (CLAUDE.md generation script and entrypoint wiring)
+Phase: 7 of 8 (Production Packaging) -- IN PROGRESS
+Plan: 1 of 2 in current phase (07-02 complete, 07-01 pending)
+Status: CI/CD pipeline complete -- Docker build, Trivy scan, SBOM generation, Helm validation in GitHub Actions
+Last activity: 2026-02-25 -- Completed 07-02 (CI pipeline with Trivy scan and SBOM)
 
-Progress: [████████░░] 75%
+Progress: [█████████░] 81%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
+- Total plans completed: 13
 - Average duration: 3min
-- Total execution time: 0.60 hours
+- Total execution time: 0.63 hours
 
 **By Phase:**
 
@@ -46,9 +46,10 @@ Progress: [████████░░] 75%
 | 04-kubernetes-manifests-rbac | 2/2 | 4min | 2min |
 | 05-integration-testing | 2/2 | 4min | 2min |
 | 06-intelligence-layer | 2/2 | 4min | 2min |
+| 07-production-packaging | 1/2 | 2min | 2min |
 
 **Recent Trend:**
-- Last 5 plans: 04-02 (2min), 05-01 (2min), 05-02 (2min), 06-01 (2min), 06-02 (2min)
+- Last 5 plans: 05-01 (2min), 05-02 (2min), 06-01 (2min), 06-02 (2min), 07-02 (2min)
 - Trend: stable/improving
 
 *Updated after each plan completion*
@@ -96,6 +97,10 @@ Recent decisions affecting current work:
 - 06-02: Standalone mode exits 0 (not 1) -- Docker Compose is a valid deployment, not an error
 - 06-02: CLAUDE.md generation failure is non-fatal -- entrypoint continues even if K8s API unreachable
 - 06-02: Skills staging only on first start (checks /app/.claude/skills/ existence) to preserve user mods
+- 07-02: fromJSON(steps.meta.outputs.json).tags[0] for Trivy/SBOM image ref (works for both push and PR)
+- 07-02: SBOM and artifact upload use if: always() to run even when Trivy finds vulnerabilities
+- 07-02: Workflow-level permissions (not job-level) for contents, packages, security-events
+- 07-02: Push to GHCR on push events, load locally on PRs for Trivy scanning
 
 ### Pending Todos
 
@@ -105,10 +110,10 @@ None yet.
 
 - Research flag: Claude Code OAuth persistence in containers has known issues (anthropics/claude-code#22066, #12447, #21765). Validate `CLAUDE_CODE_OAUTH_TOKEN` and `claude setup-token` behavior early in Phase 2.
 - RESOLVED: MCP server selection -- using kubernetes-mcp-server via npx with --read-only and --cluster-provider in-cluster (06-01).
-- Research flag: Helm 4.x chart API has breaking changes from Helm 3. Verify compatibility in Phase 7.
+- RESOLVED: Helm 4.x chart API is backward compatible with v2 charts. apiVersion v2 works with Helm 4.1.1 (confirmed in 07 research).
 
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 06-02-PLAN.md (CLAUDE.md generation script and entrypoint wiring) -- Phase 6 COMPLETE
-Resume file: .planning/phases/06-intelligence-layer/06-02-SUMMARY.md
+Stopped at: Completed 07-02-PLAN.md (CI pipeline with Trivy scan and SBOM generation)
+Resume file: .planning/phases/07-production-packaging/07-02-SUMMARY.md
