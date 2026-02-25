@@ -96,11 +96,11 @@ Plans:
   3. Networking tests confirm DNS resolution, Anthropic API egress, and K8s API access from inside the pod
   4. Persistence tests verify OAuth token and session data survive pod deletion and recreation
   5. Tool verification tests confirm all 30+ debugging tools execute correctly inside the running pod
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
+- [ ] 05-01-PLAN.md — Test infrastructure: KIND test cluster config, Calico CNI install, BATS setup, test helpers, Makefile targets
+- [ ] 05-02-PLAN.md — Test suite: RBAC, networking, tools, persistence, and Remote Control BATS test files
 
 ### Phase 6: Intelligence Layer
 **Goal**: Claude Code running inside the cluster has structured Kubernetes API access via MCP and pre-built skills for common DevOps tasks, with auto-populated cluster context
@@ -157,7 +157,7 @@ Note: Phase 5 and Phase 6 can execute in parallel (both depend on Phase 4, neith
 | 2. Entrypoint & Authentication | 2/2 | Complete | 2026-02-25 |
 | 3. Local Development Environment | 2/2 | Complete | 2026-02-25 |
 | 4. Kubernetes Manifests & RBAC | 2/2 | Complete | 2026-02-25 |
-| 5. Integration Testing | 0/0 | Not started | - |
+| 5. Integration Testing | 0/2 | Planned | - |
 | 6. Intelligence Layer | 0/0 | Not started | - |
 | 7. Production Packaging | 0/0 | Not started | - |
 | 8. Documentation & Release | 0/0 | Not started | - |
