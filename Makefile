@@ -12,8 +12,9 @@ K8S_MANIFESTS ?= k8s/base
 OPERATOR_RBAC ?= k8s/overlays/rbac-operator.yaml
 
 # -- Test Configuration ------------------------------------------------------
-KIND_TEST_CONFIG ?= kind/cluster-test.yaml
-BATS             ?= tests/bats/bin/bats
+KIND_TEST_CONFIG  ?= kind/cluster-test.yaml
+TEST_CLUSTER_NAME ?= claude-in-a-box-test
+BATS              ?= tests/bats/bin/bats
 TEST_DIR         ?= tests/integration
 
 .PHONY: help build load deploy deploy-operator undeploy-operator bootstrap teardown redeploy status test-setup test test-teardown
@@ -66,17 +67,20 @@ status: ## Show cluster and pod status
 
 test-setup: build ## Create test cluster with Calico and deploy
 	scripts/setup-bats.sh
-	@if ! kind get clusters 2>/dev/null | grep -q "^$(CLUSTER_NAME)$$"; then \
-		echo "Creating test cluster '$(CLUSTER_NAME)' with Calico CNI..."; \
-		kind create cluster --name $(CLUSTER_NAME) --config $(KIND_TEST_CONFIG) --wait 60s; \
+	@if ! kind get clusters 2>/dev/null | grep -q "^$(TEST_CLUSTER_NAME)$$"; then \
+		echo "Creating test cluster '$(TEST_CLUSTER_NAME)' with Calico CNI..."; \
+		kind create cluster --name $(TEST_CLUSTER_NAME) --config $(KIND_TEST_CONFIG) --wait 60s; \
 		scripts/install-calico.sh; \
 	else \
-		echo "Cluster '$(CLUSTER_NAME)' already exists, skipping creation"; \
+		echo "Cluster '$(TEST_CLUSTER_NAME)' already exists, skipping creation"; \
 	fi
-	$(MAKE) load deploy
+	kind load docker-image $(IMAGE_NAME):$(IMAGE_TAG) --name $(TEST_CLUSTER_NAME)
+	kubectl apply -f $(K8S_MANIFESTS)
+	kubectl wait --for=condition=Ready pod -l app=claude-agent \
+		-n $(NAMESPACE) --timeout=120s
 
 test: ## Run integration test suite
 	$(BATS) --tap $(TEST_DIR)/*.bats
 
 test-teardown: ## Destroy test cluster
-	kind delete cluster --name $(CLUSTER_NAME)
+	kind delete cluster --name $(TEST_CLUSTER_NAME)

@@ -3,7 +3,7 @@
 # Disables kindnet (default CNI) so Calico can be installed post-creation.
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
-name: claude-in-a-box
+name: claude-in-a-box-test
 networking:
   disableDefaultCNI: true
   podSubnet: 192.168.0.0/16
