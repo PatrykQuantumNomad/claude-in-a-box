@@ -33,7 +33,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. `docker run <image> verify-tools.sh` confirms all 30+ tools execute successfully as non-root
   4. Image uses multi-stage build with pinned versions for every binary (no `:latest`, no unpinned `apt-get install`)
   5. tini is PID 1 inside the container (`docker exec <container> cat /proc/1/cmdline` shows tini)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
 - [x] 01-01: Multi-stage Dockerfile, .dockerignore, and verify-tools.sh
@@ -49,11 +49,11 @@ Plans:
   3. Setting `CLAUDE_CODE_OAUTH_TOKEN` env var authenticates Claude Code without interactive login
   4. HTTP liveness and readiness probe endpoints return appropriate status codes reflecting Claude Code process health
   5. Auth failure produces a human-readable error message with remediation steps (not raw API JSON)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md — Create entrypoint, health probe scripts, and update Dockerfile
+- [ ] 02-02-PLAN.md — Build image, verify all Phase 2 success criteria, fix issues
 
 ### Phase 3: Local Development Environment
 **Goal**: One-command local Kubernetes environment where the Claude-in-a-box image deploys, runs, and is accessible for development and testing
@@ -154,7 +154,7 @@ Note: Phase 5 and Phase 6 can execute in parallel (both depend on Phase 4, neith
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Container Foundation | 2/2 | Complete | 2026-02-25 |
-| 2. Entrypoint & Authentication | 0/0 | Not started | - |
+| 2. Entrypoint & Authentication | 0/2 | Planned | - |
 | 3. Local Development Environment | 0/0 | Not started | - |
 | 4. Kubernetes Manifests & RBAC | 0/0 | Not started | - |
 | 5. Integration Testing | 0/0 | Not started | - |
