@@ -9,11 +9,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Container Image
 
-- [ ] **IMG-01**: Multi-stage Dockerfile produces a deployment-ready image with Ubuntu 24.04 base under 2GB compressed
-- [ ] **IMG-02**: Claude Code CLI installed via native installer with pinned version and auto-updater disabled
-- [ ] **IMG-03**: Full debugging toolkit (30+ tools) installed as static binaries with pinned versions
-- [ ] **IMG-04**: Container runs as non-root user (UID 1000) with tini as PID 1
-- [ ] **IMG-05**: Tool verification script confirms all tools execute correctly as non-root
+- [x] **IMG-01**: Multi-stage Dockerfile produces a deployment-ready image with Ubuntu 24.04 base under 2GB compressed
+- [x] **IMG-02**: Claude Code CLI installed via npm with pinned version and auto-updater disabled
+- [x] **IMG-03**: Full debugging toolkit (30+ tools) installed as static binaries with pinned versions
+- [x] **IMG-04**: Container runs as non-root user (UID 10000) with tini as PID 1
+- [x] **IMG-05**: Tool verification script confirms all tools execute correctly as non-root
 - [ ] **IMG-06**: CI pipeline with container vulnerability scanning (Trivy) and SBOM generation
 
 ### Entrypoint & Lifecycle
@@ -90,11 +90,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| IMG-01 | Phase 1: Container Foundation | Pending |
-| IMG-02 | Phase 1: Container Foundation | Pending |
-| IMG-03 | Phase 1: Container Foundation | Pending |
-| IMG-04 | Phase 1: Container Foundation | Pending |
-| IMG-05 | Phase 1: Container Foundation | Pending |
+| IMG-01 | Phase 1: Container Foundation | Complete |
+| IMG-02 | Phase 1: Container Foundation | Complete |
+| IMG-03 | Phase 1: Container Foundation | Complete |
+| IMG-04 | Phase 1: Container Foundation | Complete |
+| IMG-05 | Phase 1: Container Foundation | Complete |
 | IMG-06 | Phase 7: Production Packaging | Pending |
 | ENT-01 | Phase 2: Entrypoint & Authentication | Pending |
 | ENT-02 | Phase 2: Entrypoint & Authentication | Pending |

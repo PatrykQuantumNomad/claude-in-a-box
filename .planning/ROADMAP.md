@@ -29,15 +29,15 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Requirements**: IMG-01, IMG-02, IMG-03, IMG-04, IMG-05
 **Success Criteria** (what must be TRUE):
   1. `docker build` produces an image under 2GB compressed with no build errors
-  2. `docker run <image> claude --version` prints Claude Code version as UID 1000 (non-root)
+  2. `docker run <image> claude --version` prints Claude Code version as UID 10000 (non-root)
   3. `docker run <image> verify-tools.sh` confirms all 30+ tools execute successfully as non-root
   4. Image uses multi-stage build with pinned versions for every binary (no `:latest`, no unpinned `apt-get install`)
   5. tini is PID 1 inside the container (`docker exec <container> cat /proc/1/cmdline` shows tini)
 **Plans**: TBD
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [x] 01-01: Multi-stage Dockerfile, .dockerignore, and verify-tools.sh
+- [ ] 01-02: Build image, verify all success criteria, fix issues
 
 ### Phase 2: Entrypoint & Authentication
 **Goal**: Container starts correctly in all three modes, handles signals for graceful shutdown, authenticates via token or interactive flow, and reports health to orchestrators
@@ -153,7 +153,7 @@ Note: Phase 5 and Phase 6 can execute in parallel (both depend on Phase 4, neith
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Container Foundation | 0/0 | Not started | - |
+| 1. Container Foundation | 1/2 | In Progress | - |
 | 2. Entrypoint & Authentication | 0/0 | Not started | - |
 | 3. Local Development Environment | 0/0 | Not started | - |
 | 4. Kubernetes Manifests & RBAC | 0/0 | Not started | - |
