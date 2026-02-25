@@ -1,0 +1,86 @@
+# Headless Service required for StatefulSet DNS identity.
+# Provides stable network identity: claude-agent-0.claude-agent.default.svc.cluster.local
+# The placeholder port is required by the Service spec but not used for traffic.
+apiVersion: v1
+kind: Service
+metadata:
+  name: claude-agent
+  namespace: default
+  labels:
+    app: claude-agent
+spec:
+  clusterIP: None
+  selector:
+    app: claude-agent
+  ports:
+    - port: 80
+      name: placeholder
+---
+# StatefulSet deploys claude-agent with stable pod identity and persistent storage.
+# Pod claude-agent-0 gets PVC claude-data-claude-agent-0 auto-created by volumeClaimTemplates.
+# SecurityContext enforces non-root (UID 10000) matching the container's agent user.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: claude-agent
+  namespace: default
+  labels:
+    app: claude-agent
+spec:
+  serviceName: claude-agent
+  replicas: 1
+  selector:
+    matchLabels:
+      app: claude-agent
+  template:
+    metadata:
+      labels:
+        app: claude-agent
+    spec:
+      serviceAccountName: claude-agent
+      terminationGracePeriodSeconds: 60
+      securityContext:
+        runAsUser: 10000
+        runAsGroup: 10000
+        fsGroup: 10000
+        fsGroupChangePolicy: OnRootMismatch
+        runAsNonRoot: true
+      containers:
+        - name: claude-agent
+          image: claude-in-a-box:dev
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: CLAUDE_MODE
+              value: "interactive"
+          volumeMounts:
+            - name: claude-data
+              mountPath: /app/.claude
+          livenessProbe:
+            exec:
+              command: ["/usr/local/bin/healthcheck.sh"]
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command: ["/usr/local/bin/healthcheck.sh"]
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "2000m"
+          stdin: true
+          tty: true
+  volumeClaimTemplates:
+    - metadata:
+        name: claude-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

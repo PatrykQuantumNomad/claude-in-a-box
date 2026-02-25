@@ -1,0 +1,50 @@
+# Egress-only NetworkPolicy for claude-agent.
+# Denies all ingress traffic. Allows egress only to:
+#   - DNS (UDP/TCP 53) for cluster name resolution
+#   - HTTPS (TCP 443) for Anthropic API access
+#   - K8s API (TCP 6443) for cluster read operations
+#
+# NOTE: KIND's default CNI (kindnet) does NOT enforce NetworkPolicy.
+# Phase 5 will install Calico CNI to validate these rules.
+#
+# CIDR 0.0.0.0/0 is used for ports 443 and 6443 because:
+#   - Anthropic API IPs can change (CDN/load balancer rotation)
+#   - K8s API server IP varies per cluster
+#   - Port-based restriction is sufficient (only intended services listen on these ports)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: claude-agent-netpol
+  namespace: default
+  labels:
+    app: claude-agent
+spec:
+  podSelector:
+    matchLabels:
+      app: claude-agent
+  policyTypes:
+    - Ingress
+    - Egress
+  # Deny all ingress -- claude-agent initiates all connections
+  ingress: []
+  egress:
+    # Rule 1: DNS resolution (CoreDNS can be in any namespace)
+    - ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Rule 2: Anthropic API (HTTPS)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 443
+    # Rule 3: Kubernetes API server
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 6443
