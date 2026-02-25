@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Entrypoint & Authentication** - Startup modes, signal handling, OAuth authentication, health probes, and error UX
 - [x] **Phase 3: Local Development Environment** - KIND cluster, bootstrap scripts, Makefile workflow, and Docker Compose standalone deployment
 - [x] **Phase 4: Kubernetes Manifests & RBAC** - StatefulSet, tiered RBAC, NetworkPolicy, PVC persistence, and operator-tier opt-in
-- [ ] **Phase 5: Integration Testing** - KIND-based test suite validating RBAC, networking, tools, persistence, and Remote Control
+- [x] **Phase 5: Integration Testing** - KIND-based test suite validating RBAC, networking, tools, persistence, and Remote Control
 - [ ] **Phase 6: Intelligence Layer** - MCP server configuration, DevOps skills library, and cluster-aware CLAUDE.md
 - [ ] **Phase 7: Production Packaging** - Helm chart with security profiles and CI/CD pipeline with vulnerability scanning
 - [ ] **Phase 8: Documentation & Release** - README with setup guide, architecture overview, and usage instructions
@@ -100,7 +100,7 @@ Plans:
 
 Plans:
 - [x] 05-01-PLAN.md — Test infrastructure: KIND test cluster config, Calico CNI install, BATS setup, test helpers, Makefile targets
-- [ ] 05-02-PLAN.md — Test suite: RBAC, networking, tools, persistence, and Remote Control BATS test files
+- [x] 05-02-PLAN.md — Test suite: RBAC, networking, tools, persistence, and Remote Control BATS test files
 
 ### Phase 6: Intelligence Layer
 **Goal**: Claude Code running inside the cluster has structured Kubernetes API access via MCP and pre-built skills for common DevOps tasks, with auto-populated cluster context
@@ -157,7 +157,7 @@ Note: Phase 5 and Phase 6 can execute in parallel (both depend on Phase 4, neith
 | 2. Entrypoint & Authentication | 2/2 | Complete | 2026-02-25 |
 | 3. Local Development Environment | 2/2 | Complete | 2026-02-25 |
 | 4. Kubernetes Manifests & RBAC | 2/2 | Complete | 2026-02-25 |
-| 5. Integration Testing | 1/2 | In Progress | - |
+| 5. Integration Testing | 2/2 | Complete | 2026-02-25 |
 | 6. Intelligence Layer | 0/0 | Not started | - |
 | 7. Production Packaging | 0/0 | Not started | - |
 | 8. Documentation & Release | 0/0 | Not started | - |

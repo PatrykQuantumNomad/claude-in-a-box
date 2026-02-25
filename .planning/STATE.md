@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Deploy once, control from anywhere -- an AI-powered DevOps agent running inside your cluster that you can access from your phone without losing context, environment access, or session state.
-**Current focus:** Phase 5 in progress -- test infrastructure complete, test suite (05-02) next
+**Current focus:** Phase 5 complete -- full 35-test integration suite covering RBAC, networking, tools, persistence, and Remote Control
 
 ## Current Position
 
-Phase: 5 of 8 (Integration Testing)
-Plan: 1 of 2 in current phase
-Status: 05-01 complete (test infrastructure), 05-02 pending (test suite)
-Last activity: 2026-02-25 -- Completed 05-01 (Test infrastructure: KIND test cluster, Calico, BATS, helpers, Makefile targets)
+Phase: 5 of 8 (Integration Testing) -- COMPLETE
+Plan: 2 of 2 in current phase (all complete)
+Status: Phase 5 complete -- ready for Phase 6 (Intelligence Layer)
+Last activity: 2026-02-25 -- Completed 05-02 (Integration test suite: 35 BATS tests across 5 categories)
 
-Progress: [██████░░░░] 55%
+Progress: [██████░░░░] 61%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
+- Total plans completed: 10
 - Average duration: 4min
-- Total execution time: 0.50 hours
+- Total execution time: 0.53 hours
 
 **By Phase:**
 
@@ -31,10 +31,10 @@ Progress: [██████░░░░] 55%
 | 02-entrypoint-authentication | 2/2 | 8min | 4min |
 | 03-local-development-environment | 2/2 | 8min | 4min |
 | 04-kubernetes-manifests-rbac | 2/2 | 4min | 2min |
-| 05-integration-testing | 1/2 | 2min | 2min |
+| 05-integration-testing | 2/2 | 4min | 2min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (4min), 03-02 (4min), 04-01 (2min), 04-02 (2min), 05-01 (2min)
+- Last 5 plans: 03-02 (4min), 04-01 (2min), 04-02 (2min), 05-01 (2min), 05-02 (2min)
 - Trend: stable/improving
 
 *Updated after each plan completion*
@@ -72,6 +72,10 @@ Recent decisions affecting current work:
 - 05-01: BATS v1.13.0 cloned locally into tests/bats/ (gitignored, not committed)
 - 05-01: FELIX_IGNORELOOSERPF=true for KIND compatibility with Calico RPF checks
 - 05-01: test-setup reuses bootstrap pattern with KIND_TEST_CONFIG for Calico-enabled cluster
+- 05-02: One @test per RBAC resource for granular pass/fail visibility (22 individual RBAC tests)
+- 05-02: Operator overlay applied in first operator test, removed in teardown_file for clean state
+- 05-02: Remote Control tests validate network path only (HTTPS + TLS) -- full testing requires real OAuth token
+- 05-02: Persistence test uses deterministic marker string with retry loop for exec path readiness
 
 ### Pending Todos
 
@@ -86,5 +90,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 05-01-PLAN.md (Test infrastructure: KIND test cluster, Calico, BATS, helpers, Makefile targets)
-Resume file: .planning/phases/05-integration-testing/05-01-SUMMARY.md
+Stopped at: Completed 05-02-PLAN.md (Integration test suite: 35 BATS tests across RBAC, networking, tools, persistence, Remote Control)
+Resume file: .planning/phases/05-integration-testing/05-02-SUMMARY.md
