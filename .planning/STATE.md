@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-last_updated: "2026-02-25T20:46:44Z"
+status: complete
+last_updated: "2026-02-25T21:58:29Z"
 progress:
   total_phases: 8
-  completed_phases: 7
-  total_plans: 16
-  completed_plans: 14
+  completed_phases: 8
+  total_plans: 15
+  completed_plans: 15
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Deploy once, control from anywhere -- an AI-powered DevOps agent running inside your cluster that you can access from your phone without losing context, environment access, or session state.
-**Current focus:** Phase 7 complete -- Helm chart and CI/CD pipeline both shipped. Phase 8 next.
+**Current focus:** All 8 phases complete. Milestone v1.0 ready.
 
 ## Current Position
 
-Phase: 7 of 8 (Production Packaging) -- COMPLETE
-Plan: 2 of 2 in current phase (all complete)
-Status: Phase 7 complete -- Helm chart with security profiles and CI/CD pipeline with Trivy/SBOM
-Last activity: 2026-02-25 -- Completed 07-01 (Helm chart with templates, security profiles, golden tests)
+Phase: 8 of 8 (Documentation & Release) -- COMPLETE
+Plan: 1 of 1 in current phase (all complete)
+Status: Phase 8 complete -- Comprehensive README.md with architecture, quickstart, deployment methods, and troubleshooting
+Last activity: 2026-02-25 -- Completed 08-01 (README with quickstart, architecture diagram, deployment methods, troubleshooting)
 
-Progress: [████████░░] 87%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
+- Total plans completed: 15
 - Average duration: 3min
-- Total execution time: 0.68 hours
+- Total execution time: 0.75 hours
 
 **By Phase:**
 
@@ -47,10 +47,11 @@ Progress: [████████░░] 87%
 | 05-integration-testing | 2/2 | 4min | 2min |
 | 06-intelligence-layer | 2/2 | 4min | 2min |
 | 07-production-packaging | 2/2 | 5min | 2.5min |
+| 08-documentation-release | 1/1 | 4min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 05-02 (2min), 06-01 (2min), 06-02 (2min), 07-02 (2min), 07-01 (3min)
-- Trend: stable/improving
+- Last 5 plans: 06-01 (2min), 06-02 (2min), 07-02 (2min), 07-01 (3min), 08-01 (4min)
+- Trend: stable
 
 *Updated after each plan completion*
 
@@ -105,6 +106,9 @@ Recent decisions affecting current work:
 - 07-01: apiVersion v2 chart format (v3 is HIP-0020 proposal, not yet released)
 - 07-01: Security profiles as minimal overlay files merged on top of values.yaml defaults
 - 07-01: Golden file tests capture full helm template output including Helm metadata
+- 08-01: Mermaid flowchart TD (not architecture-beta per rendering issues)
+- 08-01: Badges on same line for inline rendering on GitHub
+- 08-01: All README commands extracted from actual project files
 
 ### Pending Todos
 
@@ -119,5 +123,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 07-01-PLAN.md (Helm chart with templates, security profiles, golden tests) -- Phase 7 COMPLETE
-Resume file: .planning/phases/07-production-packaging/07-01-SUMMARY.md
+Stopped at: Completed 08-01-PLAN.md (README with quickstart, architecture, deployment methods, troubleshooting) -- Phase 8 COMPLETE -- MILESTONE v1.0 COMPLETE
+Resume file: .planning/phases/08-documentation-release/08-01-SUMMARY.md
