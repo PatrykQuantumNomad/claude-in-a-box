@@ -1,0 +1,28 @@
+# Docker Compose standalone deployment for Claude In A Box.
+# Usage: docker compose up
+# No Kubernetes required — runs the container directly with Docker.
+services:
+  claude-agent:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: claude-in-a-box:dev
+    container_name: claude-agent
+    environment:
+      - CLAUDE_MODE=${CLAUDE_MODE:-interactive}
+      - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    volumes:
+      - claude-data:/app/.claude
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+
+volumes:
+  claude-data:
