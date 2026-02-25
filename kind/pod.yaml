@@ -1,0 +1,31 @@
+# Minimal dev pod manifest for Phase 3 development testing.
+# Full StatefulSet, RBAC, NetworkPolicy, PVC comes in Phase 4.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: claude-agent-0
+  namespace: default
+  labels:
+    app: claude-agent
+spec:
+  containers:
+  - name: claude-agent
+    image: claude-in-a-box:dev
+    imagePullPolicy: IfNotPresent
+    env:
+    - name: CLAUDE_MODE
+      value: "interactive"
+    livenessProbe:
+      exec:
+        command: ["/usr/local/bin/healthcheck.sh"]
+      initialDelaySeconds: 10
+      periodSeconds: 30
+      timeoutSeconds: 5
+    readinessProbe:
+      exec:
+        command: ["/usr/local/bin/healthcheck.sh"]
+      initialDelaySeconds: 10
+      periodSeconds: 30
+      timeoutSeconds: 5
+    stdin: true
+    tty: true
