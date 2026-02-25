@@ -158,10 +158,11 @@ Plans:
   4. Test KIND cluster uses distinct name (`claude-in-a-box-test`) so `make test-setup` and `make bootstrap` don't collide
   5. README Helm verification command uses correct label selector (`app=claude-in-a-box`)
   6. REQUIREMENTS.md checkboxes match actual implementation status (DEV-01, DEV-02, DEV-03, DEV-05, DOC-01 marked `[x]`)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 09-01-PLAN.md — TBD
+- [ ] 09-01-PLAN.md — Fix .dockerignore, wire readiness probe, correct README label, update REQUIREMENTS.md checkboxes
+- [ ] 09-02-PLAN.md — Fix test cluster name collision and add BATS integration tests to CI
 
 ## Progress
 
@@ -179,4 +180,4 @@ Note: Phase 5 and Phase 6 can execute in parallel (both depend on Phase 4, neith
 | 6. Intelligence Layer | 2/2 | Complete | 2026-02-25 |
 | 7. Production Packaging | 2/2 | Complete | 2026-02-25 |
 | 8. Documentation & Release | 1/1 | Complete | 2026-02-25 |
-| 9. Tech Debt Cleanup | 0/1 | Pending | — |
+| 9. Tech Debt Cleanup | 0/2 | Pending | — |
