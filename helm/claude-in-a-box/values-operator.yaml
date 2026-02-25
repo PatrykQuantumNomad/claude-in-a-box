@@ -1,0 +1,6 @@
+# Operator security profile.
+# Adds mutation permissions (pod delete, exec, rollout restart).
+# Usage: helm install claude-agent ./helm/claude-in-a-box -f helm/claude-in-a-box/values-operator.yaml
+
+operator:
+  enabled: true

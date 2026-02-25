@@ -1,0 +1,23 @@
+Claude-in-a-box has been deployed!
+
+1. Check pod status:
+
+   kubectl get pods -l app={{ include "claude-in-a-box.name" . }} -n {{ .Release.Namespace }}
+
+2. Wait for the pod to be ready:
+
+   kubectl wait --for=condition=ready pod/{{ include "claude-in-a-box.fullname" . }}-0 -n {{ .Release.Namespace }} --timeout=120s
+
+3. Attach to the Claude session:
+
+   kubectl attach -it {{ include "claude-in-a-box.fullname" . }}-0 -n {{ .Release.Namespace }}
+
+4. To enable operator-tier RBAC (mutation permissions), upgrade with:
+
+   helm upgrade {{ .Release.Name }} ./helm/claude-in-a-box -f helm/claude-in-a-box/values-operator.yaml
+
+{{- if .Values.operator.enabled }}
+
+NOTE: Operator RBAC is ENABLED. The service account has mutation permissions
+(pod delete, exec create, deployment/statefulset update/patch).
+{{- end }}

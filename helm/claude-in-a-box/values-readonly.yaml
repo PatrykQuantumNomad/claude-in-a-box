@@ -1,0 +1,7 @@
+# Readonly security profile (explicit overlay).
+# This matches the default values.yaml -- included for explicitness.
+# Usage: helm install claude-agent ./helm/claude-in-a-box -f helm/claude-in-a-box/values-readonly.yaml
+
+# Operator RBAC disabled (matches default)
+operator:
+  enabled: false

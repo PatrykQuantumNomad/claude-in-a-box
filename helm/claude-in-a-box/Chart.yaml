@@ -1,0 +1,7 @@
+# Source: Helm chart specification https://helm.sh/docs/topics/charts/
+apiVersion: v2
+name: claude-in-a-box
+description: AI-powered DevOps agent with full debugging toolkit
+type: application
+version: 0.1.0
+appVersion: "dev"

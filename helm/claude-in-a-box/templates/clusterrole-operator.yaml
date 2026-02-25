@@ -1,0 +1,23 @@
+{{- if .Values.operator.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "claude-in-a-box.fullname" . }}-operator
+  labels:
+    {{- include "claude-in-a-box.labels" . | nindent 4 }}
+    tier: operator
+rules:
+  - apiGroups: [""]
+    resources:
+      - pods
+    verbs: ["delete"]
+  - apiGroups: [""]
+    resources:
+      - pods/exec
+    verbs: ["create"]
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+      - statefulsets
+    verbs: ["update", "patch"]
+{{- end }}

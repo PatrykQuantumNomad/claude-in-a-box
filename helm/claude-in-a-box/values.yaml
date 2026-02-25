@@ -1,0 +1,100 @@
+# Default values for claude-in-a-box.
+# This is the readonly security profile.
+
+# -- Number of replicas (StatefulSet)
+replicaCount: 1
+
+image:
+  # -- Container image repository
+  repository: claude-in-a-box
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+  # -- Image tag (overrides appVersion)
+  tag: "dev"
+
+# -- Image pull secrets for private registries
+imagePullSecrets: []
+
+# -- Override the release name
+nameOverride: ""
+# -- Force resource names to match raw manifests regardless of release name
+fullnameOverride: "claude-agent"
+
+serviceAccount:
+  # -- Create a ServiceAccount
+  create: true
+  # -- ServiceAccount name (auto-generated if empty)
+  name: ""
+  # -- Automount API credentials
+  automountServiceAccountToken: true
+
+# -- Claude Code operating mode (interactive, remote-control, headless)
+claudeMode: "interactive"
+
+# Operator-tier RBAC (elevated debugging permissions)
+operator:
+  # -- Enable operator ClusterRole and ClusterRoleBinding
+  enabled: false
+
+# NetworkPolicy configuration
+networkPolicy:
+  # -- Create NetworkPolicy resource
+  enabled: true
+  egress:
+    dns:
+      # -- Allow DNS egress (UDP/TCP 53)
+      enabled: true
+    https:
+      # -- Allow HTTPS egress (TCP 443)
+      enabled: true
+      # -- CIDR for HTTPS egress (Anthropic API)
+      cidr: "0.0.0.0/0"
+    k8sApi:
+      # -- Allow K8s API server egress (TCP 6443)
+      enabled: true
+      # -- CIDR for K8s API server
+      cidr: "0.0.0.0/0"
+
+# Pod security context
+podSecurityContext:
+  runAsUser: 10000
+  runAsGroup: 10000
+  fsGroup: 10000
+  fsGroupChangePolicy: OnRootMismatch
+  runAsNonRoot: true
+
+# Resource requests and limits
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "2Gi"
+    cpu: "2000m"
+
+# Persistent storage
+persistence:
+  # -- Storage size for PVC
+  size: "1Gi"
+  # -- Storage class (empty = cluster default)
+  storageClassName: ""
+  # -- Access mode
+  accessMode: ReadWriteOnce
+
+# Probes
+livenessProbe:
+  exec:
+    command: ["/usr/local/bin/healthcheck.sh"]
+  initialDelaySeconds: 10
+  periodSeconds: 30
+  timeoutSeconds: 5
+
+readinessProbe:
+  exec:
+    command: ["/usr/local/bin/healthcheck.sh"]
+  initialDelaySeconds: 10
+  periodSeconds: 30
+  timeoutSeconds: 5
+
+# -- Termination grace period
+terminationGracePeriodSeconds: 60

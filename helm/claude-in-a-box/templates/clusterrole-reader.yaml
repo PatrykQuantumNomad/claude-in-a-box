@@ -1,0 +1,34 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "claude-in-a-box.fullname" . }}-reader
+  labels:
+    {{- include "claude-in-a-box.labels" . | nindent 4 }}
+    tier: reader
+rules:
+  - apiGroups: [""]
+    resources:
+      - pods
+      - services
+      - events
+      - nodes
+      - namespaces
+      - configmaps
+      - persistentvolumeclaims
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+      - statefulsets
+      - daemonsets
+      - replicasets
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["batch"]
+    resources:
+      - jobs
+      - cronjobs
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources:
+      - ingresses
+    verbs: ["get", "list", "watch"]

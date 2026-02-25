@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "claude-in-a-box.fullname" . }}-reader
+  labels:
+    {{- include "claude-in-a-box.labels" . | nindent 4 }}
+    tier: reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "claude-in-a-box.fullname" . }}-reader
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "claude-in-a-box.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}

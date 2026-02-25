@@ -1,0 +1,14 @@
+# Airgapped security profile.
+# Restricts egress to cluster-internal only. Uses private registry.
+# Usage: helm install claude-agent ./helm/claude-in-a-box -f helm/claude-in-a-box/values-airgapped.yaml
+
+image:
+  repository: "internal-registry.corp/claude-in-a-box"
+  pullPolicy: IfNotPresent
+
+networkPolicy:
+  egress:
+    https:
+      enabled: false
+    k8sApi:
+      cidr: "10.96.0.1/32"
