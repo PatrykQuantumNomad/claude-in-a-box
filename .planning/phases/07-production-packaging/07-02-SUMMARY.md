@@ -68,7 +68,7 @@ Each task was committed atomically:
 
 1. **Task 1: Create GitHub Actions CI workflow** - `0d21fd4` (feat)
 
-**Plan metadata:** TBD (docs: complete plan)
+**Plan metadata:** `e3d0714` (docs: complete plan)
 
 ## Files Created/Modified
 - `.github/workflows/ci.yaml` - Complete CI pipeline with two parallel jobs (build-scan-publish and helm-lint)
