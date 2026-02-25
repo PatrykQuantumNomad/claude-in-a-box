@@ -125,11 +125,11 @@ Plans:
   2. Three security profile values files (values-readonly.yaml, values-operator.yaml, values-airgapped.yaml) produce correct RBAC and NetworkPolicy configurations
   3. CI pipeline builds the image, runs Trivy vulnerability scan, generates SBOM, and publishes artifacts on every push
   4. `helm template` output matches the validated raw manifests from Phase 4 (Helm wraps, not rewrites)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
+- [ ] 07-01-PLAN.md — Helm chart with templates, security profile values files, and golden file tests (K8S-06)
+- [ ] 07-02-PLAN.md — CI pipeline with Docker build, Trivy scan, SBOM generation, and Helm validation (IMG-06)
 
 ### Phase 8: Documentation & Release
 **Goal**: A new user can go from zero to running Claude-in-a-box in their cluster by following the README alone
