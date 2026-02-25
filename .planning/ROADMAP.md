@@ -110,11 +110,11 @@ Plans:
   1. Claude Code inside the pod can use MCP tools to query Kubernetes resources (pods, deployments, services) without shelling out to kubectl
   2. Pre-built DevOps skills for pod diagnosis, log analysis, incident triage, and network debugging are available in Claude Code's skill set
   3. CLAUDE.md inside the container is auto-populated at startup with cluster name, namespace, node count, Kubernetes version, and available tools
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
+- [ ] 06-01-PLAN.md — MCP config, DevOps skills library, and Dockerfile updates (INT-01, INT-02)
+- [ ] 06-02-PLAN.md — CLAUDE.md generation script and entrypoint wiring (DOC-02)
 
 ### Phase 7: Production Packaging
 **Goal**: Helm chart enables parameterized deployment into any production cluster, and CI/CD pipeline ensures every image is scanned and traceable
@@ -158,6 +158,6 @@ Note: Phase 5 and Phase 6 can execute in parallel (both depend on Phase 4, neith
 | 3. Local Development Environment | 2/2 | Complete | 2026-02-25 |
 | 4. Kubernetes Manifests & RBAC | 2/2 | Complete | 2026-02-25 |
 | 5. Integration Testing | 2/2 | Complete | 2026-02-25 |
-| 6. Intelligence Layer | 0/0 | Not started | - |
+| 6. Intelligence Layer | 0/2 | Planned | - |
 | 7. Production Packaging | 0/0 | Not started | - |
 | 8. Documentation & Release | 0/0 | Not started | - |
