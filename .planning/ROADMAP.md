@@ -12,7 +12,7 @@ Claude In A Box delivers a containerized Claude Code deployment image with a cur
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Container Foundation** - Multi-stage Dockerfile producing deployment-ready image with Ubuntu 24.04, Claude Code, and 30+ debugging tools
+- [x] **Phase 1: Container Foundation** - Multi-stage Dockerfile producing deployment-ready image with Ubuntu 24.04, Claude Code, and 30+ debugging tools
 - [ ] **Phase 2: Entrypoint & Authentication** - Startup modes, signal handling, OAuth authentication, health probes, and error UX
 - [ ] **Phase 3: Local Development Environment** - KIND cluster, bootstrap scripts, Makefile workflow, and Docker Compose standalone deployment
 - [ ] **Phase 4: Kubernetes Manifests & RBAC** - StatefulSet, tiered RBAC, NetworkPolicy, PVC persistence, and operator-tier opt-in
@@ -37,7 +37,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01: Multi-stage Dockerfile, .dockerignore, and verify-tools.sh
-- [ ] 01-02: Build image, verify all success criteria, fix issues
+- [x] 01-02: Build image, verify all success criteria, fix issues
 
 ### Phase 2: Entrypoint & Authentication
 **Goal**: Container starts correctly in all three modes, handles signals for graceful shutdown, authenticates via token or interactive flow, and reports health to orchestrators
@@ -153,7 +153,7 @@ Note: Phase 5 and Phase 6 can execute in parallel (both depend on Phase 4, neith
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Container Foundation | 1/2 | In Progress | - |
+| 1. Container Foundation | 2/2 | Complete | 2026-02-25 |
 | 2. Entrypoint & Authentication | 0/0 | Not started | - |
 | 3. Local Development Environment | 0/0 | Not started | - |
 | 4. Kubernetes Manifests & RBAC | 0/0 | Not started | - |
