@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Intelligence Layer** - MCP server configuration, DevOps skills library, and cluster-aware CLAUDE.md
 - [x] **Phase 7: Production Packaging** - Helm chart with security profiles and CI/CD pipeline with vulnerability scanning
 - [x] **Phase 8: Documentation & Release** - README with setup guide, architecture overview, and usage instructions
-- [ ] **Phase 9: Tech Debt Cleanup** - Fix dockerignore, wire readiness probe, add BATS to CI, fix cluster name collision, fix README label
+- [x] **Phase 9: Tech Debt Cleanup** - Fix dockerignore, wire readiness probe, add BATS to CI, fix cluster name collision, fix README label
 
 ## Phase Details
 
@@ -161,7 +161,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 09-01-PLAN.md — Fix .dockerignore, wire readiness probe, correct README label, update REQUIREMENTS.md checkboxes
+- [x] 09-01-PLAN.md — Fix .dockerignore, wire readiness probe, correct README label, update REQUIREMENTS.md checkboxes
 - [x] 09-02-PLAN.md — Fix test cluster name collision and add BATS integration tests to CI
 
 ## Progress
