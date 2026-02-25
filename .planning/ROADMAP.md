@@ -47,7 +47,7 @@ Plans:
   1. Setting `CLAUDE_MODE=remote-control|interactive|headless` starts Claude Code in the corresponding mode
   2. Sending SIGTERM to the container triggers graceful Claude Code shutdown (no SIGKILL needed within 60s grace period)
   3. Setting `CLAUDE_CODE_OAUTH_TOKEN` env var authenticates Claude Code without interactive login
-  4. HTTP liveness and readiness probe endpoints return appropriate status codes reflecting Claude Code process health
+  4. Exec-based liveness and readiness probe scripts exit 0/1 reflecting Claude Code process health and authentication state
   5. Auth failure produces a human-readable error message with remediation steps (not raw API JSON)
 **Plans**: 2 plans
 
