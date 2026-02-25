@@ -96,3 +96,36 @@ jobs:
 
       - name: Golden file test
         run: bash scripts/helm-golden-test.sh
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up BATS
+        uses: bats-core/bats-action@4.0.0
+
+      - name: Create KIND cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: claude-in-a-box-test
+          config: kind/cluster-test.yaml
+          wait: 120s
+
+      - name: Install Calico CNI
+        run: bash scripts/install-calico.sh
+
+      - name: Build and load image
+        run: |
+          docker build -f docker/Dockerfile -t claude-in-a-box:dev .
+          kind load docker-image claude-in-a-box:dev --name claude-in-a-box-test
+
+      - name: Deploy manifests
+        run: |
+          kubectl apply -f k8s/base/
+          kubectl wait --for=condition=Ready pod -l app=claude-agent \
+            -n default --timeout=120s
+
+      - name: Run integration tests
+        run: bats --tap tests/integration/*.bats
