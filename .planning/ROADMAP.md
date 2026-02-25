@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Container Foundation** - Multi-stage Dockerfile producing deployment-ready image with Ubuntu 24.04, Claude Code, and 30+ debugging tools
 - [x] **Phase 2: Entrypoint & Authentication** - Startup modes, signal handling, OAuth authentication, health probes, and error UX
 - [x] **Phase 3: Local Development Environment** - KIND cluster, bootstrap scripts, Makefile workflow, and Docker Compose standalone deployment
-- [ ] **Phase 4: Kubernetes Manifests & RBAC** - StatefulSet, tiered RBAC, NetworkPolicy, PVC persistence, and operator-tier opt-in
+- [x] **Phase 4: Kubernetes Manifests & RBAC** - StatefulSet, tiered RBAC, NetworkPolicy, PVC persistence, and operator-tier opt-in
 - [ ] **Phase 5: Integration Testing** - KIND-based test suite validating RBAC, networking, tools, persistence, and Remote Control
 - [ ] **Phase 6: Intelligence Layer** - MCP server configuration, DevOps skills library, and cluster-aware CLAUDE.md
 - [ ] **Phase 7: Production Packaging** - Helm chart with security profiles and CI/CD pipeline with vulnerability scanning
@@ -84,7 +84,7 @@ Plans:
 
 Plans:
 - [x] 04-01-PLAN.md — Base K8s manifests: ServiceAccount, RBAC reader, NetworkPolicy, StatefulSet with PVC (K8S-01, K8S-02, K8S-03, K8S-04)
-- [ ] 04-02-PLAN.md — Operator RBAC overlay and Makefile integration (K8S-05)
+- [x] 04-02-PLAN.md — Operator RBAC overlay and Makefile integration (K8S-05)
 
 ### Phase 5: Integration Testing
 **Goal**: Automated test suite that validates the complete system works end-to-end in a KIND cluster before any code is shipped
@@ -156,7 +156,7 @@ Note: Phase 5 and Phase 6 can execute in parallel (both depend on Phase 4, neith
 | 1. Container Foundation | 2/2 | Complete | 2026-02-25 |
 | 2. Entrypoint & Authentication | 2/2 | Complete | 2026-02-25 |
 | 3. Local Development Environment | 2/2 | Complete | 2026-02-25 |
-| 4. Kubernetes Manifests & RBAC | 1/2 | In Progress | - |
+| 4. Kubernetes Manifests & RBAC | 2/2 | Complete | 2026-02-25 |
 | 5. Integration Testing | 0/0 | Not started | - |
 | 6. Intelligence Layer | 0/0 | Not started | - |
 | 7. Production Packaging | 0/0 | Not started | - |

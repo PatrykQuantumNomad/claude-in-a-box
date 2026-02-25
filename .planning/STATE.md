@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Deploy once, control from anywhere -- an AI-powered DevOps agent running inside your cluster that you can access from your phone without losing context, environment access, or session state.
-**Current focus:** Phase 4 in progress -- Kubernetes Manifests & RBAC
+**Current focus:** Phase 4 complete -- ready for Phase 5 (Integration Testing) or Phase 6 (Intelligence Layer)
 
 ## Current Position
 
-Phase: 4 of 8 (Kubernetes Manifests & RBAC)
-Plan: 1 of 2 in current phase (04-01 complete)
-Status: Executing phase -- 04-01 base manifests done, 04-02 operator RBAC remaining
-Last activity: 2026-02-25 -- Completed 04-01 (Base K8s manifests)
+Phase: 5 of 8 (Integration Testing)
+Plan: 0 of 0 in current phase (not yet planned)
+Status: Phase 4 complete, Phase 5 pending planning
+Last activity: 2026-02-25 -- Completed 04-02 (Operator RBAC overlay and Makefile integration)
 
-Progress: [████░░░░░░] 43%
+Progress: [█████░░░░░] 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
+- Total plans completed: 8
 - Average duration: 4min
-- Total execution time: 0.43 hours
+- Total execution time: 0.47 hours
 
 **By Phase:**
 
@@ -30,10 +30,10 @@ Progress: [████░░░░░░] 43%
 | 01-container-foundation | 2/2 | 10min | 5min |
 | 02-entrypoint-authentication | 2/2 | 8min | 4min |
 | 03-local-development-environment | 2/2 | 8min | 4min |
-| 04-kubernetes-manifests-rbac | 1/2 | 2min | 2min |
+| 04-kubernetes-manifests-rbac | 2/2 | 4min | 2min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (2min), 02-02 (6min), 03-01 (4min), 03-02 (4min), 04-01 (2min)
+- Last 5 plans: 02-02 (6min), 03-01 (4min), 03-02 (4min), 04-01 (2min), 04-02 (2min)
 - Trend: stable/improving
 
 *Updated after each plan completion*
@@ -64,6 +64,9 @@ Recent decisions affecting current work:
 - 04-01: No namespace manifest -- default namespace does not need explicit creation
 - 04-01: CIDR 0.0.0.0/0 for egress 443/6443 -- Anthropic IPs rotate, API server IP varies per cluster
 - 04-01: Python YAML validation instead of kubectl dry-run (no cluster context available at plan time)
+- 04-02: Operator overlay in k8s/overlays/ not k8s/base/ -- directory separation ensures opt-in semantics
+- 04-02: POD_MANIFEST variable kept for backward compat but no longer used by deploy/redeploy
+- 04-02: Python YAML validation instead of kubectl dry-run (consistent with 04-01)
 
 ### Pending Todos
 
@@ -78,5 +81,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 04-01-PLAN.md (Base K8s manifests)
-Resume file: .planning/phases/04-kubernetes-manifests-rbac/04-01-SUMMARY.md
+Stopped at: Completed 04-02-PLAN.md (Operator RBAC overlay and Makefile integration) -- Phase 4 complete
+Resume file: .planning/phases/04-kubernetes-manifests-rbac/04-02-SUMMARY.md
