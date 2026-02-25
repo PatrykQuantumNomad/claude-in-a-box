@@ -263,7 +263,8 @@ RUN chmod +x /usr/local/bin/verify-tools.sh
 COPY --chown=agent:agent scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY --chown=agent:agent scripts/healthcheck.sh /usr/local/bin/healthcheck.sh
 COPY --chown=agent:agent scripts/readiness.sh /usr/local/bin/readiness.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh /usr/local/bin/readiness.sh
+COPY --chown=agent:agent scripts/generate-claude-md.sh /usr/local/bin/generate-claude-md.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh /usr/local/bin/readiness.sh /usr/local/bin/generate-claude-md.sh
 
 # -- Copy MCP server configuration (project scope) ----------------------------
 COPY --chown=agent:agent .mcp.json /app/.mcp.json

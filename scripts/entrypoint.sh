@@ -98,6 +98,28 @@ validate_mode
 validate_auth
 
 # =============================================================================
+# Stage DevOps Skills into PVC
+# Skills are baked into the image at /opt/claude-skills/ but the PVC mounted
+# at /app/.claude/ overlays the container filesystem. Copy skills into the
+# PVC-mounted directory if they are not already present.
+# =============================================================================
+if [ -d /opt/claude-skills ] && [ ! -d /app/.claude/skills ]; then
+    echo "[entrypoint] Staging DevOps skills into PVC..."
+    cp -r /opt/claude-skills /app/.claude/skills
+    echo "[entrypoint] Skills staged: $(ls /app/.claude/skills/ 2>/dev/null | tr '\n' ' ')"
+elif [ -d /app/.claude/skills ]; then
+    echo "[entrypoint] Skills already present in PVC"
+fi
+
+# =============================================================================
+# Generate CLAUDE.md with cluster context
+# Must run before exec so Claude Code has context at startup.
+# Failures are non-fatal (standalone mode has no K8s access).
+# =============================================================================
+echo "[entrypoint] Generating CLAUDE.md with cluster context..."
+/usr/local/bin/generate-claude-md.sh || echo "[entrypoint] WARNING: CLAUDE.md generation failed (non-fatal)"
+
+# =============================================================================
 # Mode Dispatch with exec
 # exec replaces this shell process with Claude Code so that signals
 # from tini (PID 1) are delivered directly to Claude Code.
