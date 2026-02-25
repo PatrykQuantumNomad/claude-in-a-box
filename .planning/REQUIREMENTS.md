@@ -35,11 +35,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Local Development
 
-- [ ] **DEV-01**: KIND cluster configuration with 1 control plane + 2 worker nodes
-- [ ] **DEV-02**: Idempotent bootstrap, teardown, and redeploy scripts for KIND cluster
-- [ ] **DEV-03**: Makefile wrapping build-load-deploy chain (make build, load, deploy, bootstrap, teardown, redeploy)
+- [x] **DEV-01**: KIND cluster configuration with 1 control plane + 2 worker nodes
+- [x] **DEV-02**: Idempotent bootstrap, teardown, and redeploy scripts for KIND cluster
+- [x] **DEV-03**: Makefile wrapping build-load-deploy chain (make build, load, deploy, bootstrap, teardown, redeploy)
 - [x] **DEV-04**: KIND integration test suite validating RBAC, networking, tool verification, persistence, and Remote Control connectivity
-- [ ] **DEV-05**: Docker Compose reference file for standalone non-Kubernetes deployments
+- [x] **DEV-05**: Docker Compose reference file for standalone non-Kubernetes deployments
 
 ### Intelligence Layer
 
@@ -48,7 +48,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Documentation
 
-- [ ] **DOC-01**: README.md with setup guide, architecture overview, and usage instructions
+- [x] **DOC-01**: README.md with setup guide, architecture overview, and usage instructions
 - [x] **DOC-02**: CLAUDE.md project context file auto-populated with cluster environment at startup
 
 ## v2 Requirements
@@ -107,14 +107,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | K8S-04 | Phase 4: Kubernetes Manifests & RBAC | Complete |
 | K8S-05 | Phase 4: Kubernetes Manifests & RBAC | Complete |
 | K8S-06 | Phase 7: Production Packaging | Complete |
-| DEV-01 | Phase 3: Local Development Environment | Pending |
-| DEV-02 | Phase 3: Local Development Environment | Pending |
-| DEV-03 | Phase 3: Local Development Environment | Pending |
+| DEV-01 | Phase 3: Local Development Environment | Complete |
+| DEV-02 | Phase 3: Local Development Environment | Complete |
+| DEV-03 | Phase 3: Local Development Environment | Complete |
 | DEV-04 | Phase 5: Integration Testing | Complete |
-| DEV-05 | Phase 3: Local Development Environment | Pending |
+| DEV-05 | Phase 3: Local Development Environment | Complete |
 | INT-01 | Phase 6: Intelligence Layer | Complete |
 | INT-02 | Phase 6: Intelligence Layer | Complete |
-| DOC-01 | Phase 8: Documentation & Release | Pending |
+| DOC-01 | Phase 8: Documentation & Release | Complete |
 | DOC-02 | Phase 6: Intelligence Layer | Complete |
 
 **Coverage:**

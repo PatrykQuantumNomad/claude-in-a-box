@@ -240,7 +240,7 @@ Pass credentials via a Kubernetes Secret mounted as environment variables, or us
 **Verification:**
 
 ```bash
-kubectl get pods -l app=claude-agent
+kubectl get pods -l app=claude-in-a-box
 kubectl logs claude-agent-0 -c claude-agent
 ```
 
