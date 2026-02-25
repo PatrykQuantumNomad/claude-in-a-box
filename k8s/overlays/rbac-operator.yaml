@@ -1,0 +1,55 @@
+# Operator-tier RBAC overlay for claude-agent.
+#
+# This file is NOT applied by default -- it lives in k8s/overlays/
+# (not k8s/base/) so that `kubectl apply -f k8s/base/` does not include it.
+#
+# Apply manually when elevated debugging permissions are needed:
+#   kubectl apply -f k8s/overlays/rbac-operator.yaml
+#
+# RBAC is additive: applying this overlay adds mutation verbs to the
+# existing reader permissions. It never removes or replaces the reader
+# ClusterRole/ClusterRoleBinding.
+#
+# To revoke operator permissions:
+#   kubectl delete -f k8s/overlays/rbac-operator.yaml
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: claude-agent-operator
+  labels:
+    app: claude-agent
+    tier: operator
+rules:
+  # Pod restarts -- delete pods to trigger recreation by StatefulSet controller
+  - apiGroups: [""]
+    resources:
+      - pods
+    verbs: ["delete"]
+  # Kubectl exec -- create exec subresource for interactive debugging
+  - apiGroups: [""]
+    resources:
+      - pods/exec
+    verbs: ["create"]
+  # Rollout restarts -- update/patch deployments and statefulsets
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+      - statefulsets
+    verbs: ["update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: claude-agent-operator
+  labels:
+    app: claude-agent
+    tier: operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: claude-agent-operator
+subjects:
+  - kind: ServiceAccount
+    name: claude-agent
+    namespace: default
