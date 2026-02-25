@@ -1,0 +1,14 @@
+# Build context exclusions for claude-in-a-box
+# Docker reads .dockerignore from the build context root (./)
+# NOT from alongside the Dockerfile (docker/.dockerignore is ignored)
+.git
+.gitignore
+.planning
+.claude
+!.claude/skills/
+*.md
+LICENSE
+tests/
+kind/
+.github/
+helm/
