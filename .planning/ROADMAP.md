@@ -99,7 +99,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Test infrastructure: KIND test cluster config, Calico CNI install, BATS setup, test helpers, Makefile targets
+- [x] 05-01-PLAN.md — Test infrastructure: KIND test cluster config, Calico CNI install, BATS setup, test helpers, Makefile targets
 - [ ] 05-02-PLAN.md — Test suite: RBAC, networking, tools, persistence, and Remote Control BATS test files
 
 ### Phase 6: Intelligence Layer
@@ -157,7 +157,7 @@ Note: Phase 5 and Phase 6 can execute in parallel (both depend on Phase 4, neith
 | 2. Entrypoint & Authentication | 2/2 | Complete | 2026-02-25 |
 | 3. Local Development Environment | 2/2 | Complete | 2026-02-25 |
 | 4. Kubernetes Manifests & RBAC | 2/2 | Complete | 2026-02-25 |
-| 5. Integration Testing | 0/2 | Planned | - |
+| 5. Integration Testing | 1/2 | In Progress | - |
 | 6. Intelligence Layer | 0/0 | Not started | - |
 | 7. Production Packaging | 0/0 | Not started | - |
 | 8. Documentation & Release | 0/0 | Not started | - |

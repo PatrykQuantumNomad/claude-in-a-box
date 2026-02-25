@@ -38,7 +38,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **DEV-01**: KIND cluster configuration with 1 control plane + 2 worker nodes
 - [ ] **DEV-02**: Idempotent bootstrap, teardown, and redeploy scripts for KIND cluster
 - [ ] **DEV-03**: Makefile wrapping build-load-deploy chain (make build, load, deploy, bootstrap, teardown, redeploy)
-- [ ] **DEV-04**: KIND integration test suite validating RBAC, networking, tool verification, persistence, and Remote Control connectivity
+- [x] **DEV-04**: KIND integration test suite validating RBAC, networking, tool verification, persistence, and Remote Control connectivity
 - [ ] **DEV-05**: Docker Compose reference file for standalone non-Kubernetes deployments
 
 ### Intelligence Layer
@@ -110,7 +110,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DEV-01 | Phase 3: Local Development Environment | Pending |
 | DEV-02 | Phase 3: Local Development Environment | Pending |
 | DEV-03 | Phase 3: Local Development Environment | Pending |
-| DEV-04 | Phase 5: Integration Testing | Pending |
+| DEV-04 | Phase 5: Integration Testing | Complete |
 | DEV-05 | Phase 3: Local Development Environment | Pending |
 | INT-01 | Phase 6: Intelligence Layer | Pending |
 | INT-02 | Phase 6: Intelligence Layer | Pending |

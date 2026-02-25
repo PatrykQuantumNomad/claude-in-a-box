@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Deploy once, control from anywhere -- an AI-powered DevOps agent running inside your cluster that you can access from your phone without losing context, environment access, or session state.
-**Current focus:** Phase 4 complete -- ready for Phase 5 (Integration Testing) or Phase 6 (Intelligence Layer)
+**Current focus:** Phase 5 in progress -- test infrastructure complete, test suite (05-02) next
 
 ## Current Position
 
 Phase: 5 of 8 (Integration Testing)
-Plan: 0 of 0 in current phase (not yet planned)
-Status: Phase 4 complete, Phase 5 pending planning
-Last activity: 2026-02-25 -- Completed 04-02 (Operator RBAC overlay and Makefile integration)
+Plan: 1 of 2 in current phase
+Status: 05-01 complete (test infrastructure), 05-02 pending (test suite)
+Last activity: 2026-02-25 -- Completed 05-01 (Test infrastructure: KIND test cluster, Calico, BATS, helpers, Makefile targets)
 
-Progress: [█████░░░░░] 50%
+Progress: [██████░░░░] 55%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
+- Total plans completed: 9
 - Average duration: 4min
-- Total execution time: 0.47 hours
+- Total execution time: 0.50 hours
 
 **By Phase:**
 
@@ -31,9 +31,10 @@ Progress: [█████░░░░░] 50%
 | 02-entrypoint-authentication | 2/2 | 8min | 4min |
 | 03-local-development-environment | 2/2 | 8min | 4min |
 | 04-kubernetes-manifests-rbac | 2/2 | 4min | 2min |
+| 05-integration-testing | 1/2 | 2min | 2min |
 
 **Recent Trend:**
-- Last 5 plans: 02-02 (6min), 03-01 (4min), 03-02 (4min), 04-01 (2min), 04-02 (2min)
+- Last 5 plans: 03-01 (4min), 03-02 (4min), 04-01 (2min), 04-02 (2min), 05-01 (2min)
 - Trend: stable/improving
 
 *Updated after each plan completion*
@@ -67,6 +68,10 @@ Recent decisions affecting current work:
 - 04-02: Operator overlay in k8s/overlays/ not k8s/base/ -- directory separation ensures opt-in semantics
 - 04-02: POD_MANIFEST variable kept for backward compat but no longer used by deploy/redeploy
 - 04-02: Python YAML validation instead of kubectl dry-run (consistent with 04-01)
+- 05-01: Calico 3.31.4 as CNI for NetworkPolicy enforcement in KIND (kindnet does not enforce)
+- 05-01: BATS v1.13.0 cloned locally into tests/bats/ (gitignored, not committed)
+- 05-01: FELIX_IGNORELOOSERPF=true for KIND compatibility with Calico RPF checks
+- 05-01: test-setup reuses bootstrap pattern with KIND_TEST_CONFIG for Calico-enabled cluster
 
 ### Pending Todos
 
@@ -81,5 +86,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 04-02-PLAN.md (Operator RBAC overlay and Makefile integration) -- Phase 4 complete
-Resume file: .planning/phases/04-kubernetes-manifests-rbac/04-02-SUMMARY.md
+Stopped at: Completed 05-01-PLAN.md (Test infrastructure: KIND test cluster, Calico, BATS, helpers, Makefile targets)
+Resume file: .planning/phases/05-integration-testing/05-01-SUMMARY.md
