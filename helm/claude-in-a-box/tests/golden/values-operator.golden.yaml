@@ -233,10 +233,10 @@ spec:
           readinessProbe:
             exec:
               command:
-              - /usr/local/bin/healthcheck.sh
+              - /usr/local/bin/readiness.sh
             initialDelaySeconds: 10
             periodSeconds: 30
-            timeoutSeconds: 5
+            timeoutSeconds: 10
           resources:
             limits:
               cpu: 2000m
