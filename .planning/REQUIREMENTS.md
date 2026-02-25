@@ -49,7 +49,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Documentation
 
 - [ ] **DOC-01**: README.md with setup guide, architecture overview, and usage instructions
-- [ ] **DOC-02**: CLAUDE.md project context file auto-populated with cluster environment at startup
+- [x] **DOC-02**: CLAUDE.md project context file auto-populated with cluster environment at startup
 
 ## v2 Requirements
 
@@ -115,7 +115,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INT-01 | Phase 6: Intelligence Layer | Complete |
 | INT-02 | Phase 6: Intelligence Layer | Complete |
 | DOC-01 | Phase 8: Documentation & Release | Pending |
-| DOC-02 | Phase 6: Intelligence Layer | Pending |
+| DOC-02 | Phase 6: Intelligence Layer | Complete |
 
 **Coverage:**
 - v1 requirements: 26 total

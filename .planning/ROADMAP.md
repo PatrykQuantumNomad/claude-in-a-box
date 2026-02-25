@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Local Development Environment** - KIND cluster, bootstrap scripts, Makefile workflow, and Docker Compose standalone deployment
 - [x] **Phase 4: Kubernetes Manifests & RBAC** - StatefulSet, tiered RBAC, NetworkPolicy, PVC persistence, and operator-tier opt-in
 - [x] **Phase 5: Integration Testing** - KIND-based test suite validating RBAC, networking, tools, persistence, and Remote Control
-- [ ] **Phase 6: Intelligence Layer** - MCP server configuration, DevOps skills library, and cluster-aware CLAUDE.md
+- [x] **Phase 6: Intelligence Layer** - MCP server configuration, DevOps skills library, and cluster-aware CLAUDE.md
 - [ ] **Phase 7: Production Packaging** - Helm chart with security profiles and CI/CD pipeline with vulnerability scanning
 - [ ] **Phase 8: Documentation & Release** - README with setup guide, architecture overview, and usage instructions
 
@@ -114,7 +114,7 @@ Plans:
 
 Plans:
 - [x] 06-01-PLAN.md — MCP config, DevOps skills library, and Dockerfile updates (INT-01, INT-02)
-- [ ] 06-02-PLAN.md — CLAUDE.md generation script and entrypoint wiring (DOC-02)
+- [x] 06-02-PLAN.md — CLAUDE.md generation script and entrypoint wiring (DOC-02)
 
 ### Phase 7: Production Packaging
 **Goal**: Helm chart enables parameterized deployment into any production cluster, and CI/CD pipeline ensures every image is scanned and traceable
@@ -158,6 +158,6 @@ Note: Phase 5 and Phase 6 can execute in parallel (both depend on Phase 4, neith
 | 3. Local Development Environment | 2/2 | Complete | 2026-02-25 |
 | 4. Kubernetes Manifests & RBAC | 2/2 | Complete | 2026-02-25 |
 | 5. Integration Testing | 2/2 | Complete | 2026-02-25 |
-| 6. Intelligence Layer | 1/2 | In Progress | - |
+| 6. Intelligence Layer | 2/2 | Complete | 2026-02-25 |
 | 7. Production Packaging | 0/0 | Not started | - |
 | 8. Documentation & Release | 0/0 | Not started | - |

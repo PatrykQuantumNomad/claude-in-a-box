@@ -1,3 +1,16 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: executing
+last_updated: "2026-02-25T20:04:33.756Z"
+progress:
+  total_phases: 8
+  completed_phases: 6
+  total_plans: 16
+  completed_plans: 12
+---
+
 # Project State
 
 ## Project Reference
@@ -5,23 +18,23 @@
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Deploy once, control from anywhere -- an AI-powered DevOps agent running inside your cluster that you can access from your phone without losing context, environment access, or session state.
-**Current focus:** Phase 6 in progress -- MCP config and DevOps skills delivered (06-01), entrypoint wiring next (06-02)
+**Current focus:** Phase 6 complete -- Intelligence layer fully wired (MCP, skills, CLAUDE.md generation). Phase 7 next.
 
 ## Current Position
 
-Phase: 6 of 8 (Intelligence Layer)
-Plan: 1 of 2 in current phase (06-01 complete)
-Status: Plan 06-01 complete -- MCP config, 4 DevOps skills, and Dockerfile updates shipped
-Last activity: 2026-02-25 -- Completed 06-01 (MCP config, DevOps skills library, Dockerfile updates)
+Phase: 6 of 8 (Intelligence Layer) -- COMPLETE
+Plan: 2 of 2 in current phase (all complete)
+Status: Phase 6 complete -- Intelligence layer fully wired (MCP config, DevOps skills, CLAUDE.md generation, entrypoint wiring)
+Last activity: 2026-02-25 -- Completed 06-02 (CLAUDE.md generation script and entrypoint wiring)
 
-Progress: [███████░░░] 68%
+Progress: [████████░░] 75%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
+- Total plans completed: 12
 - Average duration: 3min
-- Total execution time: 0.57 hours
+- Total execution time: 0.60 hours
 
 **By Phase:**
 
@@ -32,10 +45,10 @@ Progress: [███████░░░] 68%
 | 03-local-development-environment | 2/2 | 8min | 4min |
 | 04-kubernetes-manifests-rbac | 2/2 | 4min | 2min |
 | 05-integration-testing | 2/2 | 4min | 2min |
-| 06-intelligence-layer | 1/2 | 2min | 2min |
+| 06-intelligence-layer | 2/2 | 4min | 2min |
 
 **Recent Trend:**
-- Last 5 plans: 04-01 (2min), 04-02 (2min), 05-01 (2min), 05-02 (2min), 06-01 (2min)
+- Last 5 plans: 04-02 (2min), 05-01 (2min), 05-02 (2min), 06-01 (2min), 06-02 (2min)
 - Trend: stable/improving
 
 *Updated after each plan completion*
@@ -80,6 +93,9 @@ Recent decisions affecting current work:
 - 06-01: Skills staged to /opt/claude-skills/ (not /app/.claude/skills/) to survive PVC overlay at /app/.claude/
 - 06-01: MCP server invoked via npx (not direct binary) for kubernetes-mcp-server npm package
 - 06-01: mcp__kubernetes__* wildcard permission grants all MCP kubernetes tools without prompting
+- 06-02: Standalone mode exits 0 (not 1) -- Docker Compose is a valid deployment, not an error
+- 06-02: CLAUDE.md generation failure is non-fatal -- entrypoint continues even if K8s API unreachable
+- 06-02: Skills staging only on first start (checks /app/.claude/skills/ existence) to preserve user mods
 
 ### Pending Todos
 
@@ -94,5 +110,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 06-01-PLAN.md (MCP config, DevOps skills library, Dockerfile updates)
-Resume file: .planning/phases/06-intelligence-layer/06-01-SUMMARY.md
+Stopped at: Completed 06-02-PLAN.md (CLAUDE.md generation script and entrypoint wiring) -- Phase 6 COMPLETE
+Resume file: .planning/phases/06-intelligence-layer/06-02-SUMMARY.md
