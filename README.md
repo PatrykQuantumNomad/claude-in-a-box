@@ -1,7 +1,6 @@
 # Claude In A Box
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![CI](https://github.com/PatrykQuantumNomad/claude-in-a-box/actions/workflows/ci.yaml/badge.svg)](https://github.com/PatrykQuantumNomad/claude-in-a-box/actions/workflows/ci.yaml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![CI](https://github.com/PatrykQuantumNomad/claude-in-a-box/actions/workflows/ci.yaml/badge.svg)](https://github.com/PatrykQuantumNomad/claude-in-a-box/actions/workflows/ci.yaml)
 
 Deploy once, control from anywhere -- an AI-powered DevOps agent running inside your Kubernetes cluster, accessible from your phone via Remote Control.
 
