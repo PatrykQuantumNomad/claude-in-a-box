@@ -64,11 +64,11 @@ Plans:
   2. `make teardown` destroys the KIND cluster cleanly and `make bootstrap` recreates it idempotently
   3. `make redeploy` rebuilds the image, loads into KIND, and restarts the pod without cluster recreation
   4. `docker compose up` starts Claude-in-a-box in standalone mode without Kubernetes
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
+- [ ] 03-01-PLAN.md — KIND cluster config, dev pod manifest, and Makefile (DEV-01, DEV-02, DEV-03)
+- [ ] 03-02-PLAN.md — Docker Compose standalone deployment file (DEV-05)
 
 ### Phase 4: Kubernetes Manifests & RBAC
 **Goal**: Complete raw Kubernetes manifest set that deploys Claude-in-a-box with correct RBAC, network isolation, and persistence into any cluster via kubectl apply
@@ -155,7 +155,7 @@ Note: Phase 5 and Phase 6 can execute in parallel (both depend on Phase 4, neith
 |-------|----------------|--------|-----------|
 | 1. Container Foundation | 2/2 | Complete | 2026-02-25 |
 | 2. Entrypoint & Authentication | 2/2 | Complete | 2026-02-25 |
-| 3. Local Development Environment | 0/0 | Not started | - |
+| 3. Local Development Environment | 0/2 | Planned | - |
 | 4. Kubernetes Manifests & RBAC | 0/0 | Not started | - |
 | 5. Integration Testing | 0/0 | Not started | - |
 | 6. Intelligence Layer | 0/0 | Not started | - |
