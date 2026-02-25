@@ -9,6 +9,23 @@ set -euo pipefail
 CLAUDE_MODE="${CLAUDE_MODE:-interactive}"
 
 # =============================================================================
+# Mode Validation
+# Reject unknown modes before any other checks.
+# =============================================================================
+validate_mode() {
+    case "$CLAUDE_MODE" in
+        remote-control|interactive|headless)
+            return 0
+            ;;
+        *)
+            echo "[entrypoint] ERROR: Unknown CLAUDE_MODE '${CLAUDE_MODE}'"
+            echo "  Valid modes: remote-control, interactive, headless"
+            exit 1
+            ;;
+    esac
+}
+
+# =============================================================================
 # Auth Validation
 # Checks for credentials via env vars or credential files.
 # Does NOT call `claude auth status` (avoids 3-5s Node.js startup latency).
@@ -69,6 +86,11 @@ validate_auth() {
 if [ ! -f /app/.claude.json ] || ! grep -q "hasCompletedOnboarding" /app/.claude.json 2>/dev/null; then
     echo "[entrypoint] WARNING: /app/.claude.json missing or incomplete -- Claude Code may show onboarding wizard"
 fi
+
+# =============================================================================
+# Validate Mode (reject unknown modes before auth check)
+# =============================================================================
+validate_mode
 
 # =============================================================================
 # Validate Authentication
