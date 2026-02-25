@@ -1,0 +1,202 @@
+---
+# Source: claude-in-a-box/templates/networkpolicy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: claude-agent-netpol
+  namespace: default
+  labels:
+    app: claude-in-a-box
+    app.kubernetes.io/name: claude-in-a-box
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: claude-in-a-box-0.1.0
+spec:
+  podSelector:
+    matchLabels:
+      app: claude-in-a-box
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: []
+  egress:
+    - ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    - to:
+        - ipBlock:
+            cidr: 10.96.0.1/32
+      ports:
+        - protocol: TCP
+          port: 6443
+---
+# Source: claude-in-a-box/templates/serviceaccount.yaml
+# Dedicated ServiceAccount for claude-agent pod.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: claude-agent
+  namespace: default
+  labels:
+    app: claude-in-a-box
+    app.kubernetes.io/name: claude-in-a-box
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: claude-in-a-box-0.1.0
+automountServiceAccountToken: true
+---
+# Source: claude-in-a-box/templates/clusterrole-reader.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: claude-agent-reader
+  labels:
+    app: claude-in-a-box
+    app.kubernetes.io/name: claude-in-a-box
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: claude-in-a-box-0.1.0
+    tier: reader
+rules:
+  - apiGroups: [""]
+    resources:
+      - pods
+      - services
+      - events
+      - nodes
+      - namespaces
+      - configmaps
+      - persistentvolumeclaims
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+      - statefulsets
+      - daemonsets
+      - replicasets
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["batch"]
+    resources:
+      - jobs
+      - cronjobs
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources:
+      - ingresses
+    verbs: ["get", "list", "watch"]
+---
+# Source: claude-in-a-box/templates/clusterrolebinding-reader.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: claude-agent-reader
+  labels:
+    app: claude-in-a-box
+    app.kubernetes.io/name: claude-in-a-box
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: claude-in-a-box-0.1.0
+    tier: reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: claude-agent-reader
+subjects:
+  - kind: ServiceAccount
+    name: claude-agent
+    namespace: default
+---
+# Source: claude-in-a-box/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: claude-agent
+  namespace: default
+  labels:
+    app: claude-in-a-box
+    app.kubernetes.io/name: claude-in-a-box
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: claude-in-a-box-0.1.0
+spec:
+  clusterIP: None
+  selector:
+    app: claude-in-a-box
+  ports:
+    - port: 80
+      name: placeholder
+---
+# Source: claude-in-a-box/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: claude-agent
+  namespace: default
+  labels:
+    app: claude-in-a-box
+    app.kubernetes.io/name: claude-in-a-box
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: claude-in-a-box-0.1.0
+spec:
+  serviceName: claude-agent
+  replicas: 1
+  selector:
+    matchLabels:
+      app: claude-in-a-box
+  template:
+    metadata:
+      labels:
+        app: claude-in-a-box
+    spec:
+      serviceAccountName: claude-agent
+      terminationGracePeriodSeconds: 60
+      securityContext:
+        fsGroup: 10000
+        fsGroupChangePolicy: OnRootMismatch
+        runAsGroup: 10000
+        runAsNonRoot: true
+        runAsUser: 10000
+      containers:
+        - name: claude-agent
+          image: "internal-registry.corp/claude-in-a-box:dev"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: CLAUDE_MODE
+              value: "interactive"
+          volumeMounts:
+            - name: claude-data
+              mountPath: /app/.claude
+          livenessProbe:
+            exec:
+              command:
+              - /usr/local/bin/healthcheck.sh
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+              - /usr/local/bin/healthcheck.sh
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 2Gi
+            requests:
+              cpu: 250m
+              memory: 512Mi
+          stdin: true
+          tty: true
+  volumeClaimTemplates:
+    - metadata:
+        name: claude-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
