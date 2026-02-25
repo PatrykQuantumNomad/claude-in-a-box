@@ -18,11 +18,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Entrypoint & Lifecycle
 
-- [ ] **ENT-01**: Entrypoint supports three startup modes via CLAUDE_MODE env var (remote-control, interactive, headless)
-- [ ] **ENT-02**: Entrypoint uses exec to hand off PID 1 to Claude Code for correct SIGTERM handling
-- [ ] **ENT-03**: Authentication via CLAUDE_CODE_OAUTH_TOKEN env var with fallback to interactive login
-- [ ] **ENT-04**: Liveness and readiness probes for Kubernetes pod lifecycle management
-- [ ] **ENT-05**: Auth failure detection with actionable error messages (not raw 401 JSON)
+- [x] **ENT-01**: Entrypoint supports three startup modes via CLAUDE_MODE env var (remote-control, interactive, headless)
+- [x] **ENT-02**: Entrypoint uses exec to hand off PID 1 to Claude Code for correct SIGTERM handling
+- [x] **ENT-03**: Authentication via CLAUDE_CODE_OAUTH_TOKEN env var with fallback to interactive login
+- [x] **ENT-04**: Liveness and readiness probes for Kubernetes pod lifecycle management
+- [x] **ENT-05**: Auth failure detection with actionable error messages (not raw 401 JSON)
 
 ### Kubernetes Deployment
 
@@ -96,11 +96,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | IMG-04 | Phase 1: Container Foundation | Complete |
 | IMG-05 | Phase 1: Container Foundation | Complete |
 | IMG-06 | Phase 7: Production Packaging | Pending |
-| ENT-01 | Phase 2: Entrypoint & Authentication | Pending |
-| ENT-02 | Phase 2: Entrypoint & Authentication | Pending |
-| ENT-03 | Phase 2: Entrypoint & Authentication | Pending |
-| ENT-04 | Phase 2: Entrypoint & Authentication | Pending |
-| ENT-05 | Phase 2: Entrypoint & Authentication | Pending |
+| ENT-01 | Phase 2: Entrypoint & Authentication | Complete |
+| ENT-02 | Phase 2: Entrypoint & Authentication | Complete |
+| ENT-03 | Phase 2: Entrypoint & Authentication | Complete |
+| ENT-04 | Phase 2: Entrypoint & Authentication | Complete |
+| ENT-05 | Phase 2: Entrypoint & Authentication | Complete |
 | K8S-01 | Phase 4: Kubernetes Manifests & RBAC | Pending |
 | K8S-02 | Phase 4: Kubernetes Manifests & RBAC | Pending |
 | K8S-03 | Phase 4: Kubernetes Manifests & RBAC | Pending |

@@ -5,32 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Deploy once, control from anywhere -- an AI-powered DevOps agent running inside your cluster that you can access from your phone without losing context, environment access, or session state.
-**Current focus:** Phase 1: Container Foundation
+**Current focus:** Phase 2: Entrypoint & Authentication
 
 ## Current Position
 
-Phase: 1 of 8 (Container Foundation)
-Plan: 2 of 2 in current phase (complete)
-Status: Phase complete -- all plans executed and verified
-Last activity: 2026-02-25 -- Completed 01-02 (build verification, human approved)
+Phase: 2 of 8 (Entrypoint & Authentication)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-25 -- Completed 02-01 (entrypoint, health probes, Dockerfile wiring)
 
-Progress: [█░░░░░░░░░] 12%
+Progress: [██░░░░░░░░] 19%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 5min
-- Total execution time: 0.17 hours
+- Total plans completed: 3
+- Average duration: 4min
+- Total execution time: 0.20 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-container-foundation | 2/2 | 10min | 5min |
+| 02-entrypoint-authentication | 1/2 | 2min | 2min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2min), 01-02 (8min)
+- Last 5 plans: 01-01 (2min), 01-02 (8min), 02-01 (2min)
 - Trend: --
 
 *Updated after each plan completion*
@@ -51,6 +52,9 @@ Recent decisions affecting current work:
 - 01-01: No exact apt version pins -- Ubuntu 24.04 tag is the version pin
 - 01-02: Fixed claude symlink to @anthropic-ai/claude-code/cli.js (original .bin/claude path doesn't exist)
 - 01-02: Fixed vim.tiny binary name in verify-tools.sh (vim-tiny package provides vim.tiny not vim)
+- 02-01: No claude auth status in entrypoint (file/env checks only, avoids 3-5s Node.js latency)
+- 02-01: Exec probes over HTTP health server (avoids orphaned background process problem)
+- 02-01: Headless mode requires CLAUDE_PROMPT env var (single-prompt execution pattern)
 
 ### Pending Todos
 
@@ -65,5 +69,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 01-02-PLAN.md (Docker image build and verification -- Phase 1 complete)
-Resume file: .planning/phases/01-container-foundation/01-02-SUMMARY.md
+Stopped at: Completed 02-01-PLAN.md (entrypoint, health probes, Dockerfile wiring)
+Resume file: .planning/phases/02-entrypoint-authentication/02-01-SUMMARY.md
