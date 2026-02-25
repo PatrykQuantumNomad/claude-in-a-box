@@ -205,7 +205,9 @@ COPY --from=claude-installer /usr/local/bin/node /usr/local/bin/
 COPY --from=claude-installer /usr/local/lib/node_modules /usr/local/lib/node_modules
 
 # Create symlinks for claude and nodejs
-RUN ln -s /usr/local/lib/node_modules/.bin/claude /usr/local/bin/claude && \
+# npm global installs put bin entries in /usr/local/bin/ in the installer stage,
+# but we only copy /usr/local/lib/node_modules, so we recreate the symlinks manually.
+RUN ln -s /usr/local/lib/node_modules/@anthropic-ai/claude-code/cli.js /usr/local/bin/claude && \
     ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
 # -- Create non-root user (UID 10000 / GID 10000 per CONTEXT.md) -------------

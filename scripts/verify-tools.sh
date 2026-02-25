@@ -129,7 +129,7 @@ echo ""
 # =============================================================================
 echo "--- Standard Utilities ---"
 check_tool "git" "git --version"
-check_tool "vim" "vim --version"
+check_tool "vim.tiny" "vim.tiny --version"
 check_tool "nano" "nano --version"
 check_tool "unzip" "unzip -v 2>&1 | head -1"
 check_tool "file" "file --version"
