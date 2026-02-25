@@ -232,7 +232,8 @@ RUN cat > /app/.claude/settings.json << 'SETTINGS'
       "Bash",
       "Read",
       "Edit",
-      "Write"
+      "Write",
+      "mcp__kubernetes__*"
     ],
     "defaultMode": "bypassPermissions"
   },
@@ -263,6 +264,15 @@ COPY --chown=agent:agent scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY --chown=agent:agent scripts/healthcheck.sh /usr/local/bin/healthcheck.sh
 COPY --chown=agent:agent scripts/readiness.sh /usr/local/bin/readiness.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh /usr/local/bin/readiness.sh
+
+# -- Copy MCP server configuration (project scope) ----------------------------
+COPY --chown=agent:agent .mcp.json /app/.mcp.json
+
+# -- Copy DevOps skills to staging location -----------------------------------
+# Skills are staged in /opt/claude-skills/ because the PVC mounts at /app/.claude/
+# and would overlay any files COPY'd into /app/.claude/skills/ at build time.
+# The entrypoint copies them from staging into the PVC on first start.
+COPY --chown=agent:agent .claude/skills/ /opt/claude-skills/
 
 # -- Docker HEALTHCHECK using liveness probe script ----------------------------
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
