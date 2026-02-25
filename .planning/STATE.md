@@ -5,33 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Deploy once, control from anywhere -- an AI-powered DevOps agent running inside your cluster that you can access from your phone without losing context, environment access, or session state.
-**Current focus:** Phase 2: Entrypoint & Authentication
+**Current focus:** Phase 2 complete -- ready for Phase 3: Local Development Environment
 
 ## Current Position
 
-Phase: 2 of 8 (Entrypoint & Authentication)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-25 -- Completed 02-01 (entrypoint, health probes, Dockerfile wiring)
+Phase: 2 of 8 (Entrypoint & Authentication) - COMPLETE
+Plan: 2 of 2 in current phase (complete)
+Status: Phase complete -- all plans executed and verified
+Last activity: 2026-02-25 -- Completed 02-02 (build verification, human approved)
 
-Progress: [██░░░░░░░░] 19%
+Progress: [██░░░░░░░░] 25%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
+- Total plans completed: 4
 - Average duration: 4min
-- Total execution time: 0.20 hours
+- Total execution time: 0.27 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-container-foundation | 2/2 | 10min | 5min |
-| 02-entrypoint-authentication | 1/2 | 2min | 2min |
+| 02-entrypoint-authentication | 2/2 | 8min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2min), 01-02 (8min), 02-01 (2min)
+- Last 5 plans: 01-01 (2min), 01-02 (8min), 02-01 (2min), 02-02 (6min)
 - Trend: --
 
 *Updated after each plan completion*
@@ -55,6 +55,7 @@ Recent decisions affecting current work:
 - 02-01: No claude auth status in entrypoint (file/env checks only, avoids 3-5s Node.js latency)
 - 02-01: Exec probes over HTTP health server (avoids orphaned background process problem)
 - 02-01: Headless mode requires CLAUDE_PROMPT env var (single-prompt execution pattern)
+- 02-02: Added validate_mode() before validate_auth() for correct error routing
 
 ### Pending Todos
 
@@ -69,5 +70,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 02-01-PLAN.md (entrypoint, health probes, Dockerfile wiring)
-Resume file: .planning/phases/02-entrypoint-authentication/02-01-SUMMARY.md
+Stopped at: Completed 02-02-PLAN.md (build verification, human approved)
+Resume file: .planning/phases/02-entrypoint-authentication/02-02-SUMMARY.md
