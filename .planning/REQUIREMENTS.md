@@ -1,7 +1,7 @@
 # Requirements: Claude In A Box
 
 **Defined:** 2026-02-25
-**Core Value:** Deploy once, control from anywhere — an AI-powered DevOps agent running inside your cluster that you can access from your phone without losing context, environment access, or session state.
+**Core Value:** Deploy once, control from anywhere -- an AI-powered DevOps agent running inside your cluster that you can access from your phone without losing context, environment access, or session state.
 
 ## v1 Requirements
 
@@ -90,38 +90,38 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| IMG-01 | — | Pending |
-| IMG-02 | — | Pending |
-| IMG-03 | — | Pending |
-| IMG-04 | — | Pending |
-| IMG-05 | — | Pending |
-| IMG-06 | — | Pending |
-| ENT-01 | — | Pending |
-| ENT-02 | — | Pending |
-| ENT-03 | — | Pending |
-| ENT-04 | — | Pending |
-| ENT-05 | — | Pending |
-| K8S-01 | — | Pending |
-| K8S-02 | — | Pending |
-| K8S-03 | — | Pending |
-| K8S-04 | — | Pending |
-| K8S-05 | — | Pending |
-| K8S-06 | — | Pending |
-| DEV-01 | — | Pending |
-| DEV-02 | — | Pending |
-| DEV-03 | — | Pending |
-| DEV-04 | — | Pending |
-| DEV-05 | — | Pending |
-| INT-01 | — | Pending |
-| INT-02 | — | Pending |
-| DOC-01 | — | Pending |
-| DOC-02 | — | Pending |
+| IMG-01 | Phase 1: Container Foundation | Pending |
+| IMG-02 | Phase 1: Container Foundation | Pending |
+| IMG-03 | Phase 1: Container Foundation | Pending |
+| IMG-04 | Phase 1: Container Foundation | Pending |
+| IMG-05 | Phase 1: Container Foundation | Pending |
+| IMG-06 | Phase 7: Production Packaging | Pending |
+| ENT-01 | Phase 2: Entrypoint & Authentication | Pending |
+| ENT-02 | Phase 2: Entrypoint & Authentication | Pending |
+| ENT-03 | Phase 2: Entrypoint & Authentication | Pending |
+| ENT-04 | Phase 2: Entrypoint & Authentication | Pending |
+| ENT-05 | Phase 2: Entrypoint & Authentication | Pending |
+| K8S-01 | Phase 4: Kubernetes Manifests & RBAC | Pending |
+| K8S-02 | Phase 4: Kubernetes Manifests & RBAC | Pending |
+| K8S-03 | Phase 4: Kubernetes Manifests & RBAC | Pending |
+| K8S-04 | Phase 4: Kubernetes Manifests & RBAC | Pending |
+| K8S-05 | Phase 4: Kubernetes Manifests & RBAC | Pending |
+| K8S-06 | Phase 7: Production Packaging | Pending |
+| DEV-01 | Phase 3: Local Development Environment | Pending |
+| DEV-02 | Phase 3: Local Development Environment | Pending |
+| DEV-03 | Phase 3: Local Development Environment | Pending |
+| DEV-04 | Phase 5: Integration Testing | Pending |
+| DEV-05 | Phase 3: Local Development Environment | Pending |
+| INT-01 | Phase 6: Intelligence Layer | Pending |
+| INT-02 | Phase 6: Intelligence Layer | Pending |
+| DOC-01 | Phase 8: Documentation & Release | Pending |
+| DOC-02 | Phase 6: Intelligence Layer | Pending |
 
 **Coverage:**
 - v1 requirements: 26 total
-- Mapped to phases: 0
-- Unmapped: 26
+- Mapped to phases: 26
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-25*
-*Last updated: 2026-02-25 after initial definition*
+*Last updated: 2026-02-25 after roadmap creation*
