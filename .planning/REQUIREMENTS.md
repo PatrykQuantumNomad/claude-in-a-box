@@ -26,10 +26,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Kubernetes Deployment
 
-- [ ] **K8S-01**: StatefulSet with single replica and stable pod identity (claude-agent-0)
-- [ ] **K8S-02**: ServiceAccount with read-only ClusterRole (get/list/watch on pods, services, deployments, events, nodes, namespaces, configmaps, ingresses, PVCs, jobs, cronjobs, statefulsets, daemonsets, replicasets)
-- [ ] **K8S-03**: Egress-only NetworkPolicy allowing Anthropic API (TCP 443), K8s API server (TCP 6443), and DNS (UDP/TCP 53)
-- [ ] **K8S-04**: PersistentVolumeClaim for OAuth token and session persistence at ~/.claude/
+- [x] **K8S-01**: StatefulSet with single replica and stable pod identity (claude-agent-0)
+- [x] **K8S-02**: ServiceAccount with read-only ClusterRole (get/list/watch on pods, services, deployments, events, nodes, namespaces, configmaps, ingresses, PVCs, jobs, cronjobs, statefulsets, daemonsets, replicasets)
+- [x] **K8S-03**: Egress-only NetworkPolicy allowing Anthropic API (TCP 443), K8s API server (TCP 6443), and DNS (UDP/TCP 53)
+- [x] **K8S-04**: PersistentVolumeClaim for OAuth token and session persistence at ~/.claude/
 - [ ] **K8S-05**: Operator-tier ClusterRole (opt-in) adding delete on pods, create on pods/exec, update/patch on deployments and statefulsets
 - [ ] **K8S-06**: Helm chart with parameterized templates and security profile values files (values-readonly.yaml, values-operator.yaml, values-airgapped.yaml)
 
@@ -101,10 +101,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ENT-03 | Phase 2: Entrypoint & Authentication | Complete |
 | ENT-04 | Phase 2: Entrypoint & Authentication | Complete |
 | ENT-05 | Phase 2: Entrypoint & Authentication | Complete |
-| K8S-01 | Phase 4: Kubernetes Manifests & RBAC | Pending |
-| K8S-02 | Phase 4: Kubernetes Manifests & RBAC | Pending |
-| K8S-03 | Phase 4: Kubernetes Manifests & RBAC | Pending |
-| K8S-04 | Phase 4: Kubernetes Manifests & RBAC | Pending |
+| K8S-01 | Phase 4: Kubernetes Manifests & RBAC | Complete |
+| K8S-02 | Phase 4: Kubernetes Manifests & RBAC | Complete |
+| K8S-03 | Phase 4: Kubernetes Manifests & RBAC | Complete |
+| K8S-04 | Phase 4: Kubernetes Manifests & RBAC | Complete |
 | K8S-05 | Phase 4: Kubernetes Manifests & RBAC | Pending |
 | K8S-06 | Phase 7: Production Packaging | Pending |
 | DEV-01 | Phase 3: Local Development Environment | Pending |

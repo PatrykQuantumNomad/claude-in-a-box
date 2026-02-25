@@ -83,7 +83,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Base K8s manifests: ServiceAccount, RBAC reader, NetworkPolicy, StatefulSet with PVC (K8S-01, K8S-02, K8S-03, K8S-04)
+- [x] 04-01-PLAN.md — Base K8s manifests: ServiceAccount, RBAC reader, NetworkPolicy, StatefulSet with PVC (K8S-01, K8S-02, K8S-03, K8S-04)
 - [ ] 04-02-PLAN.md — Operator RBAC overlay and Makefile integration (K8S-05)
 
 ### Phase 5: Integration Testing
@@ -156,7 +156,7 @@ Note: Phase 5 and Phase 6 can execute in parallel (both depend on Phase 4, neith
 | 1. Container Foundation | 2/2 | Complete | 2026-02-25 |
 | 2. Entrypoint & Authentication | 2/2 | Complete | 2026-02-25 |
 | 3. Local Development Environment | 2/2 | Complete | 2026-02-25 |
-| 4. Kubernetes Manifests & RBAC | 0/2 | Planned | - |
+| 4. Kubernetes Manifests & RBAC | 1/2 | In Progress | - |
 | 5. Integration Testing | 0/0 | Not started | - |
 | 6. Intelligence Layer | 0/0 | Not started | - |
 | 7. Production Packaging | 0/0 | Not started | - |
