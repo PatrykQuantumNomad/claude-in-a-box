@@ -140,10 +140,10 @@ Plans:
   2. README includes architecture diagram showing the three-layer system (operator, deployment, local dev) and data flow
   3. README documents all three deployment methods (KIND local, Docker Compose standalone, Helm production) with working commands
   4. README covers troubleshooting for the top 5 failure modes identified during development (auth, networking, image staleness, signals, RBAC)
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 08-01: TBD
+- [ ] 08-01-PLAN.md — Comprehensive README.md with quickstart, architecture diagram, deployment methods, and troubleshooting (DOC-01)
 
 ## Progress
 
@@ -160,4 +160,4 @@ Note: Phase 5 and Phase 6 can execute in parallel (both depend on Phase 4, neith
 | 5. Integration Testing | 2/2 | Complete | 2026-02-25 |
 | 6. Intelligence Layer | 2/2 | Complete | 2026-02-25 |
 | 7. Production Packaging | 2/2 | Complete | 2026-02-25 |
-| 8. Documentation & Release | 0/0 | Not started | - |
+| 8. Documentation & Release | 0/1 | Planning | - |
