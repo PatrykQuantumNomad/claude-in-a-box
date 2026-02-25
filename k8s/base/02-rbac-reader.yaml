@@ -1,0 +1,58 @@
+# Read-only ClusterRole and ClusterRoleBinding for claude-agent.
+# Provides get/list/watch on 14 resource types across 4 API groups.
+# CRITICAL: No secrets access. No mutation verbs. No aggregation labels.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: claude-agent-reader
+  labels:
+    app: claude-agent
+    tier: reader
+rules:
+  # Core API group -- 7 resource types
+  - apiGroups: [""]
+    resources:
+      - pods
+      - services
+      - events
+      - nodes
+      - namespaces
+      - configmaps
+      - persistentvolumeclaims
+    verbs: ["get", "list", "watch"]
+  # Apps API group -- 4 resource types
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+      - statefulsets
+      - daemonsets
+      - replicasets
+    verbs: ["get", "list", "watch"]
+  # Batch API group -- 2 resource types
+  - apiGroups: ["batch"]
+    resources:
+      - jobs
+      - cronjobs
+    verbs: ["get", "list", "watch"]
+  # Networking API group -- 1 resource type
+  - apiGroups: ["networking.k8s.io"]
+    resources:
+      - ingresses
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: claude-agent-reader
+  labels:
+    app: claude-agent
+    tier: reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: claude-agent-reader
+subjects:
+  - kind: ServiceAccount
+    name: claude-agent
+    namespace: default
