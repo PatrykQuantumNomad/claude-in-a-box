@@ -66,8 +66,8 @@ const imageURL = new URL(image, Astro.site);
       }, { amount: 0.15 });
 
       // Stagger reveal cards within their parent container
-      inView(".reveal-stagger", ({ target }) => {
-        const cards = target.querySelectorAll(".reveal-card");
+      inView(".reveal-stagger", (element) => {
+        const cards = element.querySelectorAll(".reveal-card");
         if (cards.length > 0) {
           animate(
             cards,
