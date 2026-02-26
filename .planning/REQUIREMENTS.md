@@ -9,7 +9,7 @@ Requirements for the landing page milestone. Each maps to roadmap phases.
 
 ### Site Infrastructure
 
-- [ ] **SITE-01**: Astro project scaffolded in site/ directory with Tailwind CSS v4 and production build passing
+- [x] **SITE-01**: Astro project scaffolded in site/ directory with Tailwind CSS v4 and production build passing
 - [ ] **SITE-02**: GitHub Actions deploy workflow deploys Astro site to GitHub Pages on push to main
 - [ ] **SITE-03**: Custom domain remotekube.patrykgolabek.dev configured with CNAME and working HTTPS
 - [ ] **SITE-04**: Existing CI workflow ignores site/ changes (paths-ignore filter)
@@ -26,7 +26,7 @@ Requirements for the landing page milestone. Each maps to roadmap phases.
 
 ### Design & Polish
 
-- [ ] **DESIGN-01**: Dark theme design system with consistent color tokens, typography, and spacing
+- [x] **DESIGN-01**: Dark theme design system with consistent color tokens, typography, and spacing
 - [ ] **DESIGN-02**: Scroll-triggered reveal animations on feature cards and sections using motion.js
 - [ ] **DESIGN-03**: Responsive layout working on mobile, tablet, and desktop breakpoints
 - [ ] **DESIGN-04**: SEO meta tags and Open Graph tags for social sharing with preview image
@@ -75,7 +75,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SITE-01 | Phase 10 | Pending |
+| SITE-01 | Phase 10 | Complete |
 | SITE-02 | Phase 10 | Pending |
 | SITE-03 | Phase 10 | Pending |
 | SITE-04 | Phase 10 | Pending |
@@ -86,7 +86,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PAGE-04 | Phase 11 | Pending |
 | PAGE-05 | Phase 11 | Pending |
 | PAGE-06 | Phase 11 | Pending |
-| DESIGN-01 | Phase 10 | Pending |
+| DESIGN-01 | Phase 10 | Complete |
 | DESIGN-02 | Phase 12 | Pending |
 | DESIGN-03 | Phase 11 | Pending |
 | DESIGN-04 | Phase 12 | Pending |
