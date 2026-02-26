@@ -33,3 +33,18 @@ html {
     scroll-behavior: auto;
   }
 }
+
+/* Scroll-triggered animation initial states */
+.reveal-section,
+.reveal-card {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-section,
+  .reveal-card {
+    opacity: 1;
+    transform: none;
+  }
+}
