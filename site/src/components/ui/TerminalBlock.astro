@@ -1,0 +1,56 @@
+---
+interface Props {
+  title: string;
+  commands: string[];
+}
+
+const { title, commands } = Astro.props;
+const codeText = commands.join('\n');
+---
+
+<div class="bg-bg-secondary border border-border rounded-xl overflow-hidden">
+  <div class="bg-bg-tertiary border-b border-border flex items-center justify-between px-4 py-2">
+    <span class="text-text-muted text-xs font-mono">{title}</span>
+    <button
+      class="copy-btn text-text-muted hover:text-text-primary transition-colors text-xs font-mono"
+      data-code={codeText}
+      aria-label={`Copy ${title} commands to clipboard`}
+    >
+      Copy
+    </button>
+  </div>
+  <div class="p-4 overflow-x-auto font-mono text-sm">
+    {commands.map((cmd) => (
+      <div class="flex gap-2">
+        <span class="text-text-muted select-none shrink-0">$</span>
+        <span class="text-text-secondary">{cmd}</span>
+      </div>
+    ))}
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const code = btn.getAttribute('data-code') || '';
+      try {
+        await navigator.clipboard.writeText(code);
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.textContent = original;
+        }, 2000);
+      } catch {
+        // Fallback for non-secure contexts
+        const range = document.createRange();
+        const codeElement = btn.closest('.bg-bg-secondary')?.querySelector('.p-4');
+        if (codeElement) {
+          range.selectNodeContents(codeElement);
+          const selection = window.getSelection();
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+        }
+      }
+    });
+  });
+</script>

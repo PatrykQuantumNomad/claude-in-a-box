@@ -1,0 +1,20 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  icon: string;
+  colSpan?: number;
+  rowSpan?: number;
+}
+
+const { title, description, icon, colSpan = 1, rowSpan = 1 } = Astro.props;
+
+const colClass = colSpan === 2 ? "md:col-span-2" : "";
+const rowClass = rowSpan === 2 ? "md:row-span-2" : "";
+---
+
+<div class:list={["bg-bg-secondary border border-border rounded-2xl p-6", colClass, rowClass]}>
+  <div class="text-3xl mb-4">{icon}</div>
+  <h3 class="text-lg font-semibold text-text-primary mb-2">{title}</h3>
+  <p class="text-text-secondary text-sm leading-relaxed">{description}</p>
+</div>
