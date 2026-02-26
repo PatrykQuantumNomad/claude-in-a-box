@@ -3,7 +3,7 @@
 ## Milestones
 
 - [x] **v1.0 MVP** - Phases 1-9 (shipped 2026-02-25)
-- [x] **v1.1 Landing Page** - Phases 10-12 (shipped 2026-02-26)
+- [ ] **v1.1 Landing Page** - Phases 10-13
 
 ## Phases
 
@@ -35,6 +35,7 @@ See milestones/v1.0-ROADMAP.md for full phase details.
 - [x] **Phase 10: Foundation & Infrastructure** - Astro scaffold, CI/CD, custom domain, design system
 - [x] **Phase 11: Page Content & Components** - Hero, features, architecture, quickstart, use cases, footer, responsive, 404
 - [x] **Phase 12: Polish & Deployment** - Scroll animations, SEO/OG meta tags, final verification
+- [ ] **Phase 13: Fix Stagger Animation Bug** - Fix inView callback signature, restore card visibility
 
 ## Phase Details
 
@@ -84,10 +85,24 @@ Plans:
 - [x] 12-01-PLAN.md — Scroll-triggered reveal animations (motion install, CSS initial states, reveal classes, animation script)
 - [x] 12-02-PLAN.md — SEO/OG meta tags, Twitter Card, OG image, sitemap, robots.txt
 
+### Phase 13: Fix Stagger Animation Bug
+**Goal**: Feature cards and use case cards are visible and animate correctly on scroll, closing the DESIGN-02 gap
+**Depends on**: Phase 12
+**Requirements**: DESIGN-02 (gap closure)
+**Gap Closure**: Closes gaps from v1.1 milestone audit
+**Success Criteria** (what must be TRUE):
+  1. All 6 FeatureCards and 4 UseCaseCards animate into view on scroll (no cards remain invisible)
+  2. No TypeError in browser console from the inView stagger callback
+  3. Build passes with no errors
+**Plans**: 1 plan
+
+Plans:
+- [ ] 13-01-PLAN.md — Fix inView callback signature from `({ target })` to `(element)` in BaseLayout.astro
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 10 -> 11 -> 12
+Phases execute in numeric order: 10 -> 11 -> 12 -> 13
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -95,3 +110,4 @@ Phases execute in numeric order: 10 -> 11 -> 12
 | 10. Foundation & Infrastructure | v1.1 | 2/2 | Complete | 2026-02-26 |
 | 11. Page Content & Components | v1.1 | 2/2 | Complete | 2026-02-26 |
 | 12. Polish & Deployment | v1.1 | 2/2 | Complete | 2026-02-26 |
+| 13. Fix Stagger Animation Bug | v1.1 | 0/1 | Pending | — |
