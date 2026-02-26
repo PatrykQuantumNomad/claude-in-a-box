@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Landing Page
-status: executing
-last_updated: "2026-02-26T15:51:13Z"
+status: complete
+last_updated: "2026-02-26T15:57:17Z"
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 6
-  completed_plans: 5
+  completed_plans: 6
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Deploy once, control from anywhere -- an AI-powered DevOps agent running inside your cluster that you can access from your phone without losing context, environment access, or session state.
-**Current focus:** v1.1 Landing Page -- Phase 12 in progress, 12-01 complete
+**Current focus:** v1.1 Landing Page -- COMPLETE
 
 ## Current Position
 
-Phase: 12 of 12 (Polish & Deployment)
-Plan: 1 of 2 in Phase 12 complete
-Status: 12-01 complete -- scroll animations added to all below-fold sections
-Last activity: 2026-02-26 -- Completed 12-01 (motion install, reveal classes, animation script)
+Phase: 12 of 12 (Polish & Deployment) -- COMPLETE
+Plan: 2 of 2 in Phase 12 complete
+Status: v1.1 Landing Page milestone complete -- all phases shipped
+Last activity: 2026-02-26 -- Completed 12-02 (SEO, OG meta tags, sitemap, robots.txt)
 
-Progress: [█████████░] 90% (Phase 12: 1/2 plans complete)
+Progress: [██████████] 100% (Phase 12: 2/2 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 17 (v1.0)
-- v1.1 plans completed: 5
-- Total execution time: 12min
+- v1.1 plans completed: 6
+- Total execution time: 14min
 
 **By Phase:**
 
@@ -42,7 +42,7 @@ Progress: [█████████░] 90% (Phase 12: 1/2 plans complete)
 |-------|-------|-------|----------|
 | 10 | 2/2 | 6min | 3min |
 | 11 | 2/2 | 4min | 2min |
-| 12 | 1/2 | 2min | 2min |
+| 12 | 2/2 | 4min | 2min |
 
 ## Accumulated Context
 
@@ -70,6 +70,9 @@ Recent for v1.1:
 - motion vanilla JS API (animate/inView/stagger) for scroll animations -- no React dependency
 - Compositor-only CSS (opacity + transform) for zero CLS animations
 - Hero excluded from reveal animations -- above fold must be immediately visible
+- OG tags use property= attribute, Twitter tags use name= attribute (spec-correct)
+- Absolute URLs via new URL(path, Astro.site) for OG/Twitter image and URL tags
+- @astrojs/sitemap for build-time sitemap-index.xml generation
 
 ### Pending Todos
 
@@ -82,5 +85,5 @@ None -- GitHub Pages source and DNS CNAME configured during Phase 10 execution.
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 12-01-PLAN.md (motion install, reveal classes, animation script for scroll-triggered animations)
+Stopped at: Completed 12-02-PLAN.md (SEO meta tags, OG image, sitemap, robots.txt) -- v1.1 milestone complete
 Resume file: .planning/ROADMAP.md
