@@ -45,12 +45,14 @@ if [ -z "$CALICO_NS" ]; then
   exit 1
 fi
 
+echo "==> Waiting for calico-node pods to be ready (initial rollout)..."
+kubectl rollout status daemonset/calico-node -n "$CALICO_NS" --timeout=300s
+
 echo "==> Fixing Reverse Path Filtering for KIND nodes..."
 kubectl -n "$CALICO_NS" set env daemonset/calico-node FELIX_IGNORELOOSERPF=true
 
-echo "==> Waiting for calico-node pods to be ready..."
-kubectl wait --for=condition=Ready pods -l k8s-app=calico-node \
-  -n "$CALICO_NS" --timeout=120s
+echo "==> Waiting for calico-node rollout after env update..."
+kubectl rollout status daemonset/calico-node -n "$CALICO_NS" --timeout=300s
 
 echo "==> Restarting CoreDNS to recover from pre-CNI scheduling..."
 kubectl -n kube-system rollout restart deployment/coredns
