@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Landing Page
 status: executing
-last_updated: "2026-02-26T11:55:46Z"
+last_updated: "2026-02-26T14:57:15Z"
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 4
+  completed_plans: 3
 ---
 
 # Project State
@@ -18,30 +18,30 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Deploy once, control from anywhere -- an AI-powered DevOps agent running inside your cluster that you can access from your phone without losing context, environment access, or session state.
-**Current focus:** v1.1 Landing Page -- Phase 10 complete, ready for Phase 11
+**Current focus:** v1.1 Landing Page -- Phase 11 in progress (Plan 01 complete, Plan 02 pending)
 
 ## Current Position
 
-Phase: 10 of 12 (Foundation & Infrastructure) -- COMPLETE
-Plan: 2 of 2 in Phase 10 complete
-Status: Phase 10 complete, pending verification
-Last activity: 2026-02-26 -- Completed 10-02 (CI/CD isolation, deploy workflow, CNAME)
+Phase: 11 of 12 (Page Content & Components)
+Plan: 1 of 2 in Phase 11 complete
+Status: Executing Phase 11 -- Plan 01 complete
+Last activity: 2026-02-26 -- Completed 11-01 (UI primitives, Hero, Footer, 404, smooth scroll)
 
-Progress: [██████████] 100% (Phase 10: 2/2 plans)
+Progress: [███████░░░] 75% (Phase 11: 1/2 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 17 (v1.0)
-- v1.1 plans completed: 2
-- Total execution time: 6min
+- v1.1 plans completed: 3
+- Total execution time: 8min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 10 | 2/2 | 6min | 3min |
-| 11 | 0/TBD | -- | -- |
+| 11 | 1/2 | 2min | 2min |
 | 12 | 0/TBD | -- | -- |
 
 ## Accumulated Context
@@ -61,6 +61,9 @@ Recent for v1.1:
 - Fontsource variable fonts for self-hosted Inter and JetBrains Mono
 - Path-based workflow isolation: deploy-site triggers on site/**, CI ignores site/**
 - withastro/action@v5 with path: ./site for subdirectory builds
+- Astro class:list directive for conditional bento grid span classes
+- TerminalBlock uses processed script (not is:inline) for auto-deduplication
+- Copy-to-clipboard with Range/Selection API fallback for non-secure contexts
 
 ### Pending Todos
 
@@ -73,5 +76,5 @@ None -- GitHub Pages source and DNS CNAME configured during Phase 10 execution.
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Phase 10 complete -- all plans executed, pending verification
+Stopped at: Completed 11-01-PLAN.md (UI primitives, Hero, Footer, 404, smooth scroll)
 Resume file: .planning/ROADMAP.md

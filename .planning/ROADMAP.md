@@ -67,7 +67,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 11-01-PLAN.md — UI primitives (FeatureCard, TerminalBlock, UseCaseCard), Hero, Footer, 404 page, smooth scroll
+- [x] 11-01-PLAN.md — UI primitives (FeatureCard, TerminalBlock, UseCaseCard), Hero, Footer, 404 page, smooth scroll
 - [ ] 11-02-PLAN.md — Features bento grid, Architecture SVG, Quickstart terminal blocks, Use Cases, page composition
 
 ### Phase 12: Polish & Deployment
@@ -92,5 +92,5 @@ Phases execute in numeric order: 10 -> 11 -> 12
 |-------|-----------|----------------|--------|-----------|
 | 1-9 | v1.0 | 17/17 | Complete | 2026-02-25 |
 | 10. Foundation & Infrastructure | v1.1 | 2/2 | Complete | 2026-02-26 |
-| 11. Page Content & Components | v1.1 | 0/2 | Planned | - |
+| 11. Page Content & Components | v1.1 | 1/2 | In Progress | - |
 | 12. Polish & Deployment | v1.1 | 0/0 | Not started | - |
