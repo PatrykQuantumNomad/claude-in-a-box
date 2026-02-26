@@ -32,7 +32,7 @@ See milestones/v1.0-ROADMAP.md for full phase details.
 
 ### v1.1 Landing Page
 
-- [ ] **Phase 10: Foundation & Infrastructure** - Astro scaffold, CI/CD, custom domain, design system
+- [x] **Phase 10: Foundation & Infrastructure** - Astro scaffold, CI/CD, custom domain, design system
 - [ ] **Phase 11: Page Content & Components** - Hero, features, architecture, quickstart, use cases, footer, responsive, 404
 - [ ] **Phase 12: Polish & Deployment** - Scroll animations, SEO/OG meta tags, final verification
 
@@ -92,6 +92,6 @@ Phases execute in numeric order: 10 -> 11 -> 12
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1-9 | v1.0 | 17/17 | Complete | 2026-02-25 |
-| 10. Foundation & Infrastructure | v1.1 | 1/2 | In Progress | - |
+| 10. Foundation & Infrastructure | v1.1 | 2/2 | Complete | 2026-02-26 |
 | 11. Page Content & Components | v1.1 | 0/0 | Not started | - |
 | 12. Polish & Deployment | v1.1 | 0/0 | Not started | - |
