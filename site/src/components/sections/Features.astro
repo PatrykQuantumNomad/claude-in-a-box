@@ -1,0 +1,48 @@
+---
+import FeatureCard from "../ui/FeatureCard.astro";
+---
+
+<section class="py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-3xl md:text-4xl font-bold text-text-primary text-center mb-4">
+      Key Capabilities
+    </h2>
+    <p class="text-text-secondary text-center mb-12 max-w-2xl mx-auto">
+      Everything you need to manage Kubernetes from anywhere
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <FeatureCard
+        icon="📱"
+        title="Remote Control"
+        description="Manage your cluster from your phone or claude.ai. Start a session, run diagnostics, and resolve incidents without opening a laptop."
+        colSpan={2}
+      />
+      <FeatureCard
+        icon="🔗"
+        title="MCP Kubernetes Integration"
+        description="In-cluster read-only access to 14 Kubernetes resource types via kubernetes-mcp-server. Query pods, deployments, services, and more."
+      />
+      <FeatureCard
+        icon="▶️"
+        title="Three Startup Modes"
+        description="Interactive for hands-on work, remote-control for mobile access, or headless for automated scripted operations."
+      />
+      <FeatureCard
+        icon="🛡️"
+        title="Tiered RBAC Security"
+        description="Choose readonly, operator, or airgapped security profiles. Fine-grained Kubernetes RBAC with NetworkPolicy isolation."
+      />
+      <FeatureCard
+        icon="🧰"
+        title="32+ DevOps Tools"
+        description="kubectl, helm, k9s, stern, trivy, grype, and 26 more tools pre-installed. A complete debugging toolkit in one container."
+      />
+      <FeatureCard
+        icon="🔒"
+        title="NetworkPolicy Isolation"
+        description="Egress-only networking with DNS, HTTPS, and Kubernetes API restrictions. No inbound ports exposed. Defense in depth."
+        colSpan={2}
+      />
+    </div>
+  </div>
+</section>

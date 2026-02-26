@@ -1,0 +1,36 @@
+---
+import UseCaseCard from "../ui/UseCaseCard.astro";
+---
+
+<section class="py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-3xl md:text-4xl font-bold text-text-primary text-center mb-4">
+      Real-World Use Cases
+    </h2>
+    <p class="text-text-secondary text-center mb-12">
+      How teams use RemoteKube in production
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <UseCaseCard
+        icon="🚨"
+        title="Incident Response"
+        description="Check pod status, read logs, and diagnose issues from your phone during on-call. No VPN or laptop required."
+      />
+      <UseCaseCard
+        icon="🐛"
+        title="Remote Debugging"
+        description="Exec into pods, inspect configs, and trace network issues from anywhere. Full debugging toolkit at your fingertips."
+      />
+      <UseCaseCard
+        icon="📊"
+        title="Cluster Monitoring"
+        description="Watch deployments, check resource health, and review events without setting up port forwards or VPN tunnels."
+      />
+      <UseCaseCard
+        icon="⚙️"
+        title="Automated Operations"
+        description="Use headless mode for scripted health checks, automated reporting, and routine maintenance tasks."
+      />
+    </div>
+  </div>
+</section>
