@@ -4,8 +4,12 @@ on:
   push:
     branches: ["*"]
     tags: ["v*"]
+    paths-ignore:
+      - "site/**"
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "site/**"
 
 permissions:
   contents: read
