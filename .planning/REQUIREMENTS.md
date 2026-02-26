@@ -75,28 +75,28 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SITE-01 | — | Pending |
-| SITE-02 | — | Pending |
-| SITE-03 | — | Pending |
-| SITE-04 | — | Pending |
-| SITE-05 | — | Pending |
-| PAGE-01 | — | Pending |
-| PAGE-02 | — | Pending |
-| PAGE-03 | — | Pending |
-| PAGE-04 | — | Pending |
-| PAGE-05 | — | Pending |
-| PAGE-06 | — | Pending |
-| DESIGN-01 | — | Pending |
-| DESIGN-02 | — | Pending |
-| DESIGN-03 | — | Pending |
-| DESIGN-04 | — | Pending |
-| DESIGN-05 | — | Pending |
+| SITE-01 | Phase 10 | Pending |
+| SITE-02 | Phase 10 | Pending |
+| SITE-03 | Phase 10 | Pending |
+| SITE-04 | Phase 10 | Pending |
+| SITE-05 | Phase 10 | Pending |
+| PAGE-01 | Phase 11 | Pending |
+| PAGE-02 | Phase 11 | Pending |
+| PAGE-03 | Phase 11 | Pending |
+| PAGE-04 | Phase 11 | Pending |
+| PAGE-05 | Phase 11 | Pending |
+| PAGE-06 | Phase 11 | Pending |
+| DESIGN-01 | Phase 10 | Pending |
+| DESIGN-02 | Phase 12 | Pending |
+| DESIGN-03 | Phase 11 | Pending |
+| DESIGN-04 | Phase 12 | Pending |
+| DESIGN-05 | Phase 11 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 16 total
-- Mapped to phases: 0
-- Unmapped: 16
+- Mapped to phases: 16
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-25*
-*Last updated: 2026-02-25 after milestone v1.1 definition*
+*Last updated: 2026-02-25 after roadmap creation*
