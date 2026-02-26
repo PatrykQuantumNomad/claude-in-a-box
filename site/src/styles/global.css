@@ -23,3 +23,13 @@
   /* Spacing base (Tailwind v4 multiplier) */
   --spacing: 0.25rem;
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
