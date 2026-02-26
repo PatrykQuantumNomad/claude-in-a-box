@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # =============================================================================
 # Claude In A Box - Multi-Stage Dockerfile
 # Produces a deployment-ready Ubuntu 24.04 image with Claude Code and 32+
