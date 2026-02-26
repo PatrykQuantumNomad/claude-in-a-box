@@ -125,11 +125,16 @@ jobs:
           DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile -t claude-in-a-box:dev .
           kind load docker-image claude-in-a-box:dev --name claude-in-a-box-test
 
-      - name: Deploy manifests
+      - name: Deploy manifests in test mode
         run: |
           kubectl apply -f k8s/base/
           kubectl set env statefulset/claude-agent CLAUDE_TEST_MODE=true -n default
-          kubectl rollout status statefulset/claude-agent -n default --timeout=120s
+          # The initial pod lacks CLAUDE_TEST_MODE; delete so StatefulSet recreates
+          # it from the updated template
+          until kubectl get pod claude-agent-0 -n default &>/dev/null; do sleep 1; done
+          kubectl delete pod claude-agent-0 -n default --grace-period=0 --force
+          kubectl wait --for=condition=Ready pod/claude-agent-0 \
+            -n default --timeout=180s
 
       - name: Run integration tests
         run: bats --tap tests/integration/*.bats
