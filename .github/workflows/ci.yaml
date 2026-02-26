@@ -128,8 +128,8 @@ jobs:
       - name: Deploy manifests
         run: |
           kubectl apply -f k8s/base/
-          kubectl wait --for=condition=Ready pod -l app=claude-agent \
-            -n default --timeout=120s
+          kubectl set env statefulset/claude-agent CLAUDE_TEST_MODE=true -n default
+          kubectl rollout status statefulset/claude-agent -n default --timeout=120s
 
       - name: Run integration tests
         run: bats --tap tests/integration/*.bats

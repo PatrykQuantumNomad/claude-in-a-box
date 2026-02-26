@@ -93,6 +93,18 @@ fi
 validate_mode
 
 # =============================================================================
+# Test Mode
+# When CLAUDE_TEST_MODE=true, skip auth and Claude startup. Keep container
+# alive for CI integration tests that only need kubectl exec access.
+# =============================================================================
+if [ "${CLAUDE_TEST_MODE:-}" = "true" ]; then
+    echo "[entrypoint] TEST MODE: skipping auth and Claude startup"
+    /usr/local/bin/generate-claude-md.sh || echo "[entrypoint] WARNING: CLAUDE.md generation failed (non-fatal)"
+    echo "[entrypoint] TEST MODE: container ready -- sleeping indefinitely"
+    exec sleep infinity
+fi
+
+# =============================================================================
 # Validate Authentication
 # =============================================================================
 validate_auth
