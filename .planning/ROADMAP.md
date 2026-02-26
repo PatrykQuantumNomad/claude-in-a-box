@@ -48,11 +48,11 @@ See milestones/v1.0-ROADMAP.md for full phase details.
   3. Pushing a change to any file outside site/ triggers only the existing CI pipeline (not the deploy workflow)
   4. The site uses a consistent dark theme design system with defined color tokens, typography (Inter + JetBrains Mono), and spacing -- visible on even a placeholder page
   5. Docker build context does not include the site/ directory (verified via .dockerignore)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 10-01: TBD
-- [ ] 10-02: TBD
+- [ ] 10-01-PLAN.md — Scaffold Astro project with Tailwind CSS v4, dark theme design system, placeholder page
+- [ ] 10-02-PLAN.md — CI/CD isolation (deploy workflow, paths-ignore), CNAME, .dockerignore
 
 ### Phase 11: Page Content & Components
 **Goal**: Visitors see a complete, responsive landing page with all content sections that communicates the product value and drives them to the GitHub repo
@@ -92,6 +92,6 @@ Phases execute in numeric order: 10 -> 11 -> 12
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1-9 | v1.0 | 17/17 | Complete | 2026-02-25 |
-| 10. Foundation & Infrastructure | v1.1 | 0/0 | Not started | - |
+| 10. Foundation & Infrastructure | v1.1 | 0/2 | Planned | - |
 | 11. Page Content & Components | v1.1 | 0/0 | Not started | - |
 | 12. Polish & Deployment | v1.1 | 0/0 | Not started | - |
