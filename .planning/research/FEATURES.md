@@ -1,212 +1,325 @@
-# Feature Research
+# Feature Research: Landing Page for Claude In A Box
 
-**Domain:** Containerized AI agent deployment for Kubernetes DevOps debugging
+**Domain:** Open-source DevOps tool marketing landing page
 **Researched:** 2026-02-25
-**Confidence:** MEDIUM-HIGH
+**Confidence:** HIGH
 
 ## Feature Landscape
 
+This documents the feature landscape for a **marketing landing page** at `remotekube.patrykgolabek.dev` -- NOT the core product features (those are in `.planning/research/FEATURES.md`). Every feature below is a page section, design element, or interactive component that makes the landing page effective.
+
 ### Table Stakes (Users Expect These)
 
-Features users assume exist. Missing these = product feels incomplete.
+Missing any of these and the page feels amateur or incomplete. These are non-negotiable for a developer tool landing page in 2026.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| Docker image with Claude Code pre-installed | This is the core product promise -- a deployable Claude Code container. Every competitor (claudebox, Coder workspaces, Metoro Helm chart) ships this. Without it there is no product. | MEDIUM | Base on official devcontainer Dockerfile from Anthropic. Node.js 20 base. Must handle Claude Code CLI installation and updates. |
-| Remote Control connectivity | The entire mobile/phone use case depends on this. Remote Control is what makes "debug from your phone" possible. Users expect to scan a QR code or open claude.ai/code and connect. | LOW | Claude Code has this built in via `claude remote-control` command. Container just needs to keep the process running and have outbound HTTPS to Anthropic API. No inbound ports needed. |
-| Kubernetes deployment manifests (Helm chart or Kustomize) | DevOps engineers expect infrastructure-as-code for deploying into their clusters. A raw Docker image without K8s manifests is unusable for the target audience. | MEDIUM | Helm chart is the standard. Metoro's community chart exists at `chrisbattarbee.github.io/claude-code-helm`. Build our own with opinionated defaults for RBAC, resource limits, and security context. |
-| kubectl pre-installed and configured | Claude Code needs kubectl to interact with the cluster it is deployed in. This is the most fundamental debugging tool. In-cluster config via service account is standard. | LOW | Use in-cluster kubeconfig automatically mounted at `/var/run/secrets/kubernetes.io/serviceaccount`. Install kubectl matching cluster version. |
-| RBAC with least-privilege service accounts | Every K8s security guide says start with read-only and add permissions as needed. Users expect tiered access -- a read-only tier for safe debugging and an operator tier for mutations. | MEDIUM | Ship two ClusterRole definitions: `claude-reader` (get, list, watch on most resources) and `claude-operator` (adds create, update, patch, delete on select resources). Bind via ClusterRoleBinding. |
-| Core debugging CLI tools | A "debugging toolkit" without standard tools is false advertising. Engineers expect: curl, wget, dig, nslookup, netcat, traceroute, jq, yq, htop, ps, strace, tcpdump, ip, ss, lsof. | LOW | Install via apt-get in Dockerfile. ~30 tools. This is straightforward packaging work. |
-| Authentication and API key management | Users need to authenticate Claude Code with their Anthropic account (subscription or API key). Secrets must not be baked into images. | LOW | Use Kubernetes Secrets mounted as environment variables. Support both `ANTHROPIC_API_KEY` for API auth and interactive `/login` for subscription auth. Document both paths. |
-| Docker Compose deployment option | Not everyone runs Kubernetes. A Docker Compose file for quick local testing or small-team use is expected as a simpler on-ramp. | LOW | Single `docker-compose.yml` with the image plus optional supporting services. Straightforward. |
-| Session persistence across container restarts | If a container restarts and all conversation history is lost, the product feels broken. Engineers expect to reconnect to where they left off. | MEDIUM | Mount `/home/user/.claude` as a PersistentVolume. Claude Code stores session data, conversation history, and settings here. Without persistence, every pod restart loses context. |
-| Health checks and readiness probes | Standard Kubernetes deployment hygiene. Without liveness/readiness probes, K8s cannot manage the pod lifecycle properly. | LOW | Liveness: process check on Claude Code. Readiness: verify Claude Code can respond. Custom health endpoint or process-based probe. |
+| **Hero section with bold headline + subheadline** | The Evil Martians study of 100 dev tool pages confirms: centered hero with big bold headline and supporting visual below is the dominant pattern. Without it the page has no identity. Warp, Linear, Railway, Vercel, Coolify all follow this. | LOW | Centered layout. One-liner headline ("Debug your cluster from your phone" or similar). Subheadline explains what the product does. Two CTAs: primary (GitHub/Install) + secondary (Docs). No "Get Started" -- use specific language like "Deploy Now" or "View on GitHub". |
+| **Two hero CTAs (open source + docs)** | Developer tools need dual paths: one for immediate action (GitHub repo, install command), one for learning more (docs). The Evil Martians research found two CTAs in the hero lets you "both convert paid customers and provide immediate value to developers." Generic "Get started" underperforms specific CTAs. | LOW | Primary: "View on GitHub" (links to repo). Secondary: "Read the Docs" or "Quickstart". Use specific product language, not generic SaaS copy. |
+| **Feature cards section (3-6 cards)** | Every developer tool page presents key capabilities in a scannable grid. K9s uses a bulleted list (functional but boring). Linear, Vercel, Railway use rich cards with icons and short descriptions. The user specifically requested 3-6 feature cards. | LOW | Grid of 3-6 cards highlighting: phone-first Remote Control, 32+ pre-installed tools, Kubernetes RBAC, session persistence, Helm chart deployment, MCP intelligence layer. Each card: icon + title + 1-2 sentence description. No dense card borders (creates visual heaviness per Evil Martians research). |
+| **Quickstart / installation section** | Developers want to try before they commit. Every successful open-source tool page (K9s, Coolify, Helm, Bun) includes a copy-paste install command. This is the #1 conversion driver for OSS projects. Bun puts `curl -fsSL https://bun.sh/install | bash` front and center. | LOW | Dark-themed code block with syntax highlighting. Copy-to-clipboard button. Show 2-3 commands: `helm repo add`, `helm install`, done. Terminal-style presentation with monospace font (JetBrains Mono or similar). |
+| **Footer with links** | Standard web hygiene. Links to GitHub, docs, license. The user explicitly requested a footer. Without it the page feels unfinished. | LOW | GitHub link, documentation link, license (MIT/Apache), author attribution. Keep minimal -- this is a single-page site, not a SaaS product with 50 footer links. |
+| **Dark theme** | Developer tools overwhelmingly use dark themes. Warp: `#121212` background. Railway: deep purples. Coolify: `#101010`. Linear: dark with subtle gradients. Light themes feel corporate/non-technical to the target audience. The user said "not boring corporate." | LOW | Dark background (`#0a0a0a` to `#121212` range). Light text. Accent color for interactive elements. Consider subtle gradients or noise textures for depth. |
+| **Responsive / mobile-friendly layout** | Ironic for a "debug from your phone" product to have a broken mobile experience. All modern landing pages are responsive. Tailwind CSS handles this with minimal effort. | LOW | Tailwind responsive utilities handle this. Stack cards vertically on mobile. Reduce hero text size. Test on actual phone since the product's value prop is mobile-first. |
+| **Social proof element** | Developers trust peer validation. GitHub stars badge, "Trusted by" logos, or user count. Railway shows "2.3M+ users, 33M+ monthly deployments." Even for early-stage projects, a GitHub stars badge provides credibility. PostHog, Coolify, and K9s all prominently display community size. | LOW | GitHub stars badge (dynamic via shields.io or GitHub API). If available: Docker pull count, Helm install count. Even "Built during a 1-day sprint" is social proof of the builder's capability. |
 
 ### Differentiators (Competitive Advantage)
 
-Features that set the product apart. Not required, but valuable.
+Features that elevate the page from "functional" to "memorable." These are what make visitors think "this is well-made" and share the link.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| Curated DevOps skills library | Pre-built Claude Code skills for K8s debugging workflows: pod diagnosis, log analysis, network troubleshooting, resource investigation, incident triage. Unlike generic Claude Code, this container knows DevOps. The Pulumi blog shows skills like `kubernetes-specialist`, `sre-engineer`, and `incident-runbook-templates` exist in the community, but nobody ships them pre-configured and curated for in-cluster use. | MEDIUM | Write custom `.claude/skills/` files using progressive disclosure pattern. Skills for: cluster health check, pod failure diagnosis, network policy debugging, resource quota analysis, node troubleshooting, certificate debugging, DNS resolution testing. |
-| MCP server for structured cluster API access | Instead of Claude just running kubectl commands and parsing text output, an MCP server provides structured, typed access to Kubernetes resources. K8sGPT and kagent both use this pattern. Structured data means fewer hallucinations and more reliable analysis. | HIGH | Build or integrate an MCP server (like `mcp-server-kubernetes` from Flux159 or Red Hat's Go-based `kubernetes-mcp-server`). Configure non-destructive mode by default. Must support at minimum: pod listing, log retrieval, event queries, resource descriptions. |
-| KIND-based local development environment | One command to spin up a complete local test environment: KIND cluster + Claude-in-a-box deployed inside it. Nobody else offers this -- competitors assume you have a cluster already. This dramatically lowers the barrier to trying the product. | MEDIUM | Shell script or Makefile that: creates KIND cluster, loads the Docker image, applies Helm chart, outputs connection instructions. Can also serve as the CI/CD test harness. |
-| Pre-configured network diagnostic tools | Beyond basic CLI tools, include Kubernetes-aware network diagnostics: Calico CLI (calicoctl), Cilium CLI, istioctl for service mesh debugging. Most debugging containers have generic tools but not K8s-network-specific ones. | LOW | Conditional installation based on build args or detection. Not all clusters use Calico/Cilium/Istio, so make these optional layers or separate image variants. |
-| Operator-tier RBAC with audit logging | The read-only tier is table stakes, but a well-designed operator tier that logs every mutation Claude makes to an audit trail is a differentiator. Engineers can review what the AI agent changed. This addresses the trust problem with AI-powered cluster operations. | MEDIUM | Use Kubernetes audit logging for API server calls. Additionally, wrap operator-tier commands through a logging proxy or Claude Code hook that records actions to a ConfigMap, PVC, or external log sink. |
-| CLAUDE.md with cluster-aware context | A pre-written CLAUDE.md that teaches Claude about its environment: what cluster it is in, what namespace, what RBAC permissions it has, what tools are available, what skills are loaded. This is the "secret sauce" that makes the AI agent actually useful out of the box. | LOW | Template CLAUDE.md that gets populated at container startup via entrypoint script. Reads environment variables and service account permissions to self-document capabilities. |
-| Helm values for security profiles | Ship multiple Helm values files for different security postures: `values-readonly.yaml`, `values-operator.yaml`, `values-airgapped.yaml`. One-line deployment with the right security profile. | LOW | Different values files that set RBAC tier, network policies, resource limits, and security contexts. Makes it trivial to deploy with the right posture for the environment. |
-| Container image scanning and SBOM | Ship with a published Software Bill of Materials and pass container vulnerability scanning. Enterprise buyers expect this for any image running in their clusters. | MEDIUM | Integrate Trivy or Grype in CI. Publish SBOM with each release. Use distroless or slim base where possible, but the debugging tools require a full userland. |
-| Multi-cluster support via kubeconfig switching | Allow Claude to debug across multiple clusters by mounting multiple kubeconfigs. Useful for platform teams managing fleet of clusters. | MEDIUM | Mount additional kubeconfigs via ConfigMap or Secret. Provide skill/instructions for Claude to switch contexts. Must be explicit opt-in due to security implications. |
+| **Animated architecture diagram** | The product's architecture (phone -> Anthropic relay -> container in cluster) is the "aha moment." A static diagram is fine; an animated one that shows the data flow is memorable. Railway uses animated backgrounds. Vercel uses animated code blocks. An SVG diagram with CSS animations showing the connection flow from phone to cluster would be a signature visual. | MEDIUM | SVG-based diagram with CSS animations: phone icon -> dotted line animates -> cloud relay -> dotted line animates -> Kubernetes cluster with pod. Use Astro's component model to build as a reusable component. Can be the hero visual or a standalone section. Staggered animations (connection establishes left-to-right) create narrative flow. |
+| **Bento grid feature layout** | Instead of uniform feature cards, a bento grid (inspired by Apple, now standard in Tailwind UI) uses varied card sizes to create visual hierarchy. The flagship feature (Remote Control from phone) gets a large card; supporting features get smaller ones. This is the dominant 2026 layout pattern for feature sections -- Tailwind CSS ships official bento grid components. | MEDIUM | 2-row bento grid: first row has one large card (Remote Control) + one medium card (32+ tools). Second row has 3-4 smaller cards (RBAC, Helm, persistence, MCP). Tailwind UI has 5 bento grid variants ready to use. The asymmetry creates visual interest that uniform grids lack. |
+| **Terminal-style quickstart with typing animation** | Instead of a static code block, animate the commands being "typed" with a blinking cursor. Warp's entire brand is built on making the terminal feel modern. A typing animation in the quickstart section makes the page feel alive and developer-native. K9s embeds an Asciinema recording; we can do better with a lighter-weight CSS animation. | MEDIUM | CSS typing animation with `@keyframes`. Show 3 commands appearing sequentially: add repo, install, connect. Blinking cursor. Monospace font. Dark terminal background with green or cyan text. Pause between commands for readability. Optional: show "output" appearing after each command. |
+| **Use cases section with scenario cards** | The user requested use cases. Rather than generic persona cards ("for DevOps engineers"), show specific scenarios: "3AM PagerDuty alert -- diagnose from bed," "Pod crashlooping during deploy -- check from your phone," "Network policy blocking traffic -- trace from anywhere." Concrete scenarios resonate more than abstract personas. Vercel uses tabbed use-case navigation; we should use simpler cards given page scope. | LOW | 3-4 scenario cards. Each: emoji or icon + scenario title + 2-sentence description + which product feature solves it. Example: "Weekend On-Call" -> "Get paged at 2AM. Open your phone. Claude is already connected to the cluster. Diagnose the CrashLoopBackOff without opening your laptop." |
+| **Gradient glow / accent effects** | Railway uses deep purple glows (`#4b0390`). Coolify uses purple (`#6B16ED`) with golden accents. Linear uses subtle animated grid patterns. Charm uses purple-to-pink gradients. Glow effects on cards, buttons, or the hero section add visual depth without being distracting. This is the "fun" factor the user wants. | LOW | CSS `box-shadow` with colored glow on hover for cards. Subtle radial gradient behind hero headline. Accent color: electric blue or cyan (matches terminal aesthetic, distinct from the purple that Railway/Coolify already own). CSS-only -- no JavaScript needed. |
+| **"Phone + Cluster" split visual in hero** | The unique value prop is "debug your cluster from your phone." Show this visually: left side shows a phone mockup with Claude Code interface, right side shows a Kubernetes cluster diagram, connected by an animated line. This immediately communicates the product's core value better than any headline. | MEDIUM | Phone mockup (CSS/SVG, not a real screenshot -- keep it schematic). Cluster visualization (pods, nodes -- simplified). Animated dashed line connecting them through a cloud icon (Anthropic relay). This becomes the hero visual below the headline. Could reuse/extend the architecture diagram component. |
+| **Eyebrow text above hero headline** | Small text above the main headline highlighting a key fact: "Open Source" or "v1.0 -- 32+ DevOps Tools" or "Built in 1 Day." The Evil Martians study found this pattern across most top dev tool pages -- it "packs extra information into the hero section" and creates a sense of activity/momentum. | LOW | Small, muted text above the main H1. Badge-style with border or pill shape. Content: version number, "Open Source", or a brief highlight. Updates with each release to keep the page feeling current. |
 
 ### Anti-Features (Commonly Requested, Often Problematic)
 
-Features that seem good but create problems.
+Features that seem like good ideas but would hurt the landing page.
 
 | Feature | Why Requested | Why Problematic | Alternative |
 |---------|---------------|-----------------|-------------|
-| Auto-remediation / self-healing | "Let Claude fix problems automatically" sounds powerful. Komodor's Klaudia agent and AI SRE tools market this. | Unattended mutation of production Kubernetes resources by an AI agent is a liability nightmare. Even with guardrails, hallucinated kubectl apply commands can cause cascading failures. Generated runbooks are "thorough on the happy path but thin on failure modes that matter most at 3am" (Pulumi blog). The trust and safety story is not there yet. | Ship with read-only as default. Operator tier requires explicit opt-in. All mutations logged. Recommend human-in-the-loop via Remote Control -- the human approves each action from their phone. This is the product's actual value proposition. |
-| Full cluster admin permissions | "Give Claude admin so it can do anything." Some users will want this for convenience. | ClusterAdmin on an AI agent means one hallucinated command can delete namespaces, modify RBAC, or expose secrets. This violates every K8s security best practice. Kubernetes RBAC docs explicitly warn against broad ClusterAdmin grants. | Provide the two-tier RBAC model. Even the operator tier should exclude dangerous operations: no namespace deletion, no ClusterRole modification, no secret creation. Document what is excluded and why. |
-| Built-in web UI / dashboard | "Add a web dashboard to see what Claude is doing." | Building a custom web UI is massive scope. Claude Code already has Remote Control (claude.ai/code), which IS the web UI. Building another one duplicates effort and creates a maintenance burden. Kagent built their own UI and it is one of their biggest maintenance costs. | Use Remote Control as the UI. Document how to connect. If users want cluster dashboards, they already have Grafana/Lens/K9s -- do not reinvent these. |
-| Support for all LLM providers | "Support OpenAI, Ollama, local models." Kagent and K8sGPT support multiple LLMs. | This is Claude-in-a-box, not any-LLM-in-a-box. Multi-LLM support means testing against every provider, handling different API contracts, and diluting the product identity. Claude Code only works with Anthropic's API. | Stay focused on Claude Code. The product name is literally "Claude in a Box." If users want other LLMs, K8sGPT and kagent already serve that market. |
-| Persistent chat history database | "Store all conversations in a database for search and audit." | Adding a database (PostgreSQL, SQLite) creates operational complexity -- backup, migration, schema management. For a debugging tool, this is over-engineering. | Use Claude Code's built-in session persistence (file-based in ~/.claude). For audit needs, export logs to the cluster's existing log aggregation (Fluentd, Loki, etc.) rather than building a separate data store. |
-| Custom fine-tuned model | "Fine-tune Claude on our infrastructure docs." | Anthropic does not offer fine-tuning for Claude. Even if they did, the maintenance burden of keeping a fine-tuned model current with infrastructure changes would be enormous. | Use CLAUDE.md and skills to inject context. This is the standard pattern and it works well -- progressive disclosure keeps token usage efficient. Update skills as infrastructure evolves. |
-| Real-time cluster event streaming | "Stream all K8s events into Claude's context in real-time." | Kubernetes clusters generate thousands of events per minute. Streaming all of them into Claude's context window would exhaust tokens instantly, increase costs dramatically, and provide mostly noise. | Use on-demand event queries: Claude asks for events when investigating a specific issue. MCP server can provide filtered, time-bounded event queries. Skills can teach Claude to look at relevant events for specific failure modes. |
+| **Pricing section** | SaaS landing pages always have pricing. "Every landing page needs pricing." | This is a free, open-source tool. There is nothing to price. A pricing section with "$0 Free" looks desperate and confusing. It also implies there might be a paid tier coming, which undermines trust. Coolify handles this well by linking to a separate pricing page for their cloud offering, not putting it on the main OSS page. | Skip entirely. The hero CTAs make it clear this is open source (GitHub link). If needed, a single line in the footer: "Free and open source under [license]." |
+| **Blog / changelog section** | "Show the project is active with recent updates." | A blog section on a single-page landing site adds maintenance burden and scope. If the blog has 1 post from launch day and nothing else, it looks abandoned -- worse than having no blog. For a v1.0 product, there is no changelog worth showing yet. | Link to GitHub releases in the footer. The GitHub repo itself shows activity. A "Last updated: [date]" badge is lighter-weight proof of activity. |
+| **Live demo / embedded terminal** | "Let users try it right on the page." | An actual live demo requires running infrastructure (a real Kubernetes cluster, a real Claude Code instance, API costs). For a landing page this is massive scope and ongoing cost. Warp's live demo is their entire product; we do not have that luxury. | The quickstart section IS the "try it" path. 3 commands to deploy in their own cluster. Alternatively, an animated GIF or Asciinema recording showing a real session. Low maintenance, high impact. |
+| **Testimonials carousel** | Railway and Lens both have testimonial carousels. "Social proof from real users." | The product just shipped v1.0 in a single day. There are no real users yet. Fake testimonials are immediately obvious and destroy credibility. Even real early testimonials from friends feel manufactured. | GitHub stars badge. Docker pull count. "Built with" tech badges. Once real users exist (GitHub issues, stars, community), add testimonials organically. A single genuine quote is worth more than five manufactured ones. |
+| **Comparison table vs competitors** | "Show how we compare to K8sGPT, kagent, claudebox." | Comparison tables on landing pages often come across as biased ("we win every category") and create adversarial positioning with potential community allies. For an open-source project, this alienates rather than attracts. The Evil Martians research found comparison pages work as separate pages (Warp has `/compare-terminal-tools/`), not as landing page sections. | A brief "How is this different?" paragraph or FAQ entry. Positive framing: "Unlike general-purpose AI frameworks, Claude In A Box ships ready to debug with 32+ tools pre-installed and phone-first access." No direct competitor bashing. |
+| **Newsletter signup** | "Capture leads for updates." | For an open-source DevOps tool, a newsletter signup form feels like SaaS marketing creep. The target audience (DevOps engineers) is allergic to email capture. It also requires an email service (Mailchimp, Buttondown) and ongoing content creation. | "Star on GitHub" is the OSS equivalent of subscribing. GitHub's watch/release notification system handles update notifications. The footer can link to GitHub discussions for community engagement. |
+| **Video hero / background video** | "Video heroes are engaging." Railway uses animated backgrounds. | Video significantly increases page load time (each second of load time drops conversions by 7% per SaaS benchmarks). Background videos on mobile are often disabled by browsers. A CSS/SVG animation achieves the same "alive" feeling at a fraction of the bandwidth. | CSS animations on the architecture diagram / hero visual. Lightweight, loads instantly, works on all devices. Save video for a separate "demo" link (YouTube/Loom) linked from the page. |
+| **Multi-page site** | "Add About, Docs, Blog, Pricing pages." | Scope explosion. The mandate is a single landing page. Multi-page sites need navigation, routing, consistent layouts, and ongoing maintenance across pages. The product already has a README and docs in the repo. | Single page with smooth-scroll anchor links to sections. Docs link goes to GitHub README or a docs site (built separately if needed later). Keep the landing page as a focused conversion tool. |
 
 ## Feature Dependencies
 
 ```
-[Docker Image with Claude Code]
-    |--requires--> [Core debugging CLI tools]
-    |--requires--> [Authentication / API key management]
-    |
-    |--enables--> [Remote Control connectivity]
-    |--enables--> [Kubernetes deployment manifests]
-    |                  |--requires--> [RBAC service accounts]
-    |                  |--enables--> [Helm security profiles]
-    |                  |--enables--> [Health checks / probes]
-    |
-    |--enables--> [kubectl pre-installed]
-    |                  |--enables--> [MCP server for cluster API]
-    |                  |--enables--> [Curated DevOps skills]
-    |                  |--enables--> [Multi-cluster support]
-    |
-    |--enables--> [CLAUDE.md cluster-aware context]
-    |                  |--enhances--> [Curated DevOps skills]
-    |                  |--enhances--> [MCP server for cluster API]
-    |
-    |--enables--> [Docker Compose deployment]
-    |--enables--> [KIND local dev environment]
-    |--enables--> [Session persistence]
-    |--enables--> [Container image scanning / SBOM]
+[Dark Theme + Color System]
+    |--required-by--> [Hero Section]
+    |--required-by--> [Feature Cards / Bento Grid]
+    |--required-by--> [Quickstart Terminal Block]
+    |--required-by--> [Architecture Diagram]
+    |--required-by--> [Footer]
 
-[RBAC service accounts]
-    |--enables--> [Operator-tier audit logging]
+[Hero Section]
+    |--contains--> [Eyebrow Text]
+    |--contains--> [Headline + Subheadline]
+    |--contains--> [Two CTAs]
+    |--contains--> [Hero Visual (phone+cluster or arch diagram)]
 
-[Network diagnostic tools]
-    |--enhances--> [Curated DevOps skills]
+[Architecture Diagram SVG Component]
+    |--reused-by--> [Hero Visual]
+    |--reused-by--> [Standalone Architecture Section]
+
+[Feature Cards / Bento Grid]
+    |--enhanced-by--> [Gradient Glow Effects]
+    |--depends-on--> [Product copy/content]
+
+[Quickstart Terminal Block]
+    |--enhanced-by--> [Typing Animation]
+    |--depends-on--> [Actual install commands from repo]
+
+[Use Cases Section]
+    |--depends-on--> [Product copy/content]
+    |--enhanced-by--> [Gradient Glow Effects]
+
+[Responsive Layout]
+    |--required-by--> ALL sections
+    |--depends-on--> [Tailwind CSS setup]
+
+[Social Proof]
+    |--depends-on--> [GitHub API / shields.io integration]
 ```
 
 ### Dependency Notes
 
-- **Docker Image requires CLI tools and auth:** The image is useless without tools installed and a way to authenticate. These are build-time and deploy-time concerns, respectively.
-- **Kubernetes manifests require RBAC:** You cannot deploy into K8s without service accounts and role bindings. RBAC is not optional; it ships with the Helm chart.
-- **MCP server requires kubectl:** The MCP server wraps Kubernetes API calls. It needs the cluster connection that kubectl (and in-cluster config) provides.
-- **Skills enhance MCP and CLAUDE.md:** Skills are most effective when they can reference structured data (MCP) and have environmental context (CLAUDE.md). Build MCP and CLAUDE.md first, then skills on top.
-- **KIND enables local dev AND CI testing:** The same KIND setup that developers use locally can be the CI test harness. One investment, two uses.
-- **Audit logging requires operator tier RBAC:** There is nothing to audit if the agent only has read-only access. Audit logging only matters for the operator tier.
+- **Dark theme + color system is foundational:** Every visual component references the color tokens. Define the palette (background, text, accent, glow) before building any section. This is a 30-minute task but gates everything.
+- **Architecture diagram is reusable:** Build it as an Astro component once, use in hero and/or as a standalone section. The SVG + CSS animation approach means it works in both contexts without duplication.
+- **Content gates visuals:** Feature card copy, use case scenarios, and quickstart commands must be written before the sections can be built. Writing marketing copy and building components can happen in parallel if stubbed first.
+- **Responsive is not a phase -- it is a constraint:** Use Tailwind responsive utilities from the start. Do not build desktop-only and "add mobile later." That doubles the CSS work.
 
 ## MVP Definition
 
 ### Launch With (v1)
 
-Minimum viable product -- what is needed to validate that "Claude Code in a Kubernetes cluster, accessible from your phone" works and is useful.
+The minimum landing page that effectively communicates the product and drives visitors to the GitHub repo.
 
-- [ ] **Docker image with Claude Code, kubectl, and 30+ debugging tools** -- This is the product. Without the image, nothing else matters.
-- [ ] **Helm chart with read-only RBAC** -- Deploys into any K8s cluster with safe defaults. Read-only service account only.
-- [ ] **Docker Compose file** -- For users who want to try it without a K8s cluster.
-- [ ] **Remote Control documentation and setup** -- Clear instructions for connecting via phone/browser. This is the key differentiating workflow.
-- [ ] **CLAUDE.md with cluster-aware context** -- Entrypoint script populates environment info so Claude knows where it is and what it can do.
-- [ ] **Session persistence via PVC** -- Conversations survive pod restarts.
-- [ ] **KIND local development setup** -- One-command local environment for trying the product and for development/CI.
-- [ ] **Basic health checks** -- Liveness and readiness probes so K8s can manage the pod.
+- [ ] **Hero section** -- Bold headline, subheadline, two CTAs (GitHub + Docs), eyebrow text with version/OSS badge. This is the first thing visitors see; it must be perfect.
+- [ ] **Feature bento grid (5-6 cards)** -- Asymmetric bento layout highlighting Remote Control (large card), 32+ tools, RBAC, Helm deployment, session persistence, MCP layer. Communicates breadth of the product.
+- [ ] **Architecture diagram** -- SVG showing phone -> relay -> cluster flow. Can be static with CSS hover effects for v1; animate later. This is the "aha moment" visual.
+- [ ] **Quickstart section** -- Terminal-styled code block with copy button. 3 commands to deploy. This is the conversion point -- visitors who reach here are ready to try it.
+- [ ] **Use cases section** -- 3-4 scenario cards (on-call debugging, deploy troubleshooting, cluster exploration, incident response). Answers "when would I use this?"
+- [ ] **Footer** -- GitHub, docs, license, author. Minimal and clean.
+- [ ] **Dark theme with accent color system** -- Professional dark background, readable text, one accent color for interactive elements and glows.
+- [ ] **Responsive layout** -- Works on phone (ironic if it does not, given the product).
+- [ ] **GitHub stars badge** -- Minimal social proof that is real and automatic.
 
 ### Add After Validation (v1.x)
 
-Features to add once the core is working and users confirm the value proposition.
+Features to add once the base page is live and the repo has traction.
 
-- [ ] **Curated DevOps skills library** -- Add after seeing what users actually try to debug. Real usage data should inform which skills to build first.
-- [ ] **MCP server integration** -- Structured cluster API access. Add once the skills library reveals which queries are most common.
-- [ ] **Operator-tier RBAC with audit logging** -- Add once users request mutation capabilities. Start with documentation of what the operator tier enables.
-- [ ] **Helm security profile values files** -- Add as users deploy into varied environments (dev, staging, prod, air-gapped).
-- [ ] **Container image scanning and SBOM** -- Add before enterprise adoption push. Not needed for early adopters.
-- [ ] **Pre-configured network diagnostic tools** -- Add once users report network debugging as a pain point. Keep the base image lean initially.
+- [ ] **Typing animation on quickstart** -- Animate commands being typed. Adds polish but not critical for launch. Trigger: page is live and working.
+- [ ] **Animated architecture diagram** -- CSS animations showing data flow (connections establishing, data moving). Trigger: base SVG diagram is solid.
+- [ ] **Gradient glow hover effects on cards** -- Colored glow on card hover, subtle radial gradients. Trigger: design system is stable.
+- [ ] **Asciinema/GIF demo embed** -- Real terminal recording showing a debugging session via Remote Control. Trigger: product has a polished demo workflow.
+- [ ] **Dynamic GitHub stats** -- Live star count, latest release version, Docker pulls. Trigger: repo has meaningful traffic.
+- [ ] **"Phone + Cluster" split hero visual** -- Phone mockup on left, cluster diagram on right, animated connection. Trigger: basic hero is working and needs upgrade.
 
 ### Future Consideration (v2+)
 
-Features to defer until product-market fit is established.
+Features to defer until the landing page has proven its value and the project has a community.
 
-- [ ] **Multi-cluster support** -- Defer until single-cluster experience is polished. Complexity scales non-linearly with cluster count.
-- [ ] **Custom MCP server (Go-based)** -- Defer unless existing Node.js MCP servers prove insufficient. Building a custom one is significant effort.
-- [ ] **Operator with CRD for declarative Claude agent management** -- Defer until there is demand for fleet-scale deployment. This is what kagent does and it is a massive scope increase.
-- [ ] **Integration with external observability (Prometheus, Grafana, Loki)** -- Defer until skills library is mature enough to leverage this data meaningfully.
+- [ ] **Testimonials section** -- Add when real users provide genuine feedback (GitHub issues, tweets, etc).
+- [ ] **Comparison page** -- Separate page (not section) comparing to K8sGPT, kagent, etc. Add when search traffic warrants it.
+- [ ] **Interactive demo** -- Embedded terminal or playground. Add when there is budget for always-on infrastructure.
+- [ ] **Documentation site** -- Separate Astro content collection for full docs. Add when README outgrows its format.
+- [ ] **Blog / changelog** -- Add when there are enough releases to warrant ongoing content.
 
 ## Feature Prioritization Matrix
 
 | Feature | User Value | Implementation Cost | Priority |
 |---------|------------|---------------------|----------|
-| Docker image with Claude Code + tools | HIGH | MEDIUM | P1 |
-| Helm chart with read-only RBAC | HIGH | MEDIUM | P1 |
-| Remote Control documentation | HIGH | LOW | P1 |
-| Docker Compose file | MEDIUM | LOW | P1 |
-| CLAUDE.md cluster-aware context | HIGH | LOW | P1 |
-| KIND local dev environment | HIGH | LOW | P1 |
-| Session persistence (PVC) | MEDIUM | LOW | P1 |
-| Health checks / probes | MEDIUM | LOW | P1 |
-| Curated DevOps skills | HIGH | MEDIUM | P2 |
-| MCP server integration | HIGH | HIGH | P2 |
-| Operator-tier RBAC + audit | MEDIUM | MEDIUM | P2 |
-| Helm security profiles | MEDIUM | LOW | P2 |
-| Container scanning / SBOM | MEDIUM | MEDIUM | P2 |
-| Network diagnostic tools | LOW | LOW | P2 |
-| Multi-cluster support | MEDIUM | MEDIUM | P3 |
-| Custom Go MCP server | MEDIUM | HIGH | P3 |
-| K8s Operator with CRDs | LOW | HIGH | P3 |
-| Observability integration | MEDIUM | HIGH | P3 |
+| Hero section (headline + CTAs) | HIGH | LOW | P1 |
+| Dark theme + color system | HIGH | LOW | P1 |
+| Feature bento grid (5-6 cards) | HIGH | LOW | P1 |
+| Quickstart terminal block | HIGH | LOW | P1 |
+| Architecture diagram (static SVG) | HIGH | MEDIUM | P1 |
+| Use cases section | MEDIUM | LOW | P1 |
+| Footer | MEDIUM | LOW | P1 |
+| Responsive layout | HIGH | LOW | P1 |
+| GitHub stars badge | MEDIUM | LOW | P1 |
+| Eyebrow text / version badge | LOW | LOW | P1 |
+| Bento grid (asymmetric upgrade) | MEDIUM | MEDIUM | P2 |
+| Typing animation on quickstart | LOW | MEDIUM | P2 |
+| Animated architecture diagram | MEDIUM | MEDIUM | P2 |
+| Gradient glow hover effects | LOW | LOW | P2 |
+| Phone + Cluster split visual | MEDIUM | MEDIUM | P2 |
+| Asciinema/GIF demo embed | MEDIUM | LOW | P2 |
+| Dynamic GitHub stats | LOW | LOW | P2 |
+| Testimonials | MEDIUM | LOW | P3 |
+| Comparison page | LOW | MEDIUM | P3 |
+| Interactive demo | MEDIUM | HIGH | P3 |
+| Documentation site | MEDIUM | HIGH | P3 |
 
 **Priority key:**
-- P1: Must have for launch
-- P2: Should have, add when possible
-- P3: Nice to have, future consideration
+- P1: Must have for launch -- the page is incomplete without it
+- P2: Polish and delight -- add after the page is live
+- P3: Future -- add when project has traction
 
-## Competitor Feature Analysis
+## Competitor Landing Page Analysis
 
-| Feature | claudebox (RchGrav) | Metoro Helm Chart | kagent (CNCF) | K8sGPT | Claude-in-a-Box (Ours) |
-|---------|---------------------|-------------------|---------------|--------|------------------------|
-| Containerized AI agent | Yes (Docker) | Yes (K8s) | Yes (K8s-native) | Yes (CLI + Operator) | Yes (Docker + K8s) |
-| Pre-installed debugging tools | Some dev tools | Minimal | No (tools via MCP) | No (analysis only) | 30+ tools (core differentiator) |
-| RBAC / security tiers | Firewall-based isolation | Not addressed | K8s-native RBAC | N/A (uses user's kubeconfig) | Two-tier RBAC (reader + operator) |
-| Mobile / phone access | No | No | Web UI only | No | Yes, via Remote Control (core differentiator) |
-| MCP server integration | No | No | Yes (built on MCP) | Yes (MCP support added) | Yes (planned P2) |
-| Custom skills / workflows | No | No | Agent catalog | Built-in analyzers | Curated DevOps skills (planned P2) |
-| Local dev environment | Docker-based | No | Helm install | brew/CLI install | KIND-based (one command) |
-| Cluster-aware context | No | No | Yes (K8s-native) | Yes (scans cluster) | Yes (CLAUDE.md auto-populated) |
-| Multi-LLM support | No (Claude only) | No (Claude only) | Yes (OpenAI, Anthropic, Ollama, etc.) | Yes (multiple providers) | No (Claude only, by design) |
-| Audit / observability | No | eBPF monitoring | Observable via monitoring frameworks | Analysis reports | Audit logging for operator tier (planned P2) |
-| Helm chart | No | Yes (community) | Yes | Yes (operator) | Yes (opinionated defaults) |
-| Docker Compose | Yes | No | No | No | Yes |
+| Design Element | K9s (k9scli.io) | Coolify (coolify.io) | Railway (railway.com) | Warp (warp.dev) | Linear (linear.app) | Our Approach |
+|----------------|-----------------|----------------------|-----------------------|-----------------|----------------------|--------------|
+| **Theme** | Light, simple | Dark, purple accent | Dark, deep purple + cyan | Dark, `#121212` | Dark, subtle gradients | Dark, electric blue/cyan accent |
+| **Hero style** | Logo + tagline, playful ("Who Let The Pods Out?") | Bold tagline ("Self-hosting with superpowers") | Animated tagline + train visual | Minimal, centered headline | Minimal, animated grid background | Bold centered headline + architecture visual |
+| **Feature presentation** | Bulleted list + screenshots | Card grid (15+ cards) | 5 feature blocks with alt comparisons | Feature blocks with product UI | Sequential scrolling sections | Bento grid (5-6 cards, asymmetric) |
+| **Quickstart** | Docs link only | No quickstart on main page | "Deploy" CTA leads to app | Download buttons | No quickstart (SaaS) | Terminal code block with copy button |
+| **Visual creativity** | Low -- functional, text-heavy | Medium -- clean cards, sponsor grid | High -- animated backgrounds, testimonial carousel, themed visuals | Medium -- clean typography, product screenshots | High -- animated grids, parallax | Medium-High -- animated SVG diagram, glow effects |
+| **Social proof** | Asciinema embed, screenshots | 80+ sponsor avatars, Discord count | 2.3M users, Twitter testimonials, company logos | "Backed by" investors | Enterprise logos | GitHub stars badge, tech badges |
+| **Personality** | Playful (dog puns, "In Style!") | Direct ("superpowers") | Atmospheric ("Ship software peacefully") | Professional, clean | Systematic, minimal | Confident, slightly irreverent (TBD in copy phase) |
+| **What makes it stand out** | The dog theme and puns create memorable brand identity | Massive sponsor wall proves community support | Atmospheric visuals + real metrics create trust | Typography excellence and product polish | Animation quality and systematic design language | Architecture diagram as hero visual -- nobody else visualizes the phone-to-cluster flow |
 
-### Competitive Positioning
+### What We Learn From Each
 
-**vs. claudebox:** claudebox focuses on developer workstation isolation (macOS sandbox, firewall rules). We focus on in-cluster deployment for production debugging. Different use cases entirely.
+**From K9s:** Personality matters. "Who Let The Pods Out?" is unforgettable. Our page needs a personality -- not corporate, not tryhard. The product name "Claude In A Box" already has personality; lean into it.
 
-**vs. Metoro Helm Chart:** Metoro provides a minimal Helm chart and focuses on observability (eBPF monitoring of Claude's network calls). We provide a complete toolkit with pre-installed tools, RBAC, skills, and a phone-first workflow. Metoro is a starting point; we are a complete product.
+**From Coolify:** Sponsor/community proof works for open source. The wall of 80+ sponsor avatars is more convincing than any testimonial. We do not have this yet, but the GitHub stars badge serves a similar purpose at smaller scale.
 
-**vs. kagent:** kagent is a CNCF framework for building arbitrary AI agents on Kubernetes. It is infrastructure, not a product. It supports multiple LLMs and requires users to define their own agents and tools. We are an opinionated, ready-to-deploy product specifically for debugging with Claude.
+**From Railway:** Atmospheric design creates emotional response. Their deep purple palette with animated train visuals makes infrastructure feel almost romantic. We should aim for a similar emotional quality -- debugging from your phone should feel empowering, not mundane.
 
-**vs. K8sGPT:** K8sGPT is an analysis tool that scans clusters and reports issues. It runs outside the cluster (CLI) or as an operator (continuous monitoring). It does not provide interactive debugging sessions, shell access to the cluster, or mobile access. We provide a full interactive debugging environment.
+**From Warp:** Typography and whitespace create perceived quality. Warp's page is mostly text with excellent type hierarchy (Matter + Inter + Fragment Mono). Good typography alone can make a page feel premium. Use 2-3 fonts: a display font for headlines, Inter/system for body, JetBrains Mono for code.
 
-**Our unique position:** The only product that combines (1) a pre-configured Claude Code container with debugging tools, (2) cluster-internal deployment with proper RBAC, (3) phone-first access via Remote Control, and (4) curated DevOps skills for guided troubleshooting. The competitors either focus on developer workstations, generic AI frameworks, or analysis-only tools. Nobody else delivers "SSH into your cluster's AI debugger from your phone."
+**From Linear:** Subtle animation creates sophistication. Linear's animated grid backgrounds add movement without distraction. The page feels alive but not busy. Our architecture diagram animation should follow this principle -- smooth, purposeful movement, not flashy transitions.
+
+## Section-by-Section Specification
+
+### 1. Hero Section
+
+**Pattern:** Centered hero (dominant 2026 pattern per Evil Martians research)
+**Components:**
+- Eyebrow: `v1.0 | Open Source` in a subtle pill badge
+- Headline: Bold, ~6-10 words. Example: "Your AI DevOps Agent, Running Inside Your Cluster"
+- Subheadline: 1-2 sentences explaining the product. Example: "A containerized Claude Code deployment with 32+ debugging tools, Kubernetes RBAC, and phone-first access via Remote Control."
+- CTA 1 (primary): "View on GitHub" -- bright accent button
+- CTA 2 (secondary): "Quickstart" -- outlined/ghost button, scrolls to quickstart section
+- Hero visual: Architecture diagram or phone+cluster split visual below the text
+
+**Reference:** Railway's "Ship software peacefully" hero with visual below. Coolify's "Self-hosting with superpowers" directness.
+
+### 2. Feature Bento Grid
+
+**Pattern:** Asymmetric bento grid (Tailwind UI "two row bento grid with three column second row")
+**Layout:**
+- Row 1: 1 large card (60%) + 1 medium card (40%)
+  - Large: Remote Control / phone-first access (the key differentiator)
+  - Medium: 32+ pre-installed DevOps tools
+- Row 2: 3 equal cards
+  - Kubernetes RBAC (reader + operator tiers)
+  - Helm chart deployment (one-command install)
+  - Session persistence + MCP intelligence
+
+**Each card:** Icon (Lucide or Heroicons), title, 2-3 sentence description. Subtle border, no harsh outlines. Background slightly lighter than page background. Glow effect on hover (P2).
+
+**Reference:** Tailwind UI bento grid dark variant. Apple's product feature grids.
+
+### 3. Architecture Diagram
+
+**Pattern:** Custom SVG component with optional CSS animation
+**Content:** Three-column flow:
+- Left: Phone/browser icon labeled "You (anywhere)"
+- Center: Cloud icon labeled "Anthropic Relay" with "Outbound HTTPS only" annotation
+- Right: Kubernetes cluster box containing pod, service account, tools icons
+
+**Animation (P2):** Dashed lines between components animate left-to-right. Pod "pulses" to indicate activity. Connection lines use `stroke-dasharray` + `stroke-dashoffset` animation.
+
+**Reference:** Linear's animated grid background (subtlety). Railway's layered visual elements (depth).
+
+### 4. Use Cases Section
+
+**Pattern:** 3-4 scenario cards in a row
+**Content:**
+1. **Weekend On-Call** -- "Get paged at 2AM. Open your phone. Claude is already connected to your cluster. Diagnose the CrashLoopBackOff without opening your laptop."
+2. **Deploy Gone Wrong** -- "Your CD pipeline just rolled out a bad config. Exec into the failing pod, check the logs, trace the network -- all from a browser tab."
+3. **Cluster Exploration** -- "New to a cluster? Ask Claude to map the namespaces, check resource quotas, and summarize what is running. Instant situational awareness."
+4. **Incident Response** -- "A real incident. Claude checks pod status, pulls recent events, tests DNS resolution, and drafts a summary. You verify and escalate."
+
+**Reference:** Vercel's tabbed use-case navigation (simplified to cards for our scope).
+
+### 5. Quickstart Section
+
+**Pattern:** Terminal-styled code block with dark background
+**Content:**
+```bash
+# Add the Helm repository
+helm repo add claude-in-a-box https://...
+
+# Deploy to your cluster
+helm install claude ./claude-in-a-box/claude-in-a-box \
+  --set auth.token=$CLAUDE_CODE_OAUTH_TOKEN
+
+# Connect from anywhere
+# Open claude.ai/code and connect to your instance
+```
+
+**Elements:** Monospace font (JetBrains Mono). Line numbers optional. Copy-to-clipboard button (top-right). Comment lines in muted color. Commands in bright color. Section headline: "Up and Running in 60 Seconds" or similar.
+
+**Reference:** Bun's `curl` install command prominence. Coolify's direct install approach.
+
+### 6. Footer
+
+**Pattern:** Minimal, single-row footer
+**Content:** GitHub link | Documentation | License (Apache 2.0/MIT) | "Built by [author]"
+**Style:** Muted text, smaller font size. Accent color for links. Optional: "Built with Astro" badge.
+
+## Design System Tokens
+
+Based on analysis of Railway, Warp, Coolify, and Linear:
+
+**Color palette recommendation:**
+- Background: `#0a0a0a` (near-black, slightly warmer than pure black)
+- Surface: `#141414` (card backgrounds, slightly elevated)
+- Border: `#1f1f1f` (subtle card borders)
+- Text primary: `#ededed` (off-white, easier on eyes than pure white)
+- Text secondary: `#888888` (muted descriptions)
+- Accent: `#00d4ff` (electric cyan -- terminal-inspired, distinct from Railway's purple and Coolify's purple)
+- Accent glow: `#00d4ff33` (accent at 20% opacity for box-shadows)
+- Success/code: `#22c55e` (green for terminal commands)
+
+**Typography recommendation:**
+- Headlines: Inter or system sans-serif at 700-900 weight
+- Body: Inter or system sans-serif at 400 weight
+- Code: JetBrains Mono or Fira Code at 400 weight
+
+**Spacing:** 8px base grid. Generous whitespace between sections (120-160px vertical padding). Cards with 24-32px internal padding.
 
 ## Sources
 
-- [Claude Code Remote Control docs](https://code.claude.com/docs/en/remote-control) -- Official Anthropic documentation (HIGH confidence)
-- [Claude Code devcontainer docs](https://code.claude.com/docs/en/devcontainer) -- Official Anthropic documentation (HIGH confidence)
-- [claudebox GitHub](https://github.com/RchGrav/claudebox) -- Community Docker implementation (MEDIUM confidence)
-- [Metoro: Running Claude Code on Kubernetes](https://metoro.io/blog/claude-code-kubernetes) -- Community Helm chart (MEDIUM confidence)
-- [kagent.dev](https://kagent.dev/) -- CNCF AI agent framework (HIGH confidence)
-- [K8sGPT](https://k8sgpt.ai/) -- CNCF Kubernetes AI debugging tool (HIGH confidence)
-- [Coder + Claude Code](https://coder.com/blog/building-for-2026-why-anthropic-engineers-are-running-claude-code-remotely-with-c) -- Anthropic's own remote Claude Code usage (MEDIUM confidence)
-- [Pulumi: Claude Skills for DevOps](https://www.pulumi.com/blog/top-8-claude-skills-devops-2026/) -- Skills ecosystem analysis (MEDIUM confidence)
-- [MCP Server Kubernetes (Flux159)](https://github.com/Flux159/mcp-server-kubernetes) -- Kubernetes MCP implementation (MEDIUM confidence)
-- [Red Hat Kubernetes MCP Server](https://github.com/containers/kubernetes-mcp-server) -- Go-based K8s MCP implementation (MEDIUM confidence)
-- [KIND](https://kind.sigs.k8s.io/) -- Kubernetes IN Docker for local development (HIGH confidence)
-- [Kubernetes RBAC Best Practices](https://kubernetes.io/docs/concepts/security/rbac-good-practices/) -- Official K8s documentation (HIGH confidence)
-- [VentureBeat: Remote Control launch](https://venturebeat.com/orchestration/anthropic-just-released-a-mobile-version-of-claude-code-called-remote) -- Remote Control announcement (MEDIUM confidence)
-- [devops-toolkit container](https://github.com/tungbq/devops-toolkit) -- Reference for all-in-one DevOps container (LOW confidence)
-- [SRE Skill for Claude Code](https://github.com/geored/sre-skill) -- Community SRE skill implementation (LOW confidence)
-- [DevOps Claude Skills marketplace](https://github.com/ahmedasmar/devops-claude-skills) -- Community skills collection (LOW confidence)
+### Primary (HIGH confidence -- direct page analysis)
+
+- [Warp landing page](https://warp.dev) -- Dark theme, Matter/Inter/Fragment Mono typography, `#121212` background, minimal centered layout (analyzed via WebFetch)
+- [Linear landing page](https://linear.app) -- Animated grid patterns, step-based opacity transitions, GPU-accelerated transforms, systematic design (analyzed via WebFetch)
+- [Railway landing page](https://railway.com) -- "Ship software peacefully," deep purple palette, animated train visuals, testimonial carousel, 2.3M+ users stat, CSS theme variables with vaporwave mode (analyzed via WebFetch)
+- [Coolify landing page](https://coolify.io) -- "Self-hosting with superpowers," `#6B16ED` purple accent, `#101010` background, 15+ feature cards, 80+ sponsor avatars, Discord count (analyzed via WebFetch)
+- [Vercel landing page](https://vercel.com) -- "Build and deploy on the AI Cloud," framework selector, tabbed use-case navigation, Geist Mono font (analyzed via WebFetch)
+- [K9s landing page](https://k9scli.io) -- "Who Let The Pods Out?" personality, bulleted feature list, Asciinema embed, screenshot gallery (analyzed via WebFetch)
+- [Lens landing page](https://lenshq.io) -- "Power Tools for Kubernetes," 1M+ users, enterprise logos, product-specific accent colors, tabbed benefits, testimonial carousel (analyzed via WebFetch)
+- [Charm.sh / charm.land](https://charm.land) -- Mascot-driven branding, playful language, purple-to-pink gradients, glass-morphism effects, "haters > /dev/null" footer irreverence (analyzed via WebFetch)
+
+### Secondary (MEDIUM confidence -- research articles and pattern libraries)
+
+- [Evil Martians: "We studied 100 dev tool landing pages"](https://evilmartians.com/chronicles/we-studied-100-devtool-landing-pages-here-is-what-actually-works-in-2025) -- Centered hero dominant pattern, "no salesy BS," two CTAs, eyebrow text, specific CTA language over generic
+- [Markepear: Dev tool landing page examples](https://www.markepear.dev/examples/landing-page) -- 50+ dev tool page analysis, code-centric patterns, developer-first CTAs
+- [LaunchKit (Evil Martians)](https://launchkit.evilmartians.io/) -- Free devtool landing page template: hero, feature cards, bento grid, code block, FAQ, CTA sections
+- [Tailwind CSS Bento Grids](https://tailwindcss.com/plus/ui-blocks/marketing/sections/bento-grids) -- 5 official bento grid variants, light+dark, responsive
+- [SaaS Landing Page: Features section examples](https://saaslandingpage.com/features/) -- 45+ feature page designs from top SaaS companies
+
+### Tertiary (LOW confidence -- general patterns)
+
+- [BentoGrids curated collection](https://bentogrids.com/) -- Bento layout inspiration gallery
+- [Lapa Ninja: Development tools category](https://www.lapa.ninja/category/development-tools/) -- Developer tool landing page gallery
+- [Supahero: Hero section library](https://supahero.io/) -- Hero section pattern collection
 
 ---
-*Feature research for: Containerized AI agent deployment for Kubernetes DevOps debugging*
+*Feature research for: Claude In A Box Landing Page (v1.1 milestone)*
 *Researched: 2026-02-25*

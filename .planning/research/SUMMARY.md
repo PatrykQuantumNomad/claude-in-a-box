@@ -1,311 +1,254 @@
 # Project Research Summary
 
-**Project:** Claude In A Box — Containerized AI Agent Deployment
-**Domain:** Kubernetes DevOps debugging toolkit with Claude Code as the AI agent runtime
+**Project:** Claude In A Box — Astro Landing Page
+**Domain:** Static marketing landing page for an open-source Kubernetes DevOps tool
 **Researched:** 2026-02-25
 **Confidence:** HIGH
 
 ## Executive Summary
 
-Claude In A Box is a purpose-built, production-deployable container image that ships Claude Code alongside 30+ DevOps debugging tools, Kubernetes manifests, and a Helm chart — enabling engineers to debug Kubernetes clusters interactively from a phone or browser via Claude Code's Remote Control feature. The pattern is well-established: run Claude Code as a non-root process inside a Kubernetes StatefulSet, provide in-cluster `kubectl` access via a scoped ServiceAccount, and use the Remote Control relay (outbound HTTPS to Anthropic API, no inbound ports needed) as the operator interface. The unique competitive position is the combination of a pre-configured Claude Code container with in-cluster RBAC, a curated debugging toolkit, and phone-first access — no competitor delivers all three.
+Claude In A Box is an open-source DevOps tool that runs containerized Claude Code inside a Kubernetes cluster, providing phone-first remote cluster access via Anthropic's relay infrastructure. The landing page at `remotekube.patrykgolabek.dev` is a single-page marketing site whose job is to communicate this value proposition and drive visitors to the GitHub repo. Research across 100+ developer tool landing pages confirms the dominant 2026 pattern: dark-themed, centered hero with a bold headline, feature bento grid, copy-paste quickstart, and a clean footer. This page should follow that pattern while leaning into the product's unique visual hook — the phone-to-cluster data flow — as the signature hero visual.
 
-The recommended build approach uses Ubuntu 24.04 LTS as the base, a multi-stage Dockerfile that fetches static binaries in a downloader stage and copies them onto the runtime image, the native Claude Code installer (not the deprecated npm package), tini as PID 1, and a content-addressed image tagging strategy to prevent stale-image issues in KIND. For Kubernetes deployment, a StatefulSet with `replicas: 1` and a `volumeClaimTemplate` is the correct primitive because it provides stable pod identity and PVC affinity for OAuth token persistence — a Deployment loses the token on every pod restart. The Helm chart is the production packaging layer, with raw Kubernetes manifests used for local KIND development.
+The recommended stack is Astro 5.17.x (stable, zero JS by default) with Tailwind CSS v4 via `@tailwindcss/vite` (not the deprecated `@astrojs/tailwind` integration), deployed to GitHub Pages via the official `withastro/action@v5`. The Astro project lives in a `site/` subdirectory, completely isolated from the existing Docker/Helm/Kubernetes tooling. A separate `deploy-site.yaml` workflow with path filtering ensures the existing CI pipeline is never triggered by site-only changes and vice versa. This isolation is non-negotiable — mixing the two build systems creates maintenance debt and wasted CI minutes.
 
-The three risks that could kill the project if ignored are: (1) OAuth authentication persistence — Claude Code has multiple known issues with credentials not surviving container restarts; the mitigation is to use `claude setup-token` to generate long-lived tokens passed as `CLAUDE_CODE_OAUTH_TOKEN` environment variables; (2) PID 1 signal handling — the entrypoint script must use `exec` to replace the shell with the Claude Code process, and tini must be installed as a safety net; (3) KIND image staleness — every rebuild must be followed by `kind load docker-image` into the named cluster, enforced by a single Makefile `make deploy` target. All three must be addressed in Phase 1, before any other work proceeds.
+The most dangerous pitfalls are all concentrated in Phase 1 setup: custom domain configuration is uniquely fragile on GitHub Pages (the CNAME file in `site/public/` must be present in every deployment artifact or the domain resets), the Pages source must be manually switched to "GitHub Actions" before the first deploy, and the Astro `site` config must not include a `base` setting when using a custom domain. All eight critical pitfalls documented in research are preventable at setup time with correct configuration. None require architectural changes once the foundation is correct.
 
 ## Key Findings
 
 ### Recommended Stack
 
-Ubuntu 24.04 LTS is the only viable base image given the requirement for 30+ tools including those needing glibc (tcpdump, strace). Alpine's musl libc creates incompatibilities with Go static binaries and glibc-linked tools that are not worth the ~60MB size savings. Docker Engine 29.x with BuildKit (default) enables multi-stage builds with `--mount=type=cache` for reproducible, fast builds. The target image size is under 2GB compressed (~560-680MB estimated), well within reach with disciplined layer management.
+Astro 5.17.x is the right choice: it generates zero JavaScript by default (ideal for a content-only landing page), ships built-in image optimization via Sharp, and has the most mature GitHub Pages deployment story of any static site framework. Astro 6 is in beta as of Feb 2026 and should not be used — it dropped Node 18/20 support and has breaking changes that are not worth absorbing for a landing page. Tailwind CSS v4 changes the integration model entirely: configure it via `@tailwindcss/vite` directly in Astro's Vite config and use CSS-first `@theme` blocks instead of `tailwind.config.js`. The old `@astrojs/tailwind` integration is deprecated and does not support v4. For animations, `motion` (vanilla JS, v12.34.x) is the correct choice — it works in Astro `<script>` tags without React, stays under 5kb for the APIs needed (animate, inView, stagger), and is actively maintained.
 
 **Core technologies:**
-- Ubuntu 24.04 LTS: Base image — only option that supports the full glibc-dependent debugging toolkit
-- Claude Code CLI (native installer): AI agent runtime — npm installation is officially deprecated; native installer has no Node.js dependency
-- tini 0.19.0: PID 1 init — required for correct SIGTERM forwarding to Claude Code; alternative to `exec` pattern
-- kubectl 1.35.x: Kubernetes CLI — must match within one minor version of the target cluster
-- Helm 4.1.x: Kubernetes package manager — Helm 4 released Nov 2025, Helm 3 security fixes end Nov 2026, start with 4 for new projects
-- KIND 0.31.0: Local Kubernetes — official K8s testing tool, 30-second startup, amd64/arm64 support
-- jq 1.8.1 / yq 4.52.4: JSON/YAML processing — install from GitHub releases, not apt (repo versions lag by 1-2 majors)
-- k9s 0.50.18, stern 1.33.1, kubectx 0.9.5: K8s TUI/log/context tools — single static binaries, no dependencies
+- Astro 5.17.x: static site generator — zero JS output, Vite-based, excellent GitHub Pages support
+- Tailwind CSS 4.2.x + `@tailwindcss/vite`: utility CSS — v4 CSS-first config, no `tailwind.config.js` needed
+- TypeScript (bundled): type safety — use `"extends": "astro/tsconfigs/strict"` preset
+- Sharp (bundled): image optimization — auto-converts to WebP at build time, zero runtime cost
+- motion 12.34.x: scroll animations — vanilla JS, no React dependency, lazy-loadable
+- `@astrojs/sitemap` 3.7.x: SEO sitemap — required for public-facing page, needs `site` set in config
+- `astro-icon` 1.1.5 + `@iconify-json/lucide`: icons — server-rendered to static HTML, zero JS runtime
+- `withastro/action@v5`: CI/CD — official Astro GitHub Action, supports `path: ./site` for subdirectory projects
 
-**Critical version requirements:**
-- kubectl must match target cluster within ±1 minor version
-- kustomize 5.8.1 specifically adds Helm 4 compatibility; earlier versions have Helm 4 issues
-- Docker Compose v5.1.x uses the Compose Specification; avoid legacy v2/v3 format configs
-- KIND 0.27.0+ required for containerd 2.x transfer API; older KIND fails with current Docker
+**What not to use:** `@astrojs/tailwind` (deprecated for v4), `@astrojs/react` for animations only (adds 45kb for no reason), Astro 6 beta, `tailwind.config.js` (v3 pattern), `@astrojs/image` (deprecated since Astro 3), Google Fonts via `<link>` tag (GDPR and render-blocking).
 
 ### Expected Features
 
-The full feature breakdown is in `.planning/research/FEATURES.md`.
+Competitor analysis (Warp, Linear, Railway, Coolify, K9s, Lens, Charm) and the Evil Martians study of 100 dev tool pages establishes clear expectations for what this page needs.
 
-**Must have (table stakes) — launch blockers:**
-- Docker image with Claude Code, kubectl, and 30+ debugging tools — the product itself
-- Helm chart with read-only RBAC (two-tier ClusterRole: reader + operator) — deployable into any cluster
-- Docker Compose file — non-Kubernetes on-ramp
-- Remote Control documentation and setup — the core workflow (phone-first debugging)
-- CLAUDE.md with cluster-aware context — entrypoint script auto-populates environment info
-- Session persistence via PVC — conversations must survive pod restarts
-- KIND local development setup — one-command local environment; doubles as CI harness
-- Health checks / readiness probes — K8s pod lifecycle management
+**Must have (table stakes — page feels incomplete without these):**
+- Hero section with bold centered headline, subheadline, and two CTAs (GitHub + Quickstart)
+- Feature bento grid (5-6 cards, asymmetric layout) — Remote Control gets the large card
+- Architecture diagram — the phone-to-cluster flow is the product's "aha moment" and must be visual
+- Quickstart terminal code block — copy-paste Helm commands; this is the primary conversion point
+- Use cases section — 3-4 concrete scenario cards (on-call, deploy failure, cluster exploration, incident)
+- Footer with GitHub, docs, license links
+- Dark theme with electric cyan/blue accent — DevOps audiences expect dark; light themes read as non-technical
+- Responsive layout — ironic to have a broken mobile experience for a phone-first product
+- GitHub stars badge — minimal real social proof; no testimonials at v1.0, no fake metrics
 
-**Should have (competitive differentiators) — add after validation:**
-- Curated DevOps skills library — pre-built skills for pod diagnosis, network debugging, incident triage
-- MCP server integration (`kubernetes-mcp-server`) — structured K8s API access reduces hallucinations
-- Operator-tier RBAC with audit logging — mutation capabilities with human-reviewable trail
-- Helm security profile values files — `values-readonly.yaml`, `values-operator.yaml`, `values-airgapped.yaml`
-- Container image scanning and SBOM — required before enterprise adoption push
+**Should have (differentiators that elevate the page):**
+- Animated architecture diagram SVG — CSS `stroke-dashoffset` animation showing connection establishing
+- Bento grid asymmetry — larger card for Remote Control vs equal-size cards for supporting features
+- Eyebrow text above headline — version badge or "Open Source" pill; common in top dev tool pages
+- Gradient glow hover effects on cards — CSS `box-shadow` with accent color at 20% opacity
+- Typing animation on quickstart — CSS `@keyframes` typing effect with blinking cursor
 
-**Defer (v2+) — post product-market fit:**
-- Multi-cluster support — single-cluster experience must be polished first
-- Custom Go-based MCP server — only if existing Node.js MCP servers prove insufficient
-- Kubernetes Operator with CRDs — kagent-style fleet management, massive scope
-- External observability integration (Prometheus, Grafana, Loki) — defer until skills library matures
+**Defer to v1.x (add after page is live and stable):**
+- Animated architecture diagram (static SVG is fine for launch)
+- Phone + Cluster split hero visual (base hero first)
+- Dynamic GitHub stats (live star count, Docker pulls)
+- Asciinema/GIF demo embed
 
-**Anti-features to explicitly reject:**
-- Auto-remediation / self-healing — production mutations by AI agent without human approval is a liability
-- Full cluster admin permissions — hallucinated kubectl commands can delete namespaces; no wildcards in RBAC
-- Built-in web UI — Remote Control is already the UI; building another duplicates effort
-- Multi-LLM support — product identity is Claude; K8sGPT and kagent already serve multi-LLM
+**Do not build at all:**
+- Pricing section (free OSS tool — looks confused or suspicious)
+- Blog/changelog (no posts = looks abandoned)
+- Live interactive demo (requires always-on infrastructure)
+- Testimonials at v1.0 (no real users yet; fake ones destroy credibility)
+- Newsletter signup (DevOps engineers are allergic to email capture)
+- Video hero (bandwidth cost, disabled on mobile)
+
+**Design system:**
+- Background: `#0a0a0a`, Surface: `#141414`, Border: `#1f1f1f`
+- Text primary: `#ededed`, Text secondary: `#888888`
+- Accent: `#00d4ff` (electric cyan — distinct from Railway's/Coolify's purple ownership)
+- Code color: `#22c55e` (terminal green)
+- Typography: Inter (display + body), JetBrains Mono (code)
 
 ### Architecture Approach
 
-The architecture is a three-layer system: (1) Operator Layer — phone/browser accessing Anthropic's relay servers over HTTPS; (2) Deployment Layer — the container image with Claude Code CLI, an in-process MCP server, and the debugging toolkit, wrapped in a StatefulSet with RBAC and NetworkPolicy; (3) Local Development Layer — KIND cluster managed by a Makefile. The container only needs outbound HTTPS (port 443) and DNS (port 53); no inbound ports are required. This egress-only model is the key to the security posture.
-
-The full project structure, data flow diagrams, and architectural patterns are documented in `.planning/research/ARCHITECTURE.md`.
+The architecture answer is complete isolation. The Astro project lives entirely in `site/` at the repo root — mirroring the existing convention of top-level directories per concern (`docker/`, `helm/`, `k8s/`). The `site/` directory has its own `package.json` and lockfile; nothing is shared with the repo root. Two separate workflow files handle the two separate concerns: `ci.yaml` (existing, add `paths-ignore: ['site/**']`) and `deploy-site.yaml` (new, `paths: ['site/**']`). This means a Dockerfile change never triggers an Astro build, and a landing page text change never triggers Docker builds, Trivy scans, Helm lint, or KIND integration tests. `.dockerignore` must add `site/` to prevent `node_modules/` (200+ MB) from entering Docker build context.
 
 **Major components:**
-1. **Dockerfile (multi-stage)** — Downloader stage fetches static binaries; runtime stage copies onto Ubuntu 24.04, creates non-root user, installs Claude Code via native installer
-2. **Entrypoint script** — Bash with `trap` + `exec`; dispatches on `$CLAUDE_MODE` (remote-control | interactive | headless); must exec to replace shell as PID 1
-3. **StatefulSet + volumeClaimTemplate** — Single replica with stable pod identity; PVC at `~/.claude/` persists OAuth token across restarts
-4. **Tiered RBAC** — `claude-reader` ClusterRole (get/list/watch, no secrets) as default; `claude-operator` ClusterRole (adds delete pods, exec, patch deployments) as explicit opt-in
-5. **NetworkPolicy (egress-only)** — Allow port 443 (Anthropic API) + port 53 UDP/TCP (DNS) + port 6443 (K8s API server); deny all ingress
-6. **MCP server (kubernetes-mcp-server)** — Runs as Claude Code child process via stdio transport; in-cluster config auto-detected; `--read-only` flag matches RBAC tier
-7. **Helm chart** — Parameterized templates of the K8s manifests; values-driven RBAC tier, resource limits, security context
-8. **KIND + Makefile** — `make build | load | deploy | cluster-up | cluster-down | test`; enforces build-load-deploy chain
+1. `site/src/layouts/Base.astro` — HTML shell with `<head>`, meta tags, Open Graph tags; imports global.css
+2. `site/src/pages/index.astro` — landing page entry point; imports layout and all section components
+3. `site/src/components/Hero.astro` — headline, subheadline, two CTAs, hero visual
+4. `site/src/components/Features.astro` — bento grid with 5-6 feature cards
+5. `site/src/components/Architecture.astro` — SVG diagram: phone -> relay -> cluster
+6. `site/src/components/QuickStart.astro` — terminal code block with copy button
+7. `site/src/components/UseCases.astro` — 3-4 scenario cards (on-call, deploy, explore, incident)
+8. `site/src/components/Footer.astro` — GitHub, docs, license, author attribution
+9. `.github/workflows/deploy-site.yaml` — build + deploy to GitHub Pages (separate from CI)
+
+**Build order:** Foundation (configs, CNAME, npm install) -> Layout + styles -> Components -> Page assembly -> CI/CD integration
 
 ### Critical Pitfalls
 
-Full pitfall documentation with recovery strategies in `.planning/research/PITFALLS.md`.
+All critical pitfalls are Phase 1 setup issues. Get Phase 1 right and the rest of the project is straightforward.
 
-1. **KIND image staleness** — After `docker build`, the KIND containerd store still has the old image; pod runs stale code silently. Prevention: always `kind load docker-image <image>:<tag> --name <cluster>` after every build; use git-SHA tags never `:latest`; set `imagePullPolicy: Never`; wrap in single Makefile `make deploy` target.
+1. **CNAME file deleted on every deployment** — Create `site/public/CNAME` containing exactly `remotekube.patrykgolabek.dev` (no trailing newline, no protocol). Astro copies `public/` to `dist/` automatically. Without this file in the artifact, GitHub Pages resets the custom domain on every deployment. This is the single most-reported GitHub Pages issue.
 
-2. **OAuth token not persisting across restarts** — Claude Code has multiple known GitHub issues (anthropics/claude-code#22066, #12447, #21765) with credentials vanishing after container restart despite valid files on PVC. Prevention: use `claude setup-token` on host to generate long-lived token (~1 year); pass as `CLAUDE_CODE_OAUTH_TOKEN` env var; avoid relying on interactive OAuth flow in containers.
+2. **GitHub Pages source not set to "GitHub Actions"** — Before the first deploy, manually set Settings > Pages > Source to "GitHub Actions." The `actions/deploy-pages` action requires this; without it the deploy silently produces no result or fails with a permissions error. Document this as a one-time setup prerequisite.
 
-3. **PID 1 signal swallowing** — Bash entrypoint at PID 1 does not forward SIGTERM to Claude Code; Kubernetes sends SIGKILL after grace period, causing session state loss. Prevention: use `exec claude ...` as the final command in the entrypoint to replace the shell; install tini as a safety net (`ENTRYPOINT ["/usr/bin/tini", "--"]`); set `terminationGracePeriodSeconds: 60`.
+3. **`base` config set when using custom domain** — Set only `site: 'https://remotekube.patrykgolabek.dev'` in `astro.config.mjs`. Never set `base` for a custom domain deployment. `base` is for subpath deployments like `username.github.io/repo-name`. Setting it breaks every asset path and internal link.
 
-4. **NetworkPolicy DNS blocking** — Restricting egress without explicitly allowing UDP/TCP port 53 to kube-dns breaks all name resolution, making kubectl, curl, and the entire toolkit non-functional. Prevention: every NetworkPolicy egress section must include a DNS allowance rule to `kube-system/kube-dns`; test with `kubectl exec <pod> -- nslookup kubernetes.default` after applying.
+4. **Deploy workflow triggers on all pushes** — Add `paths: ['site/**']` to `deploy-site.yaml` and `paths-ignore: ['site/**']` to `ci.yaml`. Without path filtering, every Helm or Dockerfile commit triggers a full Astro build and Pages deployment.
 
-5. **RBAC wildcards creating security vulnerabilities** — Using `*` verbs/resources during development creates a cluster-takeover risk and makes it impossible to audit actual permission needs later. Prevention: define both ClusterRole tiers explicitly from day one; enumerate every resource and verb; never use wildcards; exclude `secrets` from both roles; test with `kubectl auth can-i --as=system:serviceaccount:<ns>:<sa>`.
+5. **Wrong DNS record type for subdomain** — `remotekube.patrykgolabek.dev` requires a CNAME record pointing to `<username>.github.io.` — not an A record, not a path-suffixed value. Enable "Enforce HTTPS" only after the DNS check shows green (certificate provisioning takes up to 1 hour).
 
-6. **Image layer bloat** — Separate `RUN apt-get install` commands without same-layer cleanup produce 3-4GB images; KIND load times exceed 90 seconds. Prevention: single combined `RUN apt-get install` with `--no-install-recommends` and `rm -rf /var/lib/apt/lists/*` in the same layer; use BuildKit cache mounts; multi-stage build copies only binaries.
+6. **`withastro/action` `path` parameter missing** — Set `path: ./site` in the workflow. Without it, the action looks for `package.json` at the repo root (finding none), and the build fails with a confusing lockfile detection error.
+
+7. **`id-token: write` permission missing from deploy workflow** — The deploy workflow needs `contents: read`, `pages: write`, and `id-token: write`. The last one is unusual and often missed. Without it, `actions/deploy-pages` fails with a cryptic permissions error. Do not add this to the existing CI workflow.
+
+8. **No 404.astro page** — Create `site/src/pages/404.astro`. GitHub Pages serves a custom `404.html` if present in the deployment artifact. Without it, users who follow a broken link see the default GitHub 404 page with no project branding.
 
 ## Implications for Roadmap
 
-The architecture research provides an explicit build-order dependency chain that maps directly to roadmap phases. The entrypoint must exist before K8s manifests can be tested; K8s manifests must work before Helm can templatize them; integration tests require all prior phases. The pitfalls research adds urgency: six of the eight critical pitfalls must be solved in Phase 1, or all subsequent phases build on a broken foundation.
+Based on the dependency structure and pitfall distribution, a 3-phase approach is optimal. Phase 1 is a pure setup phase — it has zero deliverable content but gates everything else. Phase 2 builds all P1 content. Phase 3 adds P2 polish.
 
-### Phase 1: Container Foundation
+### Phase 1: Foundation and Infrastructure
 
-**Rationale:** Every downstream component — KIND deployment, Helm chart, K8s manifests, Remote Control — references the built image. This must be correct before anything else is attempted. Six of eight critical pitfalls live here: image staleness, OAuth persistence, PID 1 signal handling, NetworkPolicy DNS, RBAC definition, and image layer bloat.
+**Rationale:** Seven of the eight critical pitfalls are Phase 1 configuration errors. If setup is correct, the rest is mechanical component building. If setup is wrong, every subsequent push breaks something (wrong domain, broken assets, wasted CI runs). Resolve all ambiguity before writing a single line of Astro component code.
 
-**Delivers:** A working container image that builds reproducibly, runs Claude Code as a non-root user, handles signals correctly, authenticates via `CLAUDE_CODE_OAUTH_TOKEN`, and contains all 30+ debugging tools verified at runtime.
+**Delivers:** A deployable Astro scaffold that produces a working page at `remotekube.patrykgolabek.dev`, with correct custom domain, correct CI/CD isolation, and correct config — even if the page content is a placeholder.
 
-**Addresses (from FEATURES.md):**
-- Docker image with Claude Code, kubectl, and core debugging tools (P1 table stake)
-- Authentication via environment variable (P1 table stake)
-- Basic health checks (P1 table stake)
+**Addresses:**
+- Astro project scaffold in `site/` subdirectory with own `package.json`
+- `astro.config.mjs` with `site` set, no `base`, Tailwind via `@tailwindcss/vite`, sitemap and icon integrations
+- `site/public/CNAME` with correct domain (prevents custom domain reset)
+- `.github/workflows/deploy-site.yaml` with `path: ./site`, `paths: ['site/**']`, correct permissions including `id-token: write`, concurrency group
+- `.github/workflows/ci.yaml` patched with `paths-ignore: ['site/**']`
+- `.dockerignore` updated to exclude `site/`
+- GitHub repo Settings > Pages source set to "GitHub Actions" (manual step, documented)
+- DNS CNAME record created and verified (manual step, documented)
+- HTTPS enforcement enabled after certificate provisioning
+- Domain verification in GitHub account settings
+- `tsconfig.json` extending Astro strict preset
 
-**Avoids (from PITFALLS.md):**
-- KIND image staleness: git-SHA tags, `imagePullPolicy: Never`
-- PID 1 signal swallowing: tini as ENTRYPOINT, `exec` in entrypoint script
-- Image layer bloat: single combined RUN, `--no-install-recommends`, multi-stage build
-- OAuth persistence: `CLAUDE_CODE_OAUTH_TOKEN` env var path, avoid interactive flow
+**Avoids:** CNAME deletion (Pitfall 1), Pages source misconfiguration (Pitfall 2), site/base misconfiguration (Pitfall 3), deploy triggers on all pushes (Pitfall 4), DNS misconfiguration (Pitfall 6), withastro/action path error (Pitfall 7), permissions conflict (Pitfall 5)
 
-**Key deliverables:** Dockerfile (multi-stage), entrypoint.sh (with exec + trap), verify-tools.sh, Makefile (build target), `.github/workflows/ci.yml` skeleton
-
----
-
-### Phase 2: Local Development Environment
-
-**Rationale:** Developers need a local target to test the image before investing in production Kubernetes manifests. KIND provides this AND doubles as the CI test harness. Building KIND infrastructure now means every subsequent phase can be validated locally. The Makefile must enforce the build-load-deploy chain to prevent stale-image issues.
-
-**Delivers:** One-command local Kubernetes environment with the Claude-in-a-box image deployed and accessible. Also serves as CI/CD integration test infrastructure.
-
-**Addresses (from FEATURES.md):**
-- KIND local development setup (P1 table stake, also a competitive differentiator vs. all competitors)
-- Docker Compose file (P1 table stake, simpler on-ramp)
-- Session persistence via PVC (P1 table stake)
-
-**Uses (from STACK.md):**
-- KIND 0.31.0 with K8s 1.35 node images at SHA256 digest
-- Docker Compose v5.1.x
-
-**Avoids (from PITFALLS.md):**
-- KIND image staleness: Makefile `make deploy` chains build, tag, load, apply, wait-for-ready
-- PVC data loss: `Retain` reclaim policy, document volume lifecycle
-
-**Key deliverables:** scripts/kind/ (cluster-up, cluster-down, deploy), kind-config.yaml (1 control + 2 workers), docker-compose.yml, Makefile (full target chain)
+**Research flag:** Standard patterns, well-documented — skip `/gsd:research-phase`
 
 ---
 
-### Phase 3: Kubernetes Manifests and RBAC
+### Phase 2: Content and Components
 
-**Rationale:** With a working image and local test environment, raw Kubernetes manifests can be developed and validated against KIND. The manifests form the foundation that Helm will later templatize — get them right here, and Helm is straightforward. RBAC must be defined with explicit permissions from the start; retrofitting least-privilege later is expensive.
+**Rationale:** With infrastructure correct, all content work is independent of deployment concerns. Components can be built in dependency order (layout -> sections -> page) and verified locally with `astro dev`. All P1 features from FEATURES.md belong here. Content gates visuals — write copy first, then build components around it.
 
-**Delivers:** Complete raw Kubernetes manifest set that can be applied with `kubectl apply -f k8s/` to deploy Claude-in-a-box into any cluster with correct RBAC, persistence, and network isolation.
+**Delivers:** The complete landing page with all table-stakes sections: hero, feature bento grid, architecture diagram, quickstart, use cases, footer. Full responsive layout. Dark theme with electric cyan design system.
 
-**Addresses (from FEATURES.md):**
-- Kubernetes deployment manifests with Helm chart (P1 table stake)
-- RBAC with least-privilege service accounts, two-tier (P1 table stake)
-- Health checks and readiness probes (P1 table stake)
-- NetworkPolicy egress-only (architectural requirement)
+**Addresses:**
+- `Base.astro` layout with Open Graph meta tags (og:title, og:description, og:image)
+- `Hero.astro` — eyebrow badge, bold headline, subheadline, two CTAs, hero visual
+- `Features.astro` — asymmetric bento grid (1 large + 1 medium + 3 small cards), Lucide icons
+- `Architecture.astro` — static SVG diagram: phone icon -> relay cloud -> Kubernetes cluster
+- `QuickStart.astro` — terminal-styled dark code block, JetBrains Mono, copy-to-clipboard button
+- `UseCases.astro` — 3-4 scenario cards (weekend on-call, deploy gone wrong, cluster exploration, incident response)
+- `Footer.astro` — GitHub, docs, license, author attribution
+- `404.astro` — custom 404 page matching site design
+- `global.css` — Tailwind directives, design tokens (`@theme` block), color palette
+- GitHub stars badge via shields.io
 
-**Implements (from ARCHITECTURE.md):**
-- StatefulSet with volumeClaimTemplate pattern (Pattern 4)
-- Tiered RBAC with opt-in escalation (Pattern 2)
-- Egress-only NetworkPolicy with DNS allowance (Pattern 3)
+**Uses:** Astro components, Tailwind v4, `astro-icon` + `@iconify-json/lucide`, `astro:assets` for image optimization
 
-**Avoids (from PITFALLS.md):**
-- RBAC wildcards: enumerate every resource/verb; exclude secrets; test with `kubectl auth can-i`
-- NetworkPolicy DNS blocking: always include UDP/TCP 53 to kube-dns; verify with nslookup post-apply
-- Non-root capability gaps: document which tools require NET_RAW; default pod spec has no added capabilities
+**Avoids:** Missing 404 page (Pitfall 8), missing OG tags (UX pitfall), missing mobile responsiveness
 
-**Key deliverables:** k8s/ directory (namespace, statefulset, serviceaccount, clusterrole-reader, clusterrole-operator, clusterrolebinding, networkpolicy, configmap, pvc), integration test suite (test-rbac.sh, test-networking.sh, test-persistence.sh, test-tools.sh)
-
----
-
-### Phase 4: Integration and Hardening
-
-**Rationale:** With working manifests, the end-to-end flow needs to be assembled and verified: OAuth login, token persistence across restarts, Remote Control session establishment, and MCP server connectivity. This phase converts individual working components into a coherent system. The CLAUDE.md cluster-aware context is built here because it depends on knowing the actual runtime environment.
-
-**Delivers:** End-to-end working system: deploy to KIND, authenticate once, connect via Remote Control from phone/browser, use Claude to run debugging tools against the cluster.
-
-**Addresses (from FEATURES.md):**
-- Remote Control documentation and setup (P1 table stake — the core differentiating workflow)
-- CLAUDE.md with cluster-aware context (P1 table stake, differentiator)
-- Session persistence verification (P1 table stake)
-- MCP server integration foundation (P2 differentiator — basic kubernetes-mcp-server setup)
-
-**Avoids (from PITFALLS.md):**
-- OAuth token expiration: `claude setup-token` long-lived token; document token lifetime; entrypoint logs auth method clearly
-- Auth failure UX: entrypoint detects auth failure and prints actionable message (not raw 401 JSON)
-- Remote Control connectivity: verify DNS + port 443 egress works; log "Remote Control session active" on connect
-
-**Key deliverables:** CLAUDE.md template, entrypoint.sh auth detection logic, .mcp.json configuration, test-remote-control.sh, OAuth setup documentation, test-bootstrap.sh
+**Research flag:** Standard patterns for all sections except the architecture diagram SVG — the SVG component is custom and may need a brief design iteration. No research phase needed; patterns are well-established.
 
 ---
 
-### Phase 5: Production Packaging
+### Phase 3: Animation and Polish
 
-**Rationale:** The raw manifests are validated and working. Now wrap them in Helm for production deployability. Add CI/CD pipeline, container scanning, and the Docker Compose reference deployment. The operator-tier RBAC is enabled here because it requires the foundation to be solid first, and audit logging is only meaningful when mutations are possible.
+**Rationale:** P2 features add delight without blocking launch. Build after the page is live and confirmed working at the custom domain. Scroll-triggered animations require testing across browsers and devices; doing this before the base page is verified adds risk.
 
-**Delivers:** Production-deployable Helm chart with security profile variants, CI/CD pipeline with image scanning, operator-tier RBAC with audit logging, SBOM publication.
+**Delivers:** Scroll-triggered entrance animations, animated architecture diagram, gradient glow hover effects, typing animation on quickstart terminal. Elevates the page from "functional" to "memorable."
 
-**Addresses (from FEATURES.md):**
-- Helm chart with opinionated defaults (extends P1 table stake into production quality)
-- Helm security profile values files (P2 differentiator)
-- Operator-tier RBAC with audit logging (P2 differentiator)
-- Container image scanning and SBOM (P2 differentiator, enterprise prerequisite)
+**Addresses:**
+- `motion` integration for scroll-triggered card reveals (`inView`, `stagger`)
+- Hero section entrance animation
+- Architecture diagram animated SVG — CSS `stroke-dashoffset` animation on connection lines, pod pulse
+- Gradient glow hover effects on feature cards — `box-shadow` with accent color
+- Typing animation on quickstart code block — CSS `@keyframes` with blinking cursor
+- Performance verification — Lighthouse score, total JS bundle under 50kb
 
-**Uses (from STACK.md):**
-- Helm 4.1.x with kustomize 5.8.1 compatibility
+**Uses:** motion 12.34.x (vanilla JS in Astro `<script>` tags), CSS animations for diagram, CSS transitions for hover effects
 
-**Key deliverables:** helm/claude-in-a-box/ (Chart.yaml, values.yaml, templates/), values-readonly.yaml, values-operator.yaml, values-airgapped.yaml, CI pipeline with Trivy scanning, SBOM generation
-
----
-
-### Phase 6: Extensions and Differentiators
-
-**Rationale:** With a stable, production-tested foundation, add the features that convert a working product into a differentiated one. The skills library requires real usage data to inform what to build first. The MCP server structured access makes skills more reliable by providing typed data instead of text-parsed CLI output.
-
-**Delivers:** Curated DevOps skills library, network diagnostic tool variants (Cilium, Istio, Calico), pre-configured network debugging tools, and multi-cluster support documentation.
-
-**Addresses (from FEATURES.md):**
-- Curated DevOps skills library (P2 differentiator — key competitive advantage)
-- Pre-configured network diagnostic tools (P2 differentiator)
-- Multi-cluster support (P3 future consideration)
-
-**Key deliverables:** .claude/skills/ directory with skills for: cluster health, pod failure diagnosis, network policy debugging, resource quota analysis, node troubleshooting, certificate debugging, DNS testing
+**Research flag:** Standard patterns — skip `/gsd:research-phase`. Motion's `inView` and `stagger` APIs are well-documented. CSS `stroke-dashoffset` animation for SVG paths is a common technique.
 
 ---
 
 ### Phase Ordering Rationale
 
-- **Container before Kubernetes:** Every K8s manifest references the image; the image must be correct and stable before testing manifests
-- **KIND before Helm:** KIND provides a local target to develop and validate raw manifests before they are abstracted into Helm templates
-- **Raw manifests before Helm:** Helm templates are parameterized versions of working manifests; template what is proven to work
-- **Integration before packaging:** The end-to-end Remote Control flow must work in KIND before being packaged for production
-- **Foundation before extensions:** Skills and MCP server depend on the core image, RBAC, and CLAUDE.md context being stable
-- **Auth and signals in Phase 1:** These are gating — nothing else works if OAuth breaks or SIGTERM kills sessions mid-operation
+- Foundation must precede content: `npm install` and `astro build` must succeed before components can be developed. CNAME and DNS must be in place before the first deployment. CI path filtering must be correct from commit one.
+- Content must precede animation: you cannot animate components that do not exist. The architecture diagram must be built as static SVG before adding animated strokes.
+- Responsive layout is a constraint on Phase 2, not a phase: use Tailwind responsive utilities from the first component. Building desktop-only then "adding mobile later" doubles CSS work.
+- Separate content from infrastructure: Phase 1 is pure infrastructure. Phase 2 is pure content. Phase 3 is pure polish. Clear phase boundaries prevent mixed concerns.
 
 ### Research Flags
 
-Phases likely needing deeper research during planning:
+Phases with standard patterns (skip `/gsd:research-phase`):
+- **Phase 1:** GitHub Pages + Astro deployment is extremely well-documented. All configuration values are verified. Follow the exact workflow YAML and config from STACK.md and PITFALLS.md.
+- **Phase 2:** Landing page section patterns are established. Component structure, Tailwind design system setup, and Astro component authoring all have official documentation. The architecture SVG is custom but not complex.
+- **Phase 3:** motion v12 API is stable. CSS `stroke-dashoffset` animation is a standard technique. No research needed.
 
-- **Phase 4 (Integration):** Claude Code's Remote Control authentication flow has known GitHub issues and underdocumented behavior in headless/container environments. The `claude setup-token` flow and the exact credential file format should be validated against the current Claude Code version before implementation.
-- **Phase 4 (MCP server):** The `kubernetes-mcp-server` (Red Hat Go binary) vs. `mcp-server-kubernetes` (Flux159 Node.js) decision needs hands-on testing. Behavior with `--read-only` flag, in-cluster config auto-detection, and stdio transport reliability should be validated early.
-- **Phase 5 (Helm):** The Helm 4.x chart API has breaking changes from Helm 3. Verify chart compatibility with target cluster Helm versions before templating.
-
-Phases with standard patterns (skip research-phase):
-
-- **Phase 1 (Container Foundation):** Multi-stage Dockerfile, tini, non-root users, static binary downloads — all well-documented with high-confidence sources.
-- **Phase 2 (KIND):** KIND setup, image loading, Makefile patterns — extensively documented, high confidence.
-- **Phase 3 (Manifests):** StatefulSet, RBAC, NetworkPolicy — official Kubernetes documentation covers all patterns, high confidence.
+No phases require `/gsd:research-phase` — all findings come from official documentation with HIGH confidence.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All tool versions verified against official GitHub releases and docs. One caveat: skopeo 1.22.0 is from Feb 2025 — may have a newer release. |
-| Features | MEDIUM-HIGH | Table stakes and differentiators are well-researched with multiple community implementations as reference. Feature prioritization is opinionated but defensible. |
-| Architecture | HIGH | All patterns (StatefulSet, RBAC, NetworkPolicy, KIND workflow) backed by official Kubernetes documentation. MCP server integration is MEDIUM — fewer production references. |
-| Pitfalls | HIGH | Most pitfalls verified against actual GitHub issues (anthropics/claude-code#22066, #12447, #21765) and community incident reports. Not theoretical — these are documented failures. |
+| Stack | HIGH | All technologies verified via official docs, npm releases, and GitHub releases. Versions confirmed current as of 2026-02-25. Version compatibility matrix fully cross-checked. |
+| Features | HIGH | Based on direct analysis of 8 competitor landing pages plus Evil Martians research of 100 dev tool pages. Table stakes are unambiguous. P2 features reflect clear industry patterns. |
+| Architecture | HIGH | Official Astro and GitHub Pages documentation. Monorepo subdirectory pattern (`path: ./site`) is the officially supported approach per `withastro/action` docs. No community inference needed. |
+| Pitfalls | HIGH | All 8 critical pitfalls verified via official GitHub Pages docs, official Astro docs, and GitHub Community discussions with hundreds of confirmed reports. Recovery strategies are tested. |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **Claude Code version pinning:** The native installer's pinning mechanism (`bash -s <version>`) behavior and available pinnable versions should be confirmed early in Phase 1. If pinning is unreliable, the npm path (despite deprecation) may be needed for reproducibility.
-- **OAuth long-lived token duration:** The `claude setup-token` long-lived token is documented as "~1 year" in community sources but not in official Anthropic docs. Token lifetime should be confirmed before building the health check and monitoring strategy around it.
-- **MCP server selection:** Two viable MCP server implementations exist (`kubernetes-mcp-server` in Go from Red Hat; `mcp-server-kubernetes` in Node.js from Flux159). Performance, reliability, and in-cluster config behavior differences are not fully documented. Needs hands-on evaluation in Phase 4.
-- **Remote Control session timeout:** The timeout behavior for Remote Control sessions after network outage (~10 min per architecture research) needs validation — if shorter, the NetworkPolicy must account for reconnection patterns.
-- **containerd 2.x KIND compatibility:** KIND 0.27.0+ supports containerd 2.x, but exact version requirements should be pinned in documentation to prevent breakage as Docker Engine continues to update.
+- **Exact Helm install commands:** The quickstart section requires the actual Helm repo URL and install command from the repository. FEATURES.md shows a placeholder URL (`https://...`). Resolve from the actual `helm/` directory or README during Phase 2 content authoring.
+
+- **Product copy and headlines:** Copywriting for the hero headline, subheadline, feature card descriptions, and use case scenarios is not finalized. The research establishes patterns and examples but the final copy needs a deliberate writing pass during Phase 2. The hero headline in particular should be tested for clarity — "Your AI DevOps Agent, Running Inside Your Cluster" is a candidate but not final.
+
+- **OG image creation:** The `og-image.png` for social sharing meta tags needs to be created. It is referenced in the architecture but not produced by any research. This is a design task for Phase 2.
+
+- **Favicon design:** `site/public/favicon.svg` needs to be created. Not covered in research. Low complexity but easy to forget.
 
 ## Sources
 
 ### Primary (HIGH confidence)
 
-- [Claude Code Setup Docs](https://code.claude.com/docs/en/setup) — native installer, npm deprecation, version pinning
-- [Claude Code Remote Control](https://code.claude.com/docs/en/remote-control) — session architecture, requirements, phone-first workflow
-- [Claude Code Authentication](https://code.claude.com/docs/en/authentication) — OAuth flow, headless auth patterns
-- [Kubernetes StatefulSet docs](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/) — PVC affinity, stable identity
-- [Kubernetes RBAC Good Practices](https://kubernetes.io/docs/concepts/security/rbac-good-practices/) — least-privilege patterns
-- [Kubernetes NetworkPolicy docs](https://kubernetes.io/docs/concepts/services-networking/network-policies/) — egress-only patterns
-- [KIND documentation](https://kind.sigs.k8s.io/docs/user/quick-start/) — image loading, cluster config
-- [Helm 4 release blog](https://helm.sh/blog/helm-4-released/) — Helm 4 support timeline
-- [Docker BuildKit docs](https://docs.docker.com/build/buildkit/) — cache mounts, multi-stage builds
-- [Claude Code Issue #22066](https://github.com/anthropics/claude-code/issues/22066) — OAuth persistence in Docker
-- [Claude Code Issue #12447](https://github.com/anthropics/claude-code/issues/12447) — OAuth token expiration in autonomous workflows
-- [Claude Code Issue #21765](https://github.com/anthropics/claude-code/issues/21765) — OAuth refresh token headless failure
-- [PID 1 Signal Handling (Peter Malmgren)](https://petermalmgren.com/signal-handling-docker/) — exec pattern validation
-- [DNS failure with NetworkPolicy (Otterize)](https://otterize.com/blog/dns-resolution-failure-in-kubernetes) — DNS blocking pitfall
-- [iximiuz: KIND image loading](https://iximiuz.com/en/posts/kubernetes-kind-load-docker-image/) — stale image pitfall
+- [Astro GitHub Pages Deploy Guide](https://docs.astro.build/en/guides/deploy/github/) — deployment workflow, CNAME setup, custom domain configuration
+- [Astro Project Structure Docs](https://docs.astro.build/en/basics/project-structure/) — component, layout, pages conventions
+- [withastro/action v5 GitHub Repo](https://github.com/withastro/action) — `path`, `node-version`, `cache` inputs; v5.2.0 verified
+- [Tailwind CSS v4 Astro Install Guide](https://tailwindcss.com/docs/installation/framework-guides/astro) — `@tailwindcss/vite` integration, CSS-first config
+- [GitHub Pages Custom Domain Docs](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site) — CNAME DNS setup, HTTPS enforcement
+- [GitHub Pages Troubleshooting Docs](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/troubleshooting-custom-domains-and-github-pages) — DNS verification, certificate provisioning
+- [GitHub Actions Workflow Syntax](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions) — path filters, permissions
+- [Motion.dev](https://motion.dev) — vanilla JS API, `inView`, `stagger`, `animate`
+- [Astro Images Documentation](https://docs.astro.build/en/guides/images/) — built-in Sharp, `<Image />`, `<Picture />`
+- Warp, Linear, Railway, Coolify, K9s, Lens, Charm landing pages — direct competitor analysis
 
 ### Secondary (MEDIUM confidence)
 
-- [Metoro: Claude Code on Kubernetes](https://metoro.io/blog/claude-code-kubernetes) — community Helm chart reference
-- [claudebox GitHub](https://github.com/RchGrav/claudebox) — Docker isolation patterns
-- [kagent.dev](https://kagent.dev/) — CNCF AI agent framework, competitive positioning
-- [kubernetes-mcp-server (Red Hat)](https://github.com/containers/kubernetes-mcp-server) — Go-based MCP implementation
-- [mcp-server-kubernetes (Flux159)](https://github.com/Flux159/mcp-server-kubernetes) — Node.js MCP implementation
-- [Pulumi: Claude Skills for DevOps](https://www.pulumi.com/blog/top-8-claude-skills-devops-2026/) — skills ecosystem patterns
-- [Agent Sandbox for Kubernetes](https://github.com/kubernetes-sigs/agent-sandbox) — alpha-stage K8s-native agent lifecycle (monitor, not use)
+- [Evil Martians: "We studied 100 dev tool landing pages"](https://evilmartians.com/chronicles/we-studied-100-devtool-landing-pages-here-is-what-actually-works-in-2025) — hero patterns, CTA language, eyebrow text
+- [GitHub Community #159544, #22366](https://github.com/orgs/community/discussions/159544) — CNAME deletion confirmation across hundreds of reports
+- [Tailwind CSS Bento Grids (Tailwind UI)](https://tailwindcss.com/plus/ui-blocks/marketing/sections/bento-grids) — 5 bento grid variants for reference
+- [actions/deploy-pages Issue #329](https://github.com/actions/deploy-pages/issues/329) — `id-token: write` permission requirement clarification
 
 ### Tertiary (LOW confidence)
 
-- [devops-toolkit container](https://github.com/tungbq/devops-toolkit) — reference for all-in-one DevOps containers (baseline comparison)
-- [SRE Skill for Claude Code](https://github.com/geored/sre-skill) — community skill implementation patterns
-- [DevOps Claude Skills marketplace](https://github.com/ahmedasmar/devops-claude-skills) — community skills collection patterns
+- [Markepear: Dev tool landing page examples](https://www.markepear.dev/examples/landing-page) — 50+ dev tool page patterns
+- [LaunchKit (Evil Martians)](https://launchkit.evilmartians.io/) — free devtool landing page template reference
 
 ---
 *Research completed: 2026-02-25*

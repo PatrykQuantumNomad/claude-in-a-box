@@ -1,620 +1,438 @@
 # Architecture Research
 
-**Domain:** Containerized AI Agent Deployment with DevOps Debugging Toolkit
+**Domain:** Astro landing page integration into existing DevOps tool repository
 **Researched:** 2026-02-25
 **Confidence:** HIGH
 
-## Standard Architecture
-
-### System Overview
+## System Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                        OPERATOR LAYER                                   │
-│                                                                         │
-│   Phone (Claude App)  /  Browser (claude.ai/code)                       │
-│            │                      │                                     │
-│            └──────────┬───────────┘                                     │
-│                       │ Remote Control (outbound HTTPS relay)           │
-│                       ▼                                                 │
-│              Anthropic API Servers                                      │
-│                       │                                                 │
-└───────────────────────┼─────────────────────────────────────────────────┘
-                        │ outbound HTTPS only
-┌───────────────────────┼─────────────────────────────────────────────────┐
-│                       │       DEPLOYMENT LAYER                          │
-│  ┌────────────────────┼────────────────────────────────────────────┐    │
-│  │                    ▼     CONTAINER IMAGE                        │    │
-│  │  ┌──────────────────────────────────────┐                      │    │
-│  │  │         ENTRYPOINT (PID 1)           │                      │    │
-│  │  │  Mode: remote-control | interactive  │                      │    │
-│  │  │        | headless                    │                      │    │
-│  │  │  Signal: SIGTERM trap + exec         │                      │    │
-│  │  └──────────┬───────────────────────────┘                      │    │
-│  │             │                                                  │    │
-│  │  ┌──────────▼───────────────────────────┐                      │    │
-│  │  │         CLAUDE CODE CLI              │                      │    │
-│  │  │  - Remote Control session            │                      │    │
-│  │  │  - OAuth token (from PVC)            │                      │    │
-│  │  │  - MCP server connections            │                      │    │
-│  │  └──────────┬───────────────────────────┘                      │    │
-│  │             │                                                  │    │
-│  │  ┌──────────▼───────────────────────────┐                      │    │
-│  │  │      MCP SERVER (in-process)         │                      │    │
-│  │  │  kubernetes-mcp-server (Go binary)   │                      │    │
-│  │  │  - In-cluster config auto-detect     │                      │    │
-│  │  │  - Read-only or operator mode        │                      │    │
-│  │  └──────────┬───────────────────────────┘                      │    │
-│  │             │                                                  │    │
-│  │  ┌──────────▼───────────────────────────┐                      │    │
-│  │  │       DEBUGGING TOOLKIT (30+)        │                      │    │
-│  │  │  kubectl, helm, k9s, stern, kubens   │                      │    │
-│  │  │  curl, dig, nslookup, tcpdump, ss    │                      │    │
-│  │  │  htop, strace, jq, yq, bat          │                      │    │
-│  │  │  crictl, nerdctl, trivy, grype       │                      │    │
-│  │  └──────────────────────────────────────┘                      │    │
-│  │                                                                │    │
-│  │  Base: Ubuntu 24.04 LTS | Non-root user | Multi-stage build   │    │
-│  └────────────────────────────────────────────────────────────────┘    │
-│                                                                         │
-│  ┌────────────────────────────────────────────────────────────────┐    │
-│  │              KUBERNETES ORCHESTRATION                          │    │
-│  │                                                                │    │
-│  │  StatefulSet (replicas: 1)                                    │    │
-│  │     ├── ServiceAccount ──► ClusterRole(Binding)               │    │
-│  │     ├── PVC (volumeClaimTemplate) ──► auth token + state      │    │
-│  │     ├── ConfigMap ──► entrypoint config, .mcp.json            │    │
-│  │     └── NetworkPolicy ──► egress-only (443/TCP + 53/UDP)      │    │
-│  │                                                                │    │
-│  └────────────────────────────────────────────────────────────────┘    │
-│                                                                         │
-│  ┌────────────────────────────────────────────────────────────────┐    │
-│  │              DOCKER COMPOSE (ALTERNATIVE)                      │    │
-│  │                                                                │    │
-│  │  Single service                                                │    │
-│  │     ├── Named volume ──► auth token + state                   │    │
-│  │     ├── docker.sock bind mount ──► host Docker access          │    │
-│  │     └── Environment variables ──► mode, config                │    │
-│  │                                                                │    │
-│  └────────────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────┐
-│                     LOCAL DEVELOPMENT LAYER                              │
-│                                                                         │
-│  ┌──────────────────────┐  ┌───────────────────────────────────────┐    │
-│  │    KIND CLUSTER       │  │          MAKEFILE                    │    │
-│  │  1 control + 2 worker │  │  build ──► docker build multi-stage │    │
-│  │  containerd runtime   │  │  load  ──► kind load docker-image   │    │
-│  │  kubeadm bootstrap    │  │  deploy ──► kubectl apply           │    │
-│  │  explicit image load  │  │  cluster-up ──► kind create cluster │    │
-│  │  never use :latest    │  │  cluster-down ──► kind delete       │    │
-│  └──────────────────────┘  │  test  ──► integration suite         │    │
-│                             │  clean ──► full teardown             │    │
-│                             └───────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────────────┘
+claude-in-a-box/
+├─────────────────────────────────────────────────────────────────┐
+│  EXISTING PRODUCT CODE (unchanged)                              │
+│  ┌──────────┐  ┌──────┐  ┌──────┐  ┌───────┐  ┌──────────┐    │
+│  │ docker/  │  │ k8s/ │  │helm/ │  │tests/ │  │ scripts/ │    │
+│  └──────────┘  └──────┘  └──────┘  └───────┘  └──────────┘    │
+│  Makefile  docker-compose.yaml  kind/                           │
+├─────────────────────────────────────────────────────────────────┤
+│  NEW LANDING PAGE (isolated)                                    │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │  site/                   -- Astro project root           │   │
+│  │  ├── src/pages/          -- File-based routing           │   │
+│  │  ├── src/components/     -- UI components                │   │
+│  │  ├── src/layouts/        -- Page layouts                 │   │
+│  │  ├── src/styles/         -- Global CSS / Tailwind        │   │
+│  │  ├── public/             -- Static assets + CNAME        │   │
+│  │  ├── astro.config.mjs    -- Site config                  │   │
+│  │  └── package.json        -- Astro dependencies           │   │
+│  └──────────────────────────────────────────────────────────┘   │
+├─────────────────────────────────────────────────────────────────┤
+│  CI/CD LAYER                                                    │
+│  ┌───────────────────────────────────────┐                      │
+│  │  .github/workflows/                   │                      │
+│  │  ├── ci.yaml          -- existing, add paths-ignore         │
+│  │  └── deploy-site.yaml -- NEW: Astro build + GitHub Pages   │
+│  └───────────────────────────────────────┘                      │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ### Component Responsibilities
 
 | Component | Responsibility | Typical Implementation |
 |-----------|----------------|------------------------|
-| **Dockerfile** | Produces deployment-ready image with all tools, Claude Code CLI, and non-root user | Multi-stage build: stage 1 fetches/compiles tools, stage 2 copies artifacts onto Ubuntu 24.04 base |
-| **Entrypoint script** | Process lifecycle (PID 1), mode selection, signal handling, health checks | Bash script with `trap` + `exec`, mode dispatch via `$CLAUDE_MODE` env var |
-| **Claude Code CLI** | AI agent runtime, Remote Control relay, MCP client | npm-installed `@anthropic-ai/claude-code`, runs as foreground process via `exec` |
-| **MCP Server** | Structured Kubernetes API access for Claude | `kubernetes-mcp-server` Go binary with `--read-only` and in-cluster auto-config |
-| **Debugging Toolkit** | 30+ CLI tools for network, K8s, system, container diagnostics | apt-get + direct binary downloads with pinned versions |
-| **StatefulSet** | Pod identity, restart resilience, PVC association | Single replica, `volumeClaimTemplates` for auth persistence |
-| **ServiceAccount + RBAC** | K8s API permissions scoped to debugging needs | ClusterRole with `get/list/watch` on core resources; operator tier adds `create/delete/patch` |
-| **NetworkPolicy** | Network segmentation -- egress-only, no inbound | Allow port 443/TCP (Anthropic API) + port 53/UDP (DNS), deny all ingress |
-| **ConfigMap** | Externalized configuration for entrypoint and MCP | Startup mode, tool verification list, `.mcp.json` template |
-| **PVC** | Persistent storage for OAuth tokens and session state | 1Gi volume at `~/.claude/` surviving pod restarts |
-| **KIND cluster config** | Local development Kubernetes environment | YAML config: 1 control-plane + 2 workers, containerd, explicit image loading |
-| **Makefile** | Developer workflow automation | Targets chaining build, load, deploy, test, teardown |
-| **Docker Compose file** | Standalone non-K8s deployment | Single service with named volume + optional docker.sock mount |
-| **Helm chart** | Parameterized production K8s deployment | Values-driven templates with `rbac.create`, `serviceAccount.create`, resource limits |
+| `site/` | Landing page source code, fully isolated from product | Astro 5 project with Tailwind CSS v4 |
+| `site/src/pages/` | Page routing (single page for landing) | `index.astro` -- the landing page |
+| `site/src/components/` | Reusable UI sections | Hero, Features, QuickStart, Architecture, Footer |
+| `site/src/layouts/` | Page wrapper template | Base layout with `<head>`, meta tags, Open Graph |
+| `site/public/` | Static assets served verbatim | Favicon, OG image, `CNAME` file for custom domain |
+| `site/astro.config.mjs` | Build configuration | Site URL, Tailwind integration |
+| `.github/workflows/deploy-site.yaml` | Landing page CI/CD | Build Astro + deploy to GitHub Pages |
+| `.github/workflows/ci.yaml` | Product CI/CD (existing) | Add `paths-ignore: ['site/**']` to avoid false triggers |
 
 ## Recommended Project Structure
 
 ```
-claude-in-a-box/
-├── Dockerfile                    # Multi-stage image build
-├── Makefile                      # Developer workflow targets
-├── docker-compose.yml            # Standalone deployment
-├── README.md                     # Setup guide + architecture overview
-├── CLAUDE.md                     # AI agent context for the repo
-├── scripts/
-│   ├── entrypoint.sh             # Container entrypoint (PID 1)
-│   ├── healthcheck.sh            # Liveness/readiness probe
-│   ├── verify-tools.sh           # Post-build tool verification
-│   └── kind/
-│       ├── cluster-up.sh         # Idempotent KIND cluster create
-│       ├── cluster-down.sh       # KIND cluster teardown
-│       ├── deploy.sh             # Build + load + apply manifests
-│       └── kind-config.yaml      # KIND cluster topology
-├── k8s/
-│   ├── namespace.yaml            # Dedicated namespace
-│   ├── statefulset.yaml          # Core workload
-│   ├── serviceaccount.yaml       # Pod identity
-│   ├── clusterrole-reader.yaml   # Read-only RBAC
-│   ├── clusterrole-operator.yaml # Opt-in write RBAC
-│   ├── clusterrolebinding.yaml   # Bind SA to role
-│   ├── networkpolicy.yaml        # Egress-only rules
-│   ├── configmap.yaml            # Entrypoint config + .mcp.json
-│   └── pvc.yaml                  # Auth token persistence
-├── helm/
-│   └── claude-in-a-box/
-│       ├── Chart.yaml
-│       ├── values.yaml
-│       └── templates/
-│           ├── statefulset.yaml
-│           ├── serviceaccount.yaml
-│           ├── clusterrole.yaml
-│           ├── clusterrolebinding.yaml
-│           ├── networkpolicy.yaml
-│           └── configmap.yaml
-├── tests/
-│   ├── test-bootstrap.sh         # KIND cluster creation
-│   ├── test-rbac.sh              # Permission verification
-│   ├── test-networking.sh        # Egress-only enforcement
-│   ├── test-tools.sh             # Tool availability
-│   ├── test-persistence.sh       # PVC token survival
-│   └── test-remote-control.sh    # Session connectivity
-├── .mcp.json                     # MCP server config (project scope)
-└── .github/
-    └── workflows/
-        └── ci.yml                # Build, scan, test pipeline
+claude-in-a-box/                    # repo root (unchanged layout)
+├── .github/
+│   └── workflows/
+│       ├── ci.yaml                 # EXISTING -- add paths-ignore for site/**
+│       └── deploy-site.yaml        # NEW -- Astro build + GitHub Pages deploy
+├── docker/                         # EXISTING -- no changes
+├── helm/                           # EXISTING -- no changes
+├── k8s/                            # EXISTING -- no changes
+├── kind/                           # EXISTING -- no changes
+├── scripts/                        # EXISTING -- no changes
+├── tests/                          # EXISTING -- no changes
+├── site/                           # NEW -- Astro project root
+│   ├── public/
+│   │   ├── CNAME                   # Contains: remotekube.patrykgolabek.dev
+│   │   ├── favicon.svg             # Site favicon
+│   │   └── og-image.png            # Social media preview image
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Header.astro        # Navigation header
+│   │   │   ├── Hero.astro          # Hero/headline section
+│   │   │   ├── Features.astro      # Feature highlights grid
+│   │   │   ├── QuickStart.astro    # Installation / getting started
+│   │   │   ├── Architecture.astro  # Architecture diagram section
+│   │   │   └── Footer.astro        # Footer with links
+│   │   ├── layouts/
+│   │   │   └── Base.astro          # HTML shell: head, meta, body wrapper
+│   │   ├── pages/
+│   │   │   └── index.astro         # Landing page (imports layout + components)
+│   │   └── styles/
+│   │       └── global.css          # Tailwind directives + custom styles
+│   ├── astro.config.mjs            # Astro configuration
+│   ├── tailwind.config.mjs         # Tailwind configuration
+│   ├── tsconfig.json               # TypeScript config (Astro strict preset)
+│   ├── package.json                # Astro + Tailwind dependencies
+│   └── package-lock.json           # Lockfile (auto-generated by npm install)
+├── .dockerignore                   # MODIFY -- add site/ exclusion line
+├── docker-compose.yaml             # EXISTING -- no changes
+├── Makefile                        # EXISTING -- no changes
+└── README.md                       # EXISTING -- optionally add landing page link
 ```
 
 ### Structure Rationale
 
-- **scripts/**: Separates runtime scripts (entrypoint, healthcheck) from build-time concerns. The `kind/` subdirectory groups all local dev cluster scripts together because they are always used as a unit.
-- **k8s/**: Raw Kubernetes manifests for direct `kubectl apply` workflows and KIND development. One resource per file for clear diffs and selective application.
-- **helm/**: Production-grade parameterized deployment. Separated from raw manifests because Helm templates are a superset -- they generate the same resources but with values injection.
-- **tests/**: Shell-based integration tests that run against a live KIND cluster. Each test file maps to one architectural concern (RBAC, networking, persistence, etc.) for targeted debugging.
-- **Root-level files**: Dockerfile, Makefile, and docker-compose.yml live at root because they are primary entry points for all workflows.
+- **`site/` at repo root:** Mirrors the existing convention of top-level directories for each concern (`docker/`, `helm/`, `k8s/`). The name `site/` clearly communicates "landing page" without ambiguity. The `withastro/action@v5` supports a `path` input for subdirectory projects, so this is the officially supported pattern.
+- **Not `docs/`:** This is a marketing/landing page, not documentation. Using `docs/` would create confusion with potential future documentation (which GitHub Pages also conventionally serves from `docs/`).
+- **Not a separate repo:** The landing page describes this product. Co-locating it keeps the site in sync with the product. A single repo means one place for issues, PRs, and deployment history.
+- **Own `package.json` inside `site/`:** The rest of the repo has zero Node.js dependencies. Isolating Astro's dependency tree inside `site/` prevents polluting the repo root with `node_modules/`, `package-lock.json`, and Node.js config files that have nothing to do with the product.
+- **No changes to Makefile or docker-compose.yaml:** The site uses `npm` scripts via the Astro CLI, a completely different toolchain. Adding Make targets for a Node.js build would be inconsistent with the existing Make conventions (which are all Docker/KIND/kubectl).
 
 ## Architectural Patterns
 
-### Pattern 1: Multi-Mode Entrypoint with Exec Handoff
+### Pattern 1: Complete Isolation Between Product and Site
 
-**What:** A bash entrypoint script that selects behavior based on an environment variable, then uses `exec` to replace itself with the target process, ensuring proper PID 1 signal handling.
+**What:** The Astro site has zero code dependencies on the product. No shared files, no imports, no build coupling. They share a Git repository but nothing else.
 
-**When to use:** When a single container image must support multiple runtime modes (remote-control for production, interactive for debugging, headless for CI).
+**When to use:** Always, for this project type. The product is Dockerfiles, shell scripts, YAML manifests, and Helm charts. The site is a Node.js/Astro static page. Completely different toolchains with no intersection.
 
-**Trade-offs:** Simple and well-understood; no init system dependency. Requires careful signal handling in bash. Mode sprawl can make the script complex -- keep modes to 3 or fewer.
+**Trade-offs:**
+- Pro: Changing product code never breaks the site and vice versa
+- Pro: Different CI pipelines run independently with zero wasted minutes
+- Pro: Docker builds exclude site entirely via `.dockerignore`
+- Con: Content on the landing page (features, install steps) must be manually kept in sync with README and product changes
 
-**Example:**
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
+### Pattern 2: Path-Filtered Separate Workflows
 
-# Graceful shutdown handler
-cleanup() {
-    echo "Received SIGTERM, shutting down Claude Code..."
-    kill -TERM "$CHILD_PID" 2>/dev/null
-    wait "$CHILD_PID" 2>/dev/null
-    exit 0
-}
-trap cleanup SIGTERM SIGINT
+**What:** The existing `ci.yaml` and new `deploy-site.yaml` use path filters so each only triggers when its relevant files change. A site-only push does not trigger Docker builds. A Dockerfile-only push does not trigger site deploys.
 
-CLAUDE_MODE="${CLAUDE_MODE:-remote-control}"
+**When to use:** Any repo with independent build targets that should not trigger each other's pipelines.
 
-case "$CLAUDE_MODE" in
-    remote-control)
-        echo "Starting Claude Code in Remote Control mode..."
-        exec claude --remote-control
-        ;;
-    interactive)
-        echo "Starting Claude Code in interactive mode..."
-        exec claude
-        ;;
-    headless)
-        echo "Starting Claude Code in headless mode..."
-        exec claude --headless -p "$CLAUDE_PROMPT"
-        ;;
-    *)
-        echo "Unknown mode: $CLAUDE_MODE"
-        exit 1
-        ;;
-esac
-```
+**Trade-offs:**
+- Pro: No wasted CI minutes on unrelated builds
+- Pro: Clear separation of concerns at the CI layer
+- Con: Path filters do not apply to `workflow_dispatch` (manual triggers always run)
+- Con: The initial push to a new branch evaluates all files, not just changed ones
 
-### Pattern 2: Tiered RBAC with Opt-In Escalation
-
-**What:** Two ClusterRoles -- a default read-only "reader" role and an opt-in "operator" role with write permissions. The deployment binds the reader role by default; operators consciously switch to the operator binding.
-
-**When to use:** When the agent needs broad visibility (get/list/watch across namespaces) but write operations (pod restart, exec, rollout restart) are occasionally needed and should be an explicit decision.
-
-**Trade-offs:** Principle of least privilege by default. Operator tier requires a conscious deployment change (rebinding the ClusterRoleBinding), not just a config flag, which prevents accidental escalation. Adds manifest complexity (two roles, conditional binding).
-
-**Example:**
+**Implementation for ci.yaml (existing, add paths-ignore):**
 ```yaml
-# clusterrole-reader.yaml (DEFAULT)
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: claude-reader
-rules:
-  - apiGroups: [""]
-    resources: ["pods", "services", "endpoints", "configmaps",
-                "events", "namespaces", "nodes"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: [""]
-    resources: ["pods/log"]
-    verbs: ["get"]
-  - apiGroups: ["apps"]
-    resources: ["deployments", "statefulsets", "daemonsets", "replicasets"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: ["batch"]
-    resources: ["jobs", "cronjobs"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: ["networking.k8s.io"]
-    resources: ["ingresses", "networkpolicies"]
-    verbs: ["get", "list", "watch"]
-
----
-# clusterrole-operator.yaml (OPT-IN)
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: claude-operator
-rules:
-  # Everything from reader, plus:
-  - apiGroups: [""]
-    resources: ["pods"]
-    verbs: ["get", "list", "watch", "delete"]
-  - apiGroups: [""]
-    resources: ["pods/exec"]
-    verbs: ["create"]
-  - apiGroups: ["apps"]
-    resources: ["deployments", "statefulsets", "daemonsets"]
-    verbs: ["get", "list", "watch", "patch"]
-  - apiGroups: ["apps"]
-    resources: ["deployments/rollout"]
-    verbs: ["patch"]
+on:
+  push:
+    branches: ["*"]
+    tags: ["v*"]
+    paths-ignore:
+      - 'site/**'
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - 'site/**'
 ```
 
-### Pattern 3: Egress-Only NetworkPolicy with DNS Allowance
-
-**What:** A NetworkPolicy that denies all ingress traffic and restricts egress to HTTPS (port 443) and DNS (port 53). This matches the Remote Control model: outbound HTTPS relay to Anthropic API, no inbound ports needed.
-
-**When to use:** When the container only needs to reach external HTTPS endpoints and cluster-internal DNS. Remote Control eliminates the need for any inbound connectivity.
-
-**Trade-offs:** Strong security posture -- the pod cannot be reached from other pods or external traffic. Requires explicit DNS allowance or name resolution breaks. If the agent needs to reach cluster-internal HTTP services (e.g., Prometheus API on port 9090), additional egress rules must be added per-service.
-
-**Example:**
+**Implementation for deploy-site.yaml (new, path filter):**
 ```yaml
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: claude-agent-egress-only
-spec:
-  podSelector:
-    matchLabels:
-      app: claude-agent
-  policyTypes:
-    - Ingress
-    - Egress
-  ingress: []  # Deny all inbound
-  egress:
-    - ports:
-        - protocol: TCP
-          port: 443    # HTTPS to Anthropic API
-    - ports:
-        - protocol: UDP
-          port: 53     # DNS resolution
-        - protocol: TCP
-          port: 53     # DNS over TCP fallback
-    # Allow cluster-internal API server for kubectl/MCP
-    - to:
-        - ipBlock:
-            cidr: 0.0.0.0/0  # Narrowed in production to API server IP
-      ports:
-        - protocol: TCP
-          port: 6443   # K8s API server
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+  workflow_dispatch:
 ```
 
-### Pattern 4: StatefulSet with VolumeClaimTemplate for Token Persistence
+### Pattern 3: withastro/action with `path` Parameter
 
-**What:** A StatefulSet with `replicas: 1` and a `volumeClaimTemplate` that creates a PVC bound to the pod's identity. The Claude Code OAuth token is stored on this volume at `~/.claude/` so it survives pod restarts and rescheduling.
+**What:** The official `withastro/action@v5` has a `path` input that points to the Astro project root relative to the repository root. Set `path: ./site` and the action handles dependency installation, `astro build`, and artifact upload from that subdirectory automatically.
 
-**When to use:** When the container stores authentication state that must persist across pod lifecycle events. The alternative (re-authenticating on every restart) breaks the "deploy once, control from anywhere" value proposition.
+**When to use:** Any time the Astro project is not at the repo root. This is the officially supported approach from the Astro team.
 
-**Trade-offs:** StatefulSet over Deployment adds ordered pod management overhead, but for `replicas: 1` the difference is negligible. The PVC lifecycle is tied to the StatefulSet -- deleting the StatefulSet does NOT delete the PVC (data-safe by default). Requires a StorageClass in the cluster (KIND uses `standard` by default).
+**Trade-offs:**
+- Pro: Zero custom build scripts. The action auto-detects the package manager from the lockfile
+- Pro: Built-in build caching via the `cache` input (defaults to `true`)
+- Pro: Maintained by the Astro team; updates track Astro releases
+- Con: Slightly less control than a manual `npm ci && npm run build` step (though `build-cmd` input allows overrides)
 
-### Pattern 5: KIND Image Loading Workflow
+**Configuration options (withastro/action@v5, v5.2.0):**
 
-**What:** A disciplined build-load-deploy pipeline where every image rebuild is explicitly loaded into the KIND cluster via `kind load docker-image`. Never use `:latest` tag because KIND's containerd runtime does not re-pull cached tags.
-
-**When to use:** Always, when developing against KIND. This is not optional -- it is the only reliable way to get locally-built images into KIND nodes.
-
-**Trade-offs:** Adds a mandatory step to the dev loop. Mitigated by the Makefile wrapping it into a single `make deploy` target. Image loading transfers the full image into each KIND node's containerd store, so large images (1.5-2GB) take 30-60 seconds per load.
-
-**Example Makefile targets:**
-```makefile
-IMAGE_NAME := claude-in-a-box
-IMAGE_TAG  := $(shell git rev-parse --short HEAD)
-KIND_CLUSTER := claude-dev
-
-.PHONY: build load deploy cluster-up cluster-down clean
-
-build:
-	docker build -t $(IMAGE_NAME):$(IMAGE_TAG) .
-
-load: build
-	kind load docker-image $(IMAGE_NAME):$(IMAGE_TAG) \
-		--name $(KIND_CLUSTER)
-
-deploy: load
-	kubectl apply -f k8s/
-
-cluster-up:
-	kind create cluster --name $(KIND_CLUSTER) \
-		--config scripts/kind/kind-config.yaml \
-		|| true  # Idempotent
-
-cluster-down:
-	kind delete cluster --name $(KIND_CLUSTER)
-
-clean: cluster-down
-	docker rmi $(IMAGE_NAME):$(IMAGE_TAG) || true
-```
+| Input | Default | Purpose |
+|-------|---------|---------|
+| `path` | `.` | Astro project root relative to repo root |
+| `node-version` | `22` | Node.js version for the build |
+| `package-manager` | auto-detected | npm, yarn, pnpm, bun, or deno |
+| `build-cmd` | `<pm> run build` | Custom build command override |
+| `cache` | `true` | Enable Astro build cache |
+| `cache-dir` | `node_modules/.astro` | Cache directory path |
+| `out-dir` | `dist` | Astro output directory |
 
 ## Data Flow
 
-### Remote Control Session Flow
+### Build and Deploy Flow (Landing Page)
 
 ```
-[Operator on phone/browser]
-    │
-    │  Opens claude.ai/code or Claude mobile app
-    │  Selects active Remote Control session
-    ▼
-[Anthropic API Servers]
-    │
-    │  Relays commands/responses over HTTPS
-    │  (outbound connection initiated BY the container)
-    ▼
-[Claude Code CLI in container]  ◄──── PID 1 entrypoint exec'd
-    │
-    │  Processes operator instructions
-    │  Invokes tools (kubectl, curl, MCP, etc.)
-    ▼
-[MCP Server / CLI tools]
-    │
-    │  kubernetes-mcp-server: K8s API via ServiceAccount token
-    │  kubectl: K8s API via in-cluster config
-    │  curl/dig/etc: direct network calls (egress-allowed)
-    ▼
-[Kubernetes API Server / Cluster Resources]
-    │
-    │  Responses flow back up the chain
-    ▼
-[Operator sees results in real-time]
+Push to main (site/** files changed)
+    |
+    v
+deploy-site.yaml triggers (path filter matches site/**)
+    |
+    v
+actions/checkout@v4 -- clone full repo
+    |
+    v
+withastro/action@v5 (path: ./site)
+    |-- Detects package manager from site/package-lock.json
+    |-- Runs npm ci in site/
+    |-- Runs npm run build (astro build)
+    |-- Uploads site/dist/ as pages artifact
+    |
+    v
+actions/deploy-pages@v4
+    |-- Deploys artifact to GitHub Pages
+    |-- Environment: github-pages
+    |
+    v
+GitHub Pages CDN serves at remotekube.patrykgolabek.dev
+    (DNS CNAME -> <user>.github.io, CNAME file in artifact)
 ```
 
-### Authentication Flow (First Run)
+### Existing CI Flow (Product -- unchanged)
 
 ```
-[Operator]
-    │
-    │  kubectl exec -it claude-agent-0 -- bash
-    ▼
-[Container shell]
-    │
-    │  claude /login
-    ▼
-[Claude Code CLI]
-    │
-    │  Generates OAuth URL, displays in terminal
-    │  Operator copies URL to browser on any device
-    ▼
-[Operator's browser]
-    │
-    │  Completes OAuth flow at claude.ai
-    │  Token returned to CLI via callback
-    ▼
-[Claude Code CLI]
-    │
-    │  Stores token at ~/.claude/ (on PVC)
-    │  Token persists across pod restarts
-    ▼
-[Subsequent starts]
-    │
-    │  Entrypoint finds existing token on PVC
-    │  Claude Code auto-authenticates
-    │  Remote Control session resumes
-```
-
-### Build and Deploy Flow (Developer)
-
-```
-[Developer workstation]
-    │
-    │  make deploy   (or individual targets)
-    ▼
-[Docker build]
-    │
-    │  Stage 1: Fetch tools, download binaries
-    │  Stage 2: Copy onto Ubuntu 24.04, create user
-    │  Output: claude-in-a-box:<git-short-hash>
-    ▼
-[kind load docker-image]
-    │
-    │  Transfers image to all KIND nodes
-    │  (containerd store, not Docker daemon)
-    ▼
-[kubectl apply -f k8s/]
-    │
-    │  Creates/updates: StatefulSet, SA, ClusterRole,
-    │  ClusterRoleBinding, NetworkPolicy, ConfigMap
-    ▼
-[KIND cluster]
-    │
-    │  Pod scheduled, PVC bound, container starts
-    │  Entrypoint runs in configured mode
-    ▼
-[Verify]
-    │
-    │  make test (runs integration tests against live cluster)
+Push to any branch (non-site/** files changed)
+    |
+    v
+ci.yaml triggers (paths-ignore: site/** skips site-only pushes)
+    |
+    +----> build-scan-publish (Docker build, Trivy scan, SBOM)
+    +----> helm-lint (Helm lint, golden file test)
+    +----> integration-tests (KIND cluster, BATS tests)
 ```
 
 ### Key Data Flows
 
-1. **Command relay:** Operator input flows: Phone/Browser --> Anthropic API --> outbound HTTPS --> Claude Code CLI --> tool execution --> response back up. The container never opens inbound ports; it maintains a persistent outbound HTTPS connection to Anthropic.
-
-2. **K8s API access:** Claude Code (via MCP server or kubectl) --> ServiceAccount token (auto-mounted at `/var/run/secrets/kubernetes.io/serviceaccount/`) --> K8s API server on port 6443. Permissions bounded by ClusterRole.
-
-3. **Token persistence:** OAuth token written to `~/.claude/` directory --> backed by PVC via StatefulSet volumeClaimTemplate --> survives pod restarts, rescheduling, and node failures (if using replicated storage).
-
-4. **Image lifecycle (KIND):** Docker build on host --> `kind load` into containerd on KIND nodes --> StatefulSet pod references image by `name:tag` (never `:latest`).
-
-## Scaling Considerations
-
-| Scale | Architecture Adjustments |
-|-------|--------------------------|
-| 1 agent (default) | Single StatefulSet, replicas: 1. PVC for token. Standard pattern. |
-| 2-5 agents (multi-cluster) | One StatefulSet per target cluster. Each has its own ServiceAccount/RBAC. Shared image, different kubeconfig contexts mounted via Secrets. |
-| 10+ agents (fleet) | Helm chart with values per instance. Consider a controller/operator pattern (like Agent Sandbox) for lifecycle management. ArgoCD ApplicationSet for GitOps-driven fleet. |
-
-### Scaling Priorities
-
-1. **First bottleneck: Image size during KIND load.** At 1.5-2GB, loading into KIND takes 30-60 seconds. Mitigate with aggressive multi-stage build layer caching and `--no-cache` only when needed.
-
-2. **Second bottleneck: OAuth token management at scale.** Each agent instance needs its own OAuth session (one remote session per Claude Code instance). At fleet scale, this becomes a manual burden. No automated solution exists today -- flag for future automation.
-
-3. **Third consideration: RBAC scope drift.** As agents multiply, ClusterRole permissions may need namespace-scoping (Roles instead of ClusterRoles) to enforce blast radius per agent. Helm values should support both modes.
-
-## Anti-Patterns
-
-### Anti-Pattern 1: Using `:latest` Tag with KIND
-
-**What people do:** Tag images as `claude-in-a-box:latest` and reference that in K8s manifests.
-**Why it's wrong:** KIND uses containerd internally, which does not re-pull `:latest` from cache. After rebuilding, the old cached image is used. The pod runs stale code with no warning.
-**Do this instead:** Use `git rev-parse --short HEAD` or a build timestamp as the image tag. Update manifests to match. The Makefile should automate this.
-
-### Anti-Pattern 2: Running Entrypoint as Shell Form
-
-**What people do:** Use `ENTRYPOINT ["sh", "-c", "entrypoint.sh"]` or the shell form `ENTRYPOINT entrypoint.sh`.
-**Why it's wrong:** The shell becomes PID 1, not the actual process. SIGTERM goes to the shell, which does not forward it to child processes. The container gets SIGKILL after the grace period, losing session state.
-**Do this instead:** Use exec form `ENTRYPOINT ["/scripts/entrypoint.sh"]` and inside the script, use `exec claude ...` to replace the shell with the Claude process as PID 1.
-
-### Anti-Pattern 3: Baking Secrets into the Image
-
-**What people do:** Copy API keys, OAuth tokens, or kubeconfig files into the Docker image during build.
-**Why it's wrong:** Secrets are visible in image layers (`docker history`), in any registry the image is pushed to, and to anyone who pulls the image. Violates security fundamentals.
-**Do this instead:** Mount secrets at runtime via K8s Secrets, PVC (for OAuth tokens), or environment variables. The image should contain zero secrets.
-
-### Anti-Pattern 4: Using Deployment Instead of StatefulSet
-
-**What people do:** Use a Kubernetes Deployment for the Claude agent because "it's just one pod."
-**Why it's wrong:** Deployments create pods with random names and do not maintain PVC affinity. On restart, a new pod gets a new PVC (or none), losing the OAuth token. The operator must re-authenticate.
-**Do this instead:** StatefulSet with `replicas: 1` gives the pod a stable name (`claude-agent-0`), stable network identity, and stable PVC binding that survives restarts.
-
-### Anti-Pattern 5: Wildcard RBAC Permissions
-
-**What people do:** Grant `["*"]` verbs on `["*"]` resources to the agent ServiceAccount for convenience.
-**Why it's wrong:** The AI agent can now delete namespaces, modify RBAC, and escalate privileges. A single misinterpreted instruction could destroy the cluster.
-**Do this instead:** Start with the read-only ClusterRole. Add specific verbs on specific resources in the operator tier. Never use wildcards. Audit with `kubectl auth can-i --list --as system:serviceaccount:claude:claude-agent`.
-
-### Anti-Pattern 6: Skipping DNS in NetworkPolicy Egress
-
-**What people do:** Create an egress NetworkPolicy allowing only port 443, forgetting DNS.
-**Why it's wrong:** All DNS resolution fails. kubectl cannot resolve the API server hostname. curl cannot resolve any domain. The entire toolkit is broken.
-**Do this instead:** Always allow port 53 (UDP and TCP) in egress rules alongside port 443.
+1. **Site build:** `site/src/**` -> Astro compiler -> `site/dist/` -> GitHub Pages artifact -> CDN at `remotekube.patrykgolabek.dev`
+2. **Product build:** `docker/Dockerfile` + repo context -> Docker image -> GHCR at `ghcr.io/<owner>/claude-in-a-box`
+3. **No cross-flow:** Site build never touches Docker. Docker build never touches site (`.dockerignore` excludes `site/`). The two pipelines are completely independent.
 
 ## Integration Points
 
-### External Services
+### New Files to Create
 
-| Service | Integration Pattern | Notes |
-|---------|---------------------|-------|
-| **Anthropic API** | Outbound HTTPS (443) via Remote Control protocol | Container maintains persistent connection. Timeout after ~10 min network outage. No inbound ports needed. |
-| **Docker Hub / GHCR** | Build-time only (FROM, apt-get, binary downloads) | Runtime image has no registry access needed. All tools baked in at build time. |
-| **claude.ai OAuth** | One-time browser redirect flow via `claude /login` | Token stored on PVC. Requires manual `kubectl exec` for first-run auth. |
+| File | Purpose |
+|------|---------|
+| `.github/workflows/deploy-site.yaml` | Astro build + GitHub Pages deployment workflow |
+| `site/package.json` | Astro + Tailwind dependencies |
+| `site/astro.config.mjs` | Site URL (`remotekube.patrykgolabek.dev`), Tailwind integration |
+| `site/tailwind.config.mjs` | Tailwind CSS configuration |
+| `site/tsconfig.json` | TypeScript config (extends Astro strict preset) |
+| `site/public/CNAME` | Custom domain: `remotekube.patrykgolabek.dev` |
+| `site/src/pages/index.astro` | Landing page entry point |
+| `site/src/layouts/Base.astro` | HTML base layout with head, meta, OG tags |
+| `site/src/components/Header.astro` | Navigation header |
+| `site/src/components/Hero.astro` | Hero section |
+| `site/src/components/Features.astro` | Feature highlights |
+| `site/src/components/QuickStart.astro` | Getting started / installation |
+| `site/src/components/Architecture.astro` | Architecture diagram section |
+| `site/src/components/Footer.astro` | Footer with links |
+| `site/src/styles/global.css` | Tailwind directives and global styles |
+| `site/public/favicon.svg` | Favicon |
 
-### Internal Boundaries
+### Existing Files to Modify
 
-| Boundary | Communication | Notes |
-|----------|---------------|-------|
-| **Entrypoint --> Claude Code** | `exec` replaces entrypoint process | Claude Code becomes PID 1 after exec. Entrypoint sets env vars and selects mode before handoff. |
-| **Claude Code --> MCP Server** | stdio transport (stdin/stdout pipes) | `kubernetes-mcp-server` runs as a child process. Configured via `.mcp.json` with `--read-only` flag. In-cluster config auto-detected. |
-| **Claude Code --> CLI tools** | Subprocess execution (kubectl, curl, etc.) | Tools are on PATH. Claude Code invokes them as needed. All run as same non-root user. |
-| **Pod --> K8s API Server** | HTTPS via in-cluster ServiceAccount token | Auto-mounted at `/var/run/secrets/kubernetes.io/serviceaccount/`. Permissions bounded by ClusterRole. |
-| **Pod --> Cluster DNS** | UDP/TCP port 53 to kube-dns | Required for all hostname resolution. Must be allowed in NetworkPolicy. |
-| **PVC --> Pod filesystem** | Volume mount at `/home/claude/.claude/` | StatefulSet `volumeClaimTemplates` ensures 1:1 PVC-pod binding. Data persists across restarts. |
-| **ConfigMap --> Pod** | Volume mount or env vars | `.mcp.json` mounted as file; startup mode set as env var `CLAUDE_MODE`. |
-| **Docker Compose --> Host** | `docker.sock` bind mount (optional) | Enables container to interact with host Docker daemon. Security-sensitive -- only for standalone deployments. |
+| File | Change | Why |
+|------|--------|-----|
+| `.dockerignore` | Add `site/` line | Prevent `node_modules/` (hundreds of MB) from entering Docker build context |
+| `.github/workflows/ci.yaml` | Add `paths-ignore: ['site/**']` to `push` and `pull_request` triggers | Prevent site-only changes from triggering Docker builds, Trivy scans, Helm lint, and integration tests |
 
-## Build Order (Dependency Chain)
+### Files NOT to Modify
 
-The following build order respects component dependencies. Each step requires the previous steps to be complete.
+| File | Why Leave Alone |
+|------|-----------------|
+| `Makefile` | Site uses npm/Astro CLI, not Make. Different toolchain entirely. |
+| `docker-compose.yaml` | Site is static HTML on GitHub Pages, not a Docker service. |
+| `helm/` | Site is not deployed to Kubernetes. |
+| `k8s/` | Site is not deployed to Kubernetes. |
+| `tests/` | Site has no integration tests against KIND. Visual verification is sufficient for a landing page. |
+
+### GitHub Repository Settings Required
+
+Three manual configuration steps in the GitHub repository settings:
+
+1. **Settings -> Pages -> Build and deployment -> Source:** Set to "GitHub Actions" (not "Deploy from a branch")
+2. **Settings -> Pages -> Custom domain:** Enter `remotekube.patrykgolabek.dev`
+3. **DNS provider:** Add a CNAME record: `remotekube.patrykgolabek.dev` -> `<username>.github.io`
+
+### Complete deploy-site.yaml Workflow
+
+```yaml
+name: Deploy Landing Page
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Astro site
+        uses: withastro/action@v5
+        with:
+          path: ./site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+```
+
+### Astro Configuration
+
+```javascript
+// site/astro.config.mjs
+import { defineConfig } from 'astro/config';
+import tailwindcss from '@astrojs/tailwind';
+
+export default defineConfig({
+  site: 'https://remotekube.patrykgolabek.dev',
+  integrations: [tailwindcss()],
+});
+```
+
+### CNAME File
 
 ```
-Phase 1: Container Foundation
-    Dockerfile (multi-stage)
-    └── Entrypoint script
-    └── Tool installation + verification script
-    └── Non-root user setup
-    Result: Working container image that can run Claude Code
-
-Phase 2: Local Dev Environment
-    KIND cluster config
-    └── Bootstrap scripts (cluster-up, cluster-down)
-    └── Makefile (build, load, deploy targets)
-    Result: Developer can build image and run it in KIND
-
-Phase 3: Kubernetes Manifests
-    Namespace
-    └── ServiceAccount
-    └── ClusterRole (reader) + ClusterRoleBinding
-    └── ConfigMap (.mcp.json, mode config)
-    └── StatefulSet + PVC (volumeClaimTemplate)
-    └── NetworkPolicy (egress-only)
-    Result: Full K8s deployment with RBAC, persistence, network isolation
-
-Phase 4: Integration & Hardening
-    MCP server configuration (kubernetes-mcp-server)
-    └── OAuth login flow + token persistence verification
-    └── Remote Control session verification
-    └── Integration test suite
-    Result: End-to-end working system
-
-Phase 5: Production Packaging
-    Helm chart (parameterized templates from Phase 3 manifests)
-    └── Docker Compose reference file
-    └── CI/CD pipeline (build, scan, test)
-    └── Operator RBAC tier (opt-in)
-    Result: Production-deployable package
-
-Phase 6: Extensions
-    Custom Claude Code skills
-    └── Multi-cluster support
-    └── Observability integration
-    └── ArgoCD GitOps definition
-    Result: Advanced operational features
+remotekube.patrykgolabek.dev
 ```
 
-**Dependency rationale:** The Dockerfile must exist before anything else because every downstream component (KIND loading, K8s StatefulSet, Docker Compose) references the built image. KIND must exist before K8s manifests can be tested. K8s manifests must work before Helm can templatize them. Integration tests require all prior phases. Production packaging wraps working pieces. Extensions build on a stable foundation.
+This file goes at `site/public/CNAME`. The `withastro/action` copies everything from `public/` into the build output, so the CNAME file ends up at the root of the deployed site, which is what GitHub Pages requires for custom domains.
+
+## Anti-Patterns
+
+### Anti-Pattern 1: Astro Project at Repo Root
+
+**What people do:** Put `package.json`, `astro.config.mjs`, and `src/` at the repo root alongside `Makefile`, `docker/`, and `helm/`.
+
+**Why it is wrong:** Pollutes the repo root with Node.js artifacts (`node_modules/`, `.astro/`, `package.json`, `package-lock.json`) that are completely unrelated to the product. Confuses contributors about what the project is. Risks `node_modules/` entering the Docker build context if `.dockerignore` has any gaps.
+
+**Do this instead:** Isolate in `site/`. Use `withastro/action`'s `path: ./site` parameter.
+
+### Anti-Pattern 2: Shared Workflow for Product CI and Site Deploy
+
+**What people do:** Add Astro build steps to the existing `ci.yaml`, either as a new job or additional steps.
+
+**Why it is wrong:** Every Dockerfile change triggers a site build. Every site text change triggers Docker builds, Trivy scans, and KIND cluster integration tests. Wastes CI minutes, creates false coupling, and makes CI results noisy.
+
+**Do this instead:** Separate workflow files with path filters. `ci.yaml` uses `paths-ignore: ['site/**']`. `deploy-site.yaml` uses `paths: ['site/**']`.
+
+### Anti-Pattern 3: Deploying the Landing Page via Docker/Kubernetes
+
+**What people do:** Build the Astro output into a Docker image with nginx, deploy to the same Kubernetes cluster as the product.
+
+**Why it is wrong:** Massive over-engineering for a static landing page. Adds infrastructure cost, operational complexity, TLS certificate management, and deployment coupling. GitHub Pages is free, globally distributed via CDN, and purpose-built for static sites.
+
+**Do this instead:** GitHub Pages with `withastro/action`. Zero infrastructure to manage.
+
+### Anti-Pattern 4: Forgetting .dockerignore Exclusion
+
+**What people do:** Add `site/` directory but forget to exclude it from the Docker build context.
+
+**Why it is wrong:** `node_modules/` (often 200+ MB) gets sent to the Docker daemon on every `docker build`. Dramatically slows product builds. Could end up in the image if the Dockerfile has a broad `COPY . .` statement.
+
+**Do this instead:** Add `site/` to `.dockerignore` as the first step when creating the directory.
+
+### Anti-Pattern 5: Using `base` Config with Custom Domain
+
+**What people do:** Set both `site` and `base` in `astro.config.mjs` when using a custom domain.
+
+**Why it is wrong:** The `base` option (e.g., `/my-repo`) is only needed when deploying to a subpath like `username.github.io/my-repo`. With a custom domain (`remotekube.patrykgolabek.dev`), the site is served from the root. Setting `base` would break all asset paths and internal links.
+
+**Do this instead:** Set only `site: 'https://remotekube.patrykgolabek.dev'`. Do not set `base`.
+
+## Build Order
+
+Implementation order respecting file dependencies:
+
+```
+Phase 1: Foundation (no dependencies)
+    ├── Create site/ directory
+    ├── Create site/package.json (Astro + Tailwind deps)
+    ├── Create site/astro.config.mjs (custom domain config)
+    ├── Create site/tailwind.config.mjs
+    ├── Create site/tsconfig.json
+    ├── Create site/public/CNAME
+    ├── Add site/ to .dockerignore
+    └── Run npm install in site/ to generate lockfile
+
+Phase 2: Layout and Styles (depends on Phase 1)
+    ├── Create site/src/styles/global.css (Tailwind directives)
+    └── Create site/src/layouts/Base.astro (HTML shell, imports global.css)
+
+Phase 3: Components (depends on Phase 2)
+    ├── Create Header.astro
+    ├── Create Hero.astro
+    ├── Create Features.astro
+    ├── Create QuickStart.astro
+    ├── Create Architecture.astro
+    └── Create Footer.astro
+
+Phase 4: Page Assembly (depends on Phase 3)
+    └── Create site/src/pages/index.astro (imports layout + all components)
+
+Phase 5: CI/CD Integration (depends on Phase 4)
+    ├── Create .github/workflows/deploy-site.yaml
+    ├── Add paths-ignore to .github/workflows/ci.yaml
+    └── Configure GitHub repo settings (Pages source, custom domain, DNS)
+```
+
+**Phase ordering rationale:**
+- Foundation first because `npm install` must succeed before any Astro file can be tested locally
+- Layout before components because components render inside the layout
+- Components before page because the page imports components
+- CI/CD last because there is nothing to deploy until the page exists and builds successfully
+- `.dockerignore` modification in Phase 1 to prevent any Docker build performance regression from the start
 
 ## Sources
 
-- [Kubernetes StatefulSet documentation](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/) -- HIGH confidence
-- [Kubernetes RBAC Good Practices](https://kubernetes.io/docs/concepts/security/rbac-good-practices/) -- HIGH confidence
-- [Kubernetes NetworkPolicy documentation](https://kubernetes.io/docs/concepts/services-networking/network-policies/) -- HIGH confidence
-- [Docker multi-stage build best practices](https://docs.docker.com/build/building/best-practices/) -- HIGH confidence
-- [KIND Quick Start documentation](https://kind.sigs.k8s.io/docs/user/quick-start/) -- HIGH confidence
-- [kubernetes-mcp-server (containers/kubernetes-mcp-server)](https://github.com/containers/kubernetes-mcp-server) -- HIGH confidence
-- [Claude Code MCP documentation](https://code.claude.com/docs/en/mcp) -- HIGH confidence
-- [Claude Code Authentication documentation](https://code.claude.com/docs/en/authentication) -- HIGH confidence
-- [Helm RBAC best practices](https://helm.sh/docs/chart_best_practices/rbac/) -- HIGH confidence
-- [Agent Sandbox for Kubernetes](https://www.infoq.com/news/2025/12/agent-sandbox-kubernetes/) -- MEDIUM confidence
-- [Docker signal handling patterns](https://bencane.com/shutdown-signals-with-docker-entry-point-scripts-5e560f4e2d45) -- MEDIUM confidence
-- [KIND CI bootstrap patterns](https://techbloc.net/archives/4991) -- MEDIUM confidence
-- [Kubernetes egress NetworkPolicy recipes](https://github.com/ahmetb/kubernetes-network-policy-recipes) -- MEDIUM confidence
-- [Claude Code headless auth issue #22992](https://github.com/anthropics/claude-code/issues/22992) -- MEDIUM confidence
+- [Astro GitHub Pages deployment guide](https://docs.astro.build/en/guides/deploy/github/) -- official Astro docs, HIGH confidence
+- [withastro/action v5](https://github.com/withastro/action) -- official GitHub Action, v5.2.0 (Feb 2026), HIGH confidence
+- [Astro project structure](https://docs.astro.build/en/basics/project-structure/) -- official Astro docs, HIGH confidence
+- [actions/deploy-pages](https://github.com/actions/deploy-pages) -- official GitHub Action, HIGH confidence
+- [GitHub Pages custom domain configuration](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site) -- official GitHub docs, HIGH confidence
+- [GitHub Actions path filtering](https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions) -- official GitHub docs, HIGH confidence
+- [Monorepo Astro deployment patterns](https://devactivity.com/posts/development-integrations/mastering-monorepo-deployment-angular-astro-on-github-pages-for-enhanced-software-project-metrics/) -- community article, MEDIUM confidence
 
 ---
-*Architecture research for: Containerized AI Agent Deployment with DevOps Debugging Toolkit*
+*Architecture research for: Astro landing page integration into claude-in-a-box repository*
 *Researched: 2026-02-25*
