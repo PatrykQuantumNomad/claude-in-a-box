@@ -1,22 +1,20 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/sections/Hero.astro";
+import Features from "../components/sections/Features.astro";
+import Architecture from "../components/sections/Architecture.astro";
+import Quickstart from "../components/sections/Quickstart.astro";
+import UseCases from "../components/sections/UseCases.astro";
+import Footer from "../components/sections/Footer.astro";
 ---
 
 <BaseLayout title="RemoteKube - Claude Code in Your Cluster">
-  <main class="min-h-screen flex items-center justify-center">
-    <div class="text-center space-y-6 p-8">
-      <h1 class="text-5xl font-bold text-text-primary tracking-tight">
-        RemoteKube
-      </h1>
-      <p class="text-xl text-text-secondary font-mono">
-        Deploy once, control from anywhere
-      </p>
-      <p class="text-text-muted text-sm">
-        Coming soon
-      </p>
-      <div class="mt-8 inline-block px-6 py-3 bg-accent text-bg-primary font-semibold rounded-lg">
-        Design System Active
-      </div>
-    </div>
+  <main>
+    <Hero />
+    <Features />
+    <Architecture />
+    <Quickstart />
+    <UseCases />
   </main>
+  <Footer />
 </BaseLayout>

@@ -1,0 +1,52 @@
+---
+import TerminalBlock from "../ui/TerminalBlock.astro";
+---
+
+<section id="quickstart" class="scroll-mt-8 py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto space-y-12">
+    <div class="text-center">
+      <h2 class="text-3xl md:text-4xl font-bold text-text-primary mb-4">
+        Get Started
+      </h2>
+      <p class="text-text-secondary mb-12">
+        Three deployment methods to match your workflow
+      </p>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold text-text-primary mb-3">KIND (Local Development)</h3>
+      <TerminalBlock
+        title="terminal"
+        commands={[
+          "git clone https://github.com/PatrykQuantumNomad/claude-in-a-box.git",
+          "cd claude-in-a-box",
+          "make bootstrap"
+        ]}
+      />
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold text-text-primary mb-3">Docker Compose (Standalone)</h3>
+      <TerminalBlock
+        title="terminal"
+        commands={[
+          "export CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-...",
+          "docker compose up -d",
+          "docker attach claude-agent"
+        ]}
+      />
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold text-text-primary mb-3">Helm (Production)</h3>
+      <TerminalBlock
+        title="terminal"
+        commands={[
+          "helm install claude-agent ./helm/claude-in-a-box \\",
+          "  --set image.repository=ghcr.io/PatrykQuantumNomad/claude-in-a-box \\",
+          "  --set image.tag=latest"
+        ]}
+      />
+    </div>
+  </div>
+</section>
