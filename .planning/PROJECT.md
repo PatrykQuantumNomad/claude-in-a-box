@@ -30,9 +30,10 @@ Deploy once, control from anywhere — an AI-powered DevOps agent running inside
 
 ### Active
 
-- [ ] Multi-cluster support for managing multiple Kubernetes contexts
-- [ ] Observability integration with Grafana/Prometheus dashboards for session metrics
-- [ ] GitOps integration via ArgoCD Application definition for self-deploying Claude In A Box
+- [ ] Astro-based project landing page deployed to GitHub Pages with custom domain
+- [ ] Fresh marketing copy with hero, feature highlights, architecture diagram, quickstart, and use cases
+- [ ] GitHub Actions workflow for automated site deployment on push
+- [ ] Custom domain configuration (remotekube.patrykgolabek.dev) with CNAME
 
 ### Out of Scope
 
@@ -46,6 +47,17 @@ Deploy once, control from anywhere — an AI-powered DevOps agent running inside
 - Full ClusterAdmin permissions — RBAC wildcards violate K8s security best practices
 - Built-in web UI / dashboard — Remote Control via claude.ai/code IS the web UI
 - Real-time event streaming — on-demand queries via MCP are more token-efficient
+
+## Current Milestone: v1.1 Landing Page
+
+**Goal:** Create a visually striking Astro landing page that showcases Claude In A Box and drives adoption.
+
+**Target features:**
+- Astro static site with fun, creative design
+- Standard layout: hero, feature cards (3-6), architecture diagram, quickstart, use cases, footer
+- Fresh marketing copy (not adapted from README)
+- GitHub Pages deployment with custom domain (remotekube.patrykgolabek.dev)
+- Automated CI/CD via GitHub Actions
 
 ## Context
 
@@ -89,5 +101,9 @@ Known considerations:
 | Separate test cluster name | Dev and test KIND clusters must coexist without collision | ✓ Good — claude-in-a-box-test isolates test environment |
 | BATS integration tests in CI | 35 tests must run automatically, not just manually | ✓ Good — parallel CI job with KIND + Calico |
 
+| Astro for landing page | Static site generator, great DX, fast builds, GitHub Pages native | — Pending |
+| Fresh marketing copy over README adaptation | Landing page needs punchier, visual-first copy | — Pending |
+| Custom domain remotekube.patrykgolabek.dev | Branded URL for the project site | — Pending |
+
 ---
-*Last updated: 2026-02-25 after v1.0 milestone*
+*Last updated: 2026-02-25 after v1.1 milestone start*
