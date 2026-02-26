@@ -64,12 +64,11 @@ Plans:
   3. The page renders correctly and is fully usable on mobile (375px), tablet (768px), and desktop (1280px+) viewports
   4. Navigating to a non-existent path (e.g., /foo) shows a custom 404 page that matches the site design, not the default GitHub 404
   5. The footer displays GitHub link, license info, and Anthropic attribution
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 11-01: TBD
-- [ ] 11-02: TBD
-- [ ] 11-03: TBD
+- [ ] 11-01-PLAN.md — UI primitives (FeatureCard, TerminalBlock, UseCaseCard), Hero, Footer, 404 page, smooth scroll
+- [ ] 11-02-PLAN.md — Features bento grid, Architecture SVG, Quickstart terminal blocks, Use Cases, page composition
 
 ### Phase 12: Polish & Deployment
 **Goal**: The landing page has scroll-triggered animations and proper SEO/social sharing metadata, elevating it from functional to polished
@@ -93,5 +92,5 @@ Phases execute in numeric order: 10 -> 11 -> 12
 |-------|-----------|----------------|--------|-----------|
 | 1-9 | v1.0 | 17/17 | Complete | 2026-02-25 |
 | 10. Foundation & Infrastructure | v1.1 | 2/2 | Complete | 2026-02-26 |
-| 11. Page Content & Components | v1.1 | 0/0 | Not started | - |
+| 11. Page Content & Components | v1.1 | 0/2 | Planned | - |
 | 12. Polish & Deployment | v1.1 | 0/0 | Not started | - |
