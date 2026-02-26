@@ -122,7 +122,7 @@ jobs:
 
       - name: Build and load image
         run: |
-          docker build -f docker/Dockerfile -t claude-in-a-box:dev .
+          DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile -t claude-in-a-box:dev .
           kind load docker-image claude-in-a-box:dev --name claude-in-a-box-test
 
       - name: Deploy manifests
