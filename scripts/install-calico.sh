@@ -25,15 +25,32 @@ echo "==> Waiting for tigera-operator deployment..."
 kubectl wait --for=condition=Available deployment/tigera-operator \
   -n tigera-operator --timeout=120s
 
+echo "==> Waiting for calico-node daemonset to be created..."
+CALICO_NS=""
+for i in $(seq 1 60); do
+  if kubectl -n calico-system get daemonset/calico-node &>/dev/null; then
+    CALICO_NS="calico-system"
+    echo "    calico-node found in calico-system after ${i}s"
+    break
+  elif kubectl -n kube-system get daemonset/calico-node &>/dev/null; then
+    CALICO_NS="kube-system"
+    echo "    calico-node found in kube-system after ${i}s"
+    break
+  fi
+  sleep 2
+done
+
+if [ -z "$CALICO_NS" ]; then
+  echo "ERROR: calico-node daemonset not found after 120s"
+  exit 1
+fi
+
 echo "==> Fixing Reverse Path Filtering for KIND nodes..."
-kubectl -n calico-system set env daemonset/calico-node FELIX_IGNORELOOSERPF=true 2>/dev/null \
-  || kubectl -n kube-system set env daemonset/calico-node FELIX_IGNORELOOSERPF=true
+kubectl -n "$CALICO_NS" set env daemonset/calico-node FELIX_IGNORELOOSERPF=true
 
 echo "==> Waiting for calico-node pods to be ready..."
 kubectl wait --for=condition=Ready pods -l k8s-app=calico-node \
-  -n calico-system --timeout=120s 2>/dev/null \
-  || kubectl wait --for=condition=Ready pods -l k8s-app=calico-node \
-    -n kube-system --timeout=120s
+  -n "$CALICO_NS" --timeout=120s
 
 echo "==> Restarting CoreDNS to recover from pre-CNI scheduling..."
 kubectl -n kube-system rollout restart deployment/coredns
