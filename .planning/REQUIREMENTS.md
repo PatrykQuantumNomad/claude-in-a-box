@@ -27,7 +27,7 @@ Requirements for the landing page milestone. Each maps to roadmap phases.
 ### Design & Polish
 
 - [x] **DESIGN-01**: Dark theme design system with consistent color tokens, typography, and spacing
-- [ ] **DESIGN-02**: Scroll-triggered reveal animations on feature cards and sections using motion.js
+- [x] **DESIGN-02**: Scroll-triggered reveal animations on feature cards and sections using motion.js
 - [x] **DESIGN-03**: Responsive layout working on mobile, tablet, and desktop breakpoints
 - [ ] **DESIGN-04**: SEO meta tags and Open Graph tags for social sharing with preview image
 - [x] **DESIGN-05**: Custom 404 page matching site design
@@ -87,7 +87,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PAGE-05 | Phase 11 | Complete |
 | PAGE-06 | Phase 11 | Complete |
 | DESIGN-01 | Phase 10 | Complete |
-| DESIGN-02 | Phase 12 | Pending |
+| DESIGN-02 | Phase 12 | Complete |
 | DESIGN-03 | Phase 11 | Complete |
 | DESIGN-04 | Phase 12 | Pending |
 | DESIGN-05 | Phase 11 | Complete |

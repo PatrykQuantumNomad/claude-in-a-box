@@ -81,7 +81,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 12-01-PLAN.md — Scroll-triggered reveal animations (motion install, CSS initial states, reveal classes, animation script)
+- [x] 12-01-PLAN.md — Scroll-triggered reveal animations (motion install, CSS initial states, reveal classes, animation script)
 - [ ] 12-02-PLAN.md — SEO/OG meta tags, Twitter Card, OG image, sitemap, robots.txt
 
 ## Progress
@@ -94,4 +94,4 @@ Phases execute in numeric order: 10 -> 11 -> 12
 | 1-9 | v1.0 | 17/17 | Complete | 2026-02-25 |
 | 10. Foundation & Infrastructure | v1.1 | 2/2 | Complete | 2026-02-26 |
 | 11. Page Content & Components | v1.1 | 2/2 | Complete | 2026-02-26 |
-| 12. Polish & Deployment | v1.1 | 0/2 | Not started | - |
+| 12. Polish & Deployment | v1.1 | 1/2 | In progress | - |

@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Landing Page
 status: executing
-last_updated: "2026-02-26T15:04:46Z"
+last_updated: "2026-02-26T15:51:13Z"
 progress:
   total_phases: 3
   completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 6
+  completed_plans: 5
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Deploy once, control from anywhere -- an AI-powered DevOps agent running inside your cluster that you can access from your phone without losing context, environment access, or session state.
-**Current focus:** v1.1 Landing Page -- Phase 11 complete, Phase 12 pending
+**Current focus:** v1.1 Landing Page -- Phase 12 in progress, 12-01 complete
 
 ## Current Position
 
-Phase: 11 of 12 (Page Content & Components)
-Plan: 2 of 2 in Phase 11 complete
-Status: Phase 11 complete -- all content sections built and composed
-Last activity: 2026-02-26 -- Completed 11-02 (Features, Architecture, Quickstart, UseCases, page composition)
+Phase: 12 of 12 (Polish & Deployment)
+Plan: 1 of 2 in Phase 12 complete
+Status: 12-01 complete -- scroll animations added to all below-fold sections
+Last activity: 2026-02-26 -- Completed 12-01 (motion install, reveal classes, animation script)
 
-Progress: [████████░░] 80% (Phase 11: 2/2 plans complete)
+Progress: [█████████░] 90% (Phase 12: 1/2 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 17 (v1.0)
-- v1.1 plans completed: 4
-- Total execution time: 10min
+- v1.1 plans completed: 5
+- Total execution time: 12min
 
 **By Phase:**
 
@@ -42,7 +42,7 @@ Progress: [████████░░] 80% (Phase 11: 2/2 plans complete)
 |-------|-------|-------|----------|
 | 10 | 2/2 | 6min | 3min |
 | 11 | 2/2 | 4min | 2min |
-| 12 | 0/TBD | -- | -- |
+| 12 | 1/2 | 2min | 2min |
 
 ## Accumulated Context
 
@@ -67,6 +67,9 @@ Recent for v1.1:
 - Emoji icons for feature/use-case cards (no icon library dependency)
 - Inline SVG architecture diagram with oklch() values matching design tokens
 - Footer outside <main> for semantic HTML correctness
+- motion vanilla JS API (animate/inView/stagger) for scroll animations -- no React dependency
+- Compositor-only CSS (opacity + transform) for zero CLS animations
+- Hero excluded from reveal animations -- above fold must be immediately visible
 
 ### Pending Todos
 
@@ -79,5 +82,5 @@ None -- GitHub Pages source and DNS CNAME configured during Phase 10 execution.
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 11-02-PLAN.md (Features bento grid, Architecture SVG, Quickstart, UseCases, page composition)
+Stopped at: Completed 12-01-PLAN.md (motion install, reveal classes, animation script for scroll-triggered animations)
 Resume file: .planning/ROADMAP.md
