@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Landing Page
 status: executing
-last_updated: "2026-02-26T11:38:59Z"
+last_updated: "2026-02-26T11:55:46Z"
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -18,29 +18,29 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Deploy once, control from anywhere -- an AI-powered DevOps agent running inside your cluster that you can access from your phone without losing context, environment access, or session state.
-**Current focus:** v1.1 Landing Page -- Phase 10: Foundation & Infrastructure
+**Current focus:** v1.1 Landing Page -- Phase 10 complete, ready for Phase 11
 
 ## Current Position
 
-Phase: 10 of 12 (Foundation & Infrastructure)
-Plan: 1 of 2 in Phase 10 complete
-Status: Executing Phase 10
-Last activity: 2026-02-26 -- Completed 10-01 (Astro scaffold with Tailwind v4 design system)
+Phase: 10 of 12 (Foundation & Infrastructure) -- COMPLETE
+Plan: 2 of 2 in Phase 10 complete
+Status: Phase 10 complete, pending verification
+Last activity: 2026-02-26 -- Completed 10-02 (CI/CD isolation, deploy workflow, CNAME)
 
-Progress: [█████░░░░░] 50% (Phase 10: 1/2 plans)
+Progress: [██████████] 100% (Phase 10: 2/2 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 17 (v1.0)
-- v1.1 plans completed: 1
-- Total execution time: 3min
+- v1.1 plans completed: 2
+- Total execution time: 6min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 10 | 1/2 | 3min | 3min |
+| 10 | 2/2 | 6min | 3min |
 | 11 | 0/TBD | -- | -- |
 | 12 | 0/TBD | -- | -- |
 
@@ -59,6 +59,8 @@ Recent for v1.1:
 - CSS-first Tailwind config with @theme block, no tailwind.config.js
 - oklch color space for perceptually uniform dark palette
 - Fontsource variable fonts for self-hosted Inter and JetBrains Mono
+- Path-based workflow isolation: deploy-site triggers on site/**, CI ignores site/**
+- withastro/action@v5 with path: ./site for subdirectory builds
 
 ### Pending Todos
 
@@ -66,11 +68,10 @@ None.
 
 ### Blockers/Concerns
 
-- GitHub Pages source must be manually set to "GitHub Actions" before first deploy (Phase 10 prerequisite)
-- DNS CNAME record must be created manually (Phase 10 prerequisite)
+None -- GitHub Pages source and DNS CNAME configured during Phase 10 execution.
 
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 10-01-PLAN.md (Astro scaffold + design system)
-Resume file: .planning/phases/10-foundation-infrastructure/10-02-PLAN.md
+Stopped at: Phase 10 complete -- all plans executed, pending verification
+Resume file: .planning/ROADMAP.md

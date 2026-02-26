@@ -52,7 +52,7 @@ See milestones/v1.0-ROADMAP.md for full phase details.
 
 Plans:
 - [x] 10-01-PLAN.md — Scaffold Astro project with Tailwind CSS v4, dark theme design system, placeholder page
-- [ ] 10-02-PLAN.md — CI/CD isolation (deploy workflow, paths-ignore), CNAME, .dockerignore
+- [x] 10-02-PLAN.md — CI/CD isolation (deploy workflow, paths-ignore), CNAME, .dockerignore
 
 ### Phase 11: Page Content & Components
 **Goal**: Visitors see a complete, responsive landing page with all content sections that communicates the product value and drives them to the GitHub repo
