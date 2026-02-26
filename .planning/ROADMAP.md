@@ -3,7 +3,7 @@
 ## Milestones
 
 - [x] **v1.0 MVP** - Phases 1-9 (shipped 2026-02-25)
-- [ ] **v1.1 Landing Page** - Phases 10-13
+- [x] **v1.1 Landing Page** - Phases 10-13 (shipped 2026-02-26)
 
 ## Phases
 
@@ -35,7 +35,7 @@ See milestones/v1.0-ROADMAP.md for full phase details.
 - [x] **Phase 10: Foundation & Infrastructure** - Astro scaffold, CI/CD, custom domain, design system
 - [x] **Phase 11: Page Content & Components** - Hero, features, architecture, quickstart, use cases, footer, responsive, 404
 - [x] **Phase 12: Polish & Deployment** - Scroll animations, SEO/OG meta tags, final verification
-- [ ] **Phase 13: Fix Stagger Animation Bug** - Fix inView callback signature, restore card visibility
+- [x] **Phase 13: Fix Stagger Animation Bug** - Fix inView callback signature, restore card visibility (completed 2026-02-26)
 
 ## Phase Details
 
@@ -97,7 +97,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 13-01-PLAN.md — Fix inView callback signature from `({ target })` to `(element)` in BaseLayout.astro
+- [x] 13-01-PLAN.md — Fix inView callback signature from `({ target })` to `(element)` in BaseLayout.astro
 
 ## Progress
 
@@ -110,4 +110,4 @@ Phases execute in numeric order: 10 -> 11 -> 12 -> 13
 | 10. Foundation & Infrastructure | v1.1 | 2/2 | Complete | 2026-02-26 |
 | 11. Page Content & Components | v1.1 | 2/2 | Complete | 2026-02-26 |
 | 12. Polish & Deployment | v1.1 | 2/2 | Complete | 2026-02-26 |
-| 13. Fix Stagger Animation Bug | v1.1 | 0/1 | Pending | — |
+| 13. Fix Stagger Animation Bug | v1.1 | 1/1 | Complete | 2026-02-26 |
