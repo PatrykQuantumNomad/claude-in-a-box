@@ -18,10 +18,10 @@ Requirements for the landing page milestone. Each maps to roadmap phases.
 ### Page Content
 
 - [x] **PAGE-01**: Hero section with headline, tagline, and two CTAs (View on GitHub + Quickstart)
-- [ ] **PAGE-02**: Feature showcase as bento grid with 4-6 cards highlighting key capabilities
-- [ ] **PAGE-03**: Architecture diagram (SVG) showing phone → Anthropic relay → Kubernetes cluster data flow
-- [ ] **PAGE-04**: Quickstart section with terminal-styled code blocks and copy-to-clipboard for all 3 deployment methods
-- [ ] **PAGE-05**: Use cases section showing 3-4 real-world scenarios (incident response, debugging, monitoring)
+- [x] **PAGE-02**: Feature showcase as bento grid with 4-6 cards highlighting key capabilities
+- [x] **PAGE-03**: Architecture diagram (SVG) showing phone → Anthropic relay → Kubernetes cluster data flow
+- [x] **PAGE-04**: Quickstart section with terminal-styled code blocks and copy-to-clipboard for all 3 deployment methods
+- [x] **PAGE-05**: Use cases section showing 3-4 real-world scenarios (incident response, debugging, monitoring)
 - [x] **PAGE-06**: Footer with GitHub link, license info, and Anthropic attribution
 
 ### Design & Polish
@@ -81,10 +81,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SITE-04 | Phase 10 | Pending |
 | SITE-05 | Phase 10 | Pending |
 | PAGE-01 | Phase 11 | Complete |
-| PAGE-02 | Phase 11 | Pending |
-| PAGE-03 | Phase 11 | Pending |
-| PAGE-04 | Phase 11 | Pending |
-| PAGE-05 | Phase 11 | Pending |
+| PAGE-02 | Phase 11 | Complete |
+| PAGE-03 | Phase 11 | Complete |
+| PAGE-04 | Phase 11 | Complete |
+| PAGE-05 | Phase 11 | Complete |
 | PAGE-06 | Phase 11 | Complete |
 | DESIGN-01 | Phase 10 | Complete |
 | DESIGN-02 | Phase 12 | Pending |
