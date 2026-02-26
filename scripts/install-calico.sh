@@ -9,6 +9,15 @@ CALICO_VERSION="${CALICO_VERSION:-3.31.4}"
 echo "==> Installing Calico v${CALICO_VERSION} operator..."
 kubectl create -f "https://raw.githubusercontent.com/projectcalico/calico/v${CALICO_VERSION}/manifests/tigera-operator.yaml"
 
+echo "==> Waiting for Calico CRDs to be registered..."
+for i in $(seq 1 30); do
+  if kubectl get crd installations.operator.tigera.io &>/dev/null; then
+    echo "    CRDs ready after ${i}s"
+    break
+  fi
+  sleep 1
+done
+
 echo "==> Installing Calico custom resources..."
 kubectl create -f "https://raw.githubusercontent.com/projectcalico/calico/v${CALICO_VERSION}/manifests/custom-resources.yaml"
 

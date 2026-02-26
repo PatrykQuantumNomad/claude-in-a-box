@@ -71,9 +71,14 @@ RUN curl -fsSL "https://github.com/stern/stern/releases/download/v${STERN_VERSIO
     | tar -xz -C /tools/bin stern
 
 # -- kubectx + kubens (two separate downloads) --------------------------------
-RUN curl -fsSL "https://github.com/ahmetb/kubectx/releases/download/v${KUBECTX_VERSION}/kubectx_v${KUBECTX_VERSION}_linux_${TARGETARCH}.tar.gz" \
+# kubectx releases use "x86_64" instead of "amd64"
+RUN KUBECTX_ARCH="${TARGETARCH}" && \
+    case "${KUBECTX_ARCH}" in \
+        amd64) KUBECTX_ARCH="x86_64" ;; \
+    esac && \
+    curl -fsSL "https://github.com/ahmetb/kubectx/releases/download/v${KUBECTX_VERSION}/kubectx_v${KUBECTX_VERSION}_linux_${KUBECTX_ARCH}.tar.gz" \
     | tar -xz -C /tools/bin kubectx && \
-    curl -fsSL "https://github.com/ahmetb/kubectx/releases/download/v${KUBECTX_VERSION}/kubens_v${KUBECTX_VERSION}_linux_${TARGETARCH}.tar.gz" \
+    curl -fsSL "https://github.com/ahmetb/kubectx/releases/download/v${KUBECTX_VERSION}/kubens_v${KUBECTX_VERSION}_linux_${KUBECTX_ARCH}.tar.gz" \
     | tar -xz -C /tools/bin kubens
 
 # -- jq (direct binary download) ---------------------------------------------
