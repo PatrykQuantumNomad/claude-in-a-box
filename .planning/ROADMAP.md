@@ -78,10 +78,11 @@ Plans:
   1. Feature cards and sections animate into view on scroll (not visible until scrolled to, then reveal with motion)
   2. Sharing the site URL on Twitter/Slack/Discord shows a rich preview with correct title, description, and preview image (Open Graph tags working)
   3. The page loads with no layout shift from animations and total JavaScript bundle stays under 50kb
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 12-01: TBD
+- [ ] 12-01-PLAN.md — Scroll-triggered reveal animations (motion install, CSS initial states, reveal classes, animation script)
+- [ ] 12-02-PLAN.md — SEO/OG meta tags, Twitter Card, OG image, sitemap, robots.txt
 
 ## Progress
 
@@ -93,4 +94,4 @@ Phases execute in numeric order: 10 -> 11 -> 12
 | 1-9 | v1.0 | 17/17 | Complete | 2026-02-25 |
 | 10. Foundation & Infrastructure | v1.1 | 2/2 | Complete | 2026-02-26 |
 | 11. Page Content & Components | v1.1 | 2/2 | Complete | 2026-02-26 |
-| 12. Polish & Deployment | v1.1 | 0/0 | Not started | - |
+| 12. Polish & Deployment | v1.1 | 0/2 | Not started | - |
