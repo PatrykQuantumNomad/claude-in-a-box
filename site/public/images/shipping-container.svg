@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" fill="none">
+  <!-- Container body -->
+  <rect x="4" y="18" width="92" height="54" rx="2" stroke="currentColor" stroke-width="3" fill="none"/>
+  <!-- Top face (3D perspective) -->
+  <polygon points="4,18 24,6 116,6 96,18" stroke="currentColor" stroke-width="3" fill="none" stroke-linejoin="round"/>
+  <!-- Right face -->
+  <polygon points="96,18 116,6 116,60 96,72" stroke="currentColor" stroke-width="3" fill="none" stroke-linejoin="round"/>
+  <!-- Vertical ridges on front -->
+  <line x1="22" y1="18" x2="22" y2="72" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+  <line x1="40" y1="18" x2="40" y2="72" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+  <line x1="58" y1="18" x2="58" y2="72" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+  <line x1="76" y1="18" x2="76" y2="72" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+  <!-- Door latch -->
+  <rect x="86" y="36" width="4" height="18" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  <!-- Horizontal ridges on right face -->
+  <line x1="96" y1="36" x2="116" y2="24" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
+  <line x1="96" y1="54" x2="116" y2="42" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
+</svg>

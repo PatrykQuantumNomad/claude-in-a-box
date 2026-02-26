@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import FloatingIcons from "../components/ui/FloatingIcons.astro";
 import Hero from "../components/sections/Hero.astro";
 import Features from "../components/sections/Features.astro";
 import Architecture from "../components/sections/Architecture.astro";
@@ -9,10 +10,13 @@ import Footer from "../components/sections/Footer.astro";
 ---
 
 <BaseLayout title="RemoteKube - Claude Code in Your Cluster">
-  <main>
+  <FloatingIcons />
+  <main class="relative z-[1]">
     <Hero />
+    <div class="section-divider"></div>
     <Features />
     <Architecture />
+    <div class="section-divider"></div>
     <Quickstart />
     <UseCases />
   </main>

@@ -1,17 +1,22 @@
-<section class="min-h-[80vh] flex items-center justify-center px-4 sm:px-6 lg:px-8">
-  <div class="max-w-4xl mx-auto text-center space-y-8">
-    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary tracking-tight">
-      Deploy once, control from anywhere
+<section class="section-glow min-h-[85vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 relative">
+  <!-- Decorative glow orbs -->
+  <div class="glow-orb w-[600px] h-[600px] -top-[200px] -left-[150px] bg-[oklch(0.40_0.18_260_/_0.20)]"></div>
+  <div class="glow-orb w-[500px] h-[500px] -bottom-[200px] -right-[150px] bg-[oklch(0.35_0.15_280_/_0.15)]"></div>
+  <div class="glow-orb w-[350px] h-[350px] top-[15%] right-[10%] bg-[oklch(0.45_0.12_240_/_0.12)]"></div>
+
+  <div class="max-w-4xl mx-auto text-center space-y-10 relative z-10">
+    <h1 class="gradient-text text-5xl md:text-6xl lg:text-[4.5rem] font-bold tracking-[-0.02em] leading-[1.1]" style="text-wrap: balance;">
+      Control your Kubernetes clusters from anywhere
     </h1>
-    <p class="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto">
-      An AI-powered DevOps agent running inside your Kubernetes cluster, accessible from your phone via Claude's Remote Control
+    <p class="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto leading-relaxed">
+      An AI-powered DevOps agent running inside your cluster. Diagnose incidents, run kubectl, and manage pods from your phone via Claude Code.
     </p>
     <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
       <a
         href="https://github.com/PatrykQuantumNomad/claude-in-a-box"
         target="_blank"
         rel="noopener noreferrer"
-        class="inline-flex items-center gap-2 px-6 py-3 bg-accent text-bg-primary font-semibold rounded-lg hover:bg-accent-hover transition-colors"
+        class="btn-glow inline-flex items-center gap-2 px-6 py-3 bg-accent text-white font-semibold rounded-lg hover:bg-accent-hover transition-colors relative z-10"
       >
         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
           <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
@@ -20,7 +25,7 @@
       </a>
       <a
         href="#quickstart"
-        class="inline-flex items-center gap-2 px-6 py-3 border border-border text-text-primary font-semibold rounded-lg hover:bg-bg-secondary transition-colors"
+        class="inline-flex items-center gap-2 px-6 py-3 border border-border-glass text-text-primary font-semibold rounded-lg hover:bg-glass-hover hover:border-border-glass-hover backdrop-blur-sm transition-all"
       >
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M4 6l4 4 4-4"/>

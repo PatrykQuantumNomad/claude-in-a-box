@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="248" fill="white" stroke="#1a1a1a" stroke-width="4"/>
+
+  <!-- K8s helm wheel: 7-sided (heptagon) -->
+  <polygon
+    points="256,86 387,138 421,279 340,398 172,398 91,279 125,138"
+    fill="none"
+    stroke="#1a1a1a"
+    stroke-width="5"
+    stroke-linejoin="round"
+  />
+
+  <!-- 7 spokes from center to heptagon vertices -->
+  <g stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" opacity="0.4">
+    <line x1="256" y1="256" x2="256" y2="86"/>
+    <line x1="256" y1="256" x2="387" y2="138"/>
+    <line x1="256" y1="256" x2="421" y2="279"/>
+    <line x1="256" y1="256" x2="340" y2="398"/>
+    <line x1="256" y1="256" x2="172" y2="398"/>
+    <line x1="256" y1="256" x2="91" y2="279"/>
+    <line x1="256" y1="256" x2="125" y2="138"/>
+  </g>
+
+  <!-- Small circles at each vertex (K8s style nodes) -->
+  <g fill="white" stroke="#1a1a1a" stroke-width="3">
+    <circle cx="256" cy="86" r="12"/>
+    <circle cx="387" cy="138" r="12"/>
+    <circle cx="421" cy="279" r="12"/>
+    <circle cx="340" cy="398" r="12"/>
+    <circle cx="172" cy="398" r="12"/>
+    <circle cx="91" cy="279" r="12"/>
+    <circle cx="125" cy="138" r="12"/>
+  </g>
+
+  <!-- Inner heptagon, r=80 -->
+  <polygon
+    points="256,176 318,200 334,265 294,323 218,323 178,265 194,200"
+    fill="white"
+    stroke="#1a1a1a"
+    stroke-width="3"
+    stroke-linejoin="round"
+  />
+
+  <!-- Center hub: Claude-inspired 7-petal starburst -->
+  <g transform="translate(256,252)">
+    <g fill="#1a1a1a" opacity="0.85">
+      <ellipse cx="0" cy="-18" rx="4.5" ry="13" transform="rotate(0)"/>
+      <ellipse cx="0" cy="-18" rx="4.5" ry="13" transform="rotate(51.43)"/>
+      <ellipse cx="0" cy="-18" rx="4.5" ry="13" transform="rotate(102.86)"/>
+      <ellipse cx="0" cy="-18" rx="4.5" ry="13" transform="rotate(154.29)"/>
+      <ellipse cx="0" cy="-18" rx="4.5" ry="13" transform="rotate(205.71)"/>
+      <ellipse cx="0" cy="-18" rx="4.5" ry="13" transform="rotate(257.14)"/>
+      <ellipse cx="0" cy="-18" rx="4.5" ry="13" transform="rotate(308.57)"/>
+    </g>
+    <circle cx="0" cy="0" r="7" fill="#1a1a1a"/>
+  </g>
+
+  <!-- Remote control signal arcs (top-right quadrant) -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M 350 145 A 55 55 0 0 1 378 185" stroke="#1a1a1a" stroke-width="5" opacity="0.8"/>
+    <path d="M 362 125 A 85 85 0 0 1 405 172" stroke="#1a1a1a" stroke-width="4" opacity="0.5"/>
+    <path d="M 374 105 A 115 115 0 0 1 432 160" stroke="#1a1a1a" stroke-width="3" opacity="0.3"/>
+  </g>
+
+  <!-- Signal origin dot -->
+  <circle cx="342" cy="152" r="4.5" fill="#1a1a1a" opacity="0.7"/>
+</svg>

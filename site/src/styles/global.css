@@ -1,24 +1,37 @@
 @import "tailwindcss";
 
 /* Self-hosted fonts */
-@import "@fontsource-variable/inter";
+@import "@fontsource-variable/space-grotesk";
 @import "@fontsource-variable/jetbrains-mono";
 
 @theme {
   /* Typography */
-  --font-sans: "Inter Variable", "Inter", system-ui, sans-serif;
+  --font-sans: "Space Grotesk Variable", "Space Grotesk", system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, monospace;
 
-  /* Dark theme color palette (dark-first, no dark: prefix needed) */
-  --color-bg-primary: oklch(0.15 0.01 260);
-  --color-bg-secondary: oklch(0.20 0.01 260);
-  --color-bg-tertiary: oklch(0.25 0.02 260);
-  --color-text-primary: oklch(0.95 0.01 260);
+  /* Deep Navy + Electric Blue palette */
+  --color-bg-primary: oklch(0.13 0.03 260);
+  --color-bg-secondary: oklch(0.16 0.03 260);
+  --color-bg-tertiary: oklch(0.19 0.03 260);
+  --color-text-primary: oklch(0.97 0.005 260);
   --color-text-secondary: oklch(0.75 0.02 260);
   --color-text-muted: oklch(0.55 0.02 260);
-  --color-accent: oklch(0.70 0.15 250);
-  --color-accent-hover: oklch(0.75 0.17 250);
-  --color-border: oklch(0.30 0.02 260);
+  --color-accent: oklch(0.62 0.22 260);
+  --color-accent-hover: oklch(0.55 0.24 260);
+  --color-border: oklch(0.24 0.04 260);
+
+  /* Glass surface colors */
+  --color-glass: oklch(0.16 0.03 260 / 0.60);
+  --color-glass-hover: oklch(0.20 0.03 260 / 0.75);
+  --color-glass-strong: oklch(0.18 0.03 260 / 0.80);
+
+  /* Glow / accent with alpha */
+  --color-accent-glow: oklch(0.62 0.22 260 / 0.15);
+  --color-accent-glow-strong: oklch(0.62 0.22 260 / 0.25);
+
+  /* Glass borders */
+  --color-border-glass: oklch(0.28 0.04 260 / 0.60);
+  --color-border-glass-hover: oklch(0.50 0.15 260 / 0.50);
 
   /* Spacing base (Tailwind v4 multiplier) */
   --spacing: 0.25rem;
@@ -45,6 +58,109 @@ html {
   .reveal-section,
   .reveal-card {
     opacity: 1;
+    transform: none;
+  }
+}
+
+/* ===== Glass utilities ===== */
+
+.glass-card {
+  background: oklch(0.16 0.03 260 / 0.60);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid oklch(0.28 0.04 260 / 0.60);
+  box-shadow: 0 1px 3px oklch(0.05 0.02 260 / 0.3);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: oklch(0.50 0.15 260 / 0.50);
+  box-shadow:
+    0 0 24px oklch(0.62 0.22 260 / 0.08),
+    0 8px 24px oklch(0.05 0.02 260 / 0.2);
+  transform: translateY(-4px);
+}
+
+.glass-terminal {
+  background: oklch(0.10 0.02 260 / 0.92);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border: 1px solid oklch(0.24 0.04 260 / 0.50);
+  color: oklch(0.90 0.01 260);
+}
+
+.glass-terminal .text-text-muted {
+  color: oklch(0.50 0.02 260);
+}
+
+.glass-terminal .text-text-secondary {
+  color: oklch(0.75 0.02 260);
+}
+
+.glass-terminal .text-text-primary {
+  color: oklch(0.95 0.005 260);
+}
+
+.gradient-text {
+  background: linear-gradient(
+    135deg,
+    oklch(0.97 0.005 260) 0%,
+    oklch(0.75 0.15 260) 50%,
+    oklch(0.62 0.22 260) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.section-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.section-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(0.62 0.22 260 / 0.25) 50%,
+    transparent 100%
+  );
+}
+
+.btn-glow {
+  position: relative;
+}
+
+.btn-glow::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, oklch(0.62 0.22 260 / 0.4), oklch(0.50 0.18 280 / 0.25), oklch(0.62 0.22 260 / 0.4));
+  z-index: -1;
+  opacity: 0;
+  filter: blur(12px);
+  transition: opacity 0.3s ease;
+}
+
+.btn-glow:hover::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-card {
+    transition: none;
+  }
+  .glass-card:hover {
     transform: none;
   }
 }

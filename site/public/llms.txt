@@ -1,0 +1,45 @@
+# RemoteKube
+
+> An open-source AI-powered DevOps agent running inside your Kubernetes cluster, accessible from your phone via Claude Code's Remote Control.
+
+RemoteKube (also known as claude-in-a-box) deploys Claude Code as a pod inside a Kubernetes cluster with full access to kubectl, Helm, and 30+ DevOps tools. It enables engineers to manage, debug, and monitor their clusters remotely from any device — including mobile phones via Claude's Remote Control feature.
+
+## Key Facts
+
+- **Type:** Open-source DevOps tool (MIT License)
+- **Repository:** https://github.com/PatrykQuantumNomad/claude-in-a-box
+- **Website:** https://remotekube.patrykgolabek.dev
+- **Author:** Patryk Golabek (https://patrykgolabek.dev)
+- **Category:** Kubernetes management, AI-assisted DevOps, remote cluster access
+
+## Core Capabilities
+
+- **Remote Control:** Manage your cluster from your phone or claude.ai. Start a session, run diagnostics, and resolve incidents without opening a laptop.
+- **MCP Kubernetes Integration:** In-cluster read-only access to 14 Kubernetes resource types via kubernetes-mcp-server. Query pods, deployments, services, and more.
+- **Three Startup Modes:** Interactive for hands-on work, remote-control for mobile access, or headless for automated scripted operations.
+- **Tiered RBAC Security:** Choose readonly, operator, or airgapped security profiles. Fine-grained Kubernetes RBAC with NetworkPolicy isolation.
+- **32+ DevOps Tools:** kubectl, helm, k9s, stern, trivy, grype, and 26 more tools pre-installed.
+- **NetworkPolicy Isolation:** Egress-only networking with DNS, HTTPS, and Kubernetes API restrictions. No inbound ports exposed.
+
+## Architecture
+
+Phone/claude.ai → Anthropic API Relay → Claude Code (In-Cluster Pod) → MCP Server (K8s Sidecar) → K8s Cluster Resources
+
+Infrastructure components: ServiceAccount, NetworkPolicy, PersistentVolume.
+
+## Deployment Methods
+
+1. **KIND (Local Development):** `git clone` → `cd claude-in-a-box` → `make bootstrap`
+2. **Docker Compose (Standalone):** Set CLAUDE_CODE_OAUTH_TOKEN → `docker compose up -d`
+3. **Helm (Production):** `helm install claude-agent ./helm/claude-in-a-box`
+
+## Use Cases
+
+- **Incident Response:** Check pod status, read logs, and diagnose issues from your phone during on-call.
+- **Remote Debugging:** Exec into pods, inspect configs, and trace network issues from anywhere.
+- **Cluster Monitoring:** Watch deployments, check resource health, and review events without VPN tunnels.
+- **Automated Operations:** Use headless mode for scripted health checks, automated reporting, and routine maintenance.
+
+## Documentation
+
+- [Full documentation](https://remotekube.patrykgolabek.dev/llms-full.txt)

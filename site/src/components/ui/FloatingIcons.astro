@@ -1,0 +1,140 @@
+---
+/**
+ * Floating background icons that parallax-scroll.
+ * Uses official Kubernetes and Claude Code logos plus supplementary icons.
+ * The scroll animation is driven by the motion library in BaseLayout.
+ */
+---
+
+<div class="floating-icons-layer" aria-hidden="true">
+  <!-- Kubernetes logo -->
+  <div class="floating-icon" style="--fi-top: 6%; --fi-left: 4%; --fi-size: 100px; --fi-speed: 0.3; --fi-rotate: 12deg; --fi-opacity: 0.13;">
+    <img src="/images/kubernetes.svg" alt="" data-original width="100" height="100" loading="lazy" />
+  </div>
+
+  <!-- Claude Code logo -->
+  <div class="floating-icon" style="--fi-top: 20%; --fi-left: 85%; --fi-size: 130px; --fi-speed: 0.5; --fi-rotate: -8deg; --fi-opacity: 0.22;">
+    <img src="/images/claude_code.png" alt="" width="130" height="130" loading="lazy" />
+  </div>
+
+  <!-- WiFi / signal icon (remote connection) -->
+  <div class="floating-icon" style="--fi-top: 44%; --fi-left: 2%; --fi-size: 68px; --fi-speed: 0.4; --fi-rotate: 5deg; --fi-opacity: 0.14;">
+    <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <path d="M8 18a20 20 0 0 1 28 0"/>
+      <path d="M13 24a13 13 0 0 1 18 0"/>
+      <path d="M18 30a6 6 0 0 1 8 0"/>
+      <circle cx="22" cy="35" r="2" fill="currentColor"/>
+    </svg>
+  </div>
+
+  <!-- Kubernetes logo (smaller, different position) -->
+  <div class="floating-icon" style="--fi-top: 38%; --fi-left: 70%; --fi-size: 72px; --fi-speed: 0.35; --fi-rotate: -18deg; --fi-opacity: 0.10;">
+    <img src="/images/kubernetes.svg" alt="" data-original width="72" height="72" loading="lazy" />
+  </div>
+
+  <!-- Terminal / CLI icon -->
+  <div class="floating-icon" style="--fi-top: 58%; --fi-left: 90%; --fi-size: 76px; --fi-speed: 0.35; --fi-rotate: -15deg; --fi-opacity: 0.12;">
+    <svg viewBox="0 0 52 52" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4" y="8" width="44" height="36" rx="4"/>
+      <polyline points="14,22 22,28 14,34"/>
+      <line x1="26" y1="34" x2="38" y2="34"/>
+    </svg>
+  </div>
+
+  <!-- Kubernetes logo (bottom left) -->
+  <div class="floating-icon" style="--fi-top: 74%; --fi-left: 12%; --fi-size: 88px; --fi-speed: 0.25; --fi-rotate: 25deg; --fi-opacity: 0.11;">
+    <img src="/images/kubernetes.svg" alt="" data-original width="88" height="88" loading="lazy" />
+  </div>
+
+  <!-- Phone / mobile icon (remote access) -->
+  <div class="floating-icon" style="--fi-top: 15%; --fi-left: 55%; --fi-size: 60px; --fi-speed: 0.45; --fi-rotate: 10deg; --fi-opacity: 0.14;">
+    <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="10" y="4" width="20" height="32" rx="3"/>
+      <line x1="18" y1="30" x2="22" y2="30"/>
+    </svg>
+  </div>
+
+  <!-- Claude Code logo (mid-left) -->
+  <div class="floating-icon" style="--fi-top: 52%; --fi-left: 18%; --fi-size: 110px; --fi-speed: 0.45; --fi-rotate: 6deg; --fi-opacity: 0.18;">
+    <img src="/images/claude_code.png" alt="" width="110" height="110" loading="lazy" />
+  </div>
+
+  <!-- Shipping container (Docker) -->
+  <div class="floating-icon" style="--fi-top: 10%; --fi-left: 32%; --fi-size: 95px; --fi-speed: 0.2; --fi-rotate: -5deg; --fi-opacity: 0.12;">
+    <img src="/images/shipping-container.svg" alt="" width="95" height="95" loading="lazy" />
+  </div>
+
+  <!-- Claude Code logo (bottom right) -->
+  <div class="floating-icon" style="--fi-top: 86%; --fi-left: 62%; --fi-size: 120px; --fi-speed: 0.55; --fi-rotate: -12deg; --fi-opacity: 0.20;">
+    <img src="/images/claude_code.png" alt="" width="120" height="120" loading="lazy" />
+  </div>
+
+  <!-- Swiss army knife (tools) -->
+  <div class="floating-icon" style="--fi-top: 65%; --fi-left: 42%; --fi-size: 85px; --fi-speed: 0.3; --fi-rotate: -20deg; --fi-opacity: 0.12;">
+    <img src="/images/swiss-army-knife.svg" alt="" width="85" height="85" loading="lazy" />
+  </div>
+
+  <!-- Lock / security icon -->
+  <div class="floating-icon" style="--fi-top: 30%; --fi-left: 25%; --fi-size: 54px; --fi-speed: 0.35; --fi-rotate: -10deg; --fi-opacity: 0.13;">
+    <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="7" y="16" width="22" height="14" rx="2"/>
+      <path d="M11 16V11a7 7 0 0 1 14 0v5"/>
+      <circle cx="18" cy="24" r="2" fill="currentColor"/>
+    </svg>
+  </div>
+
+  <!-- Shipping container (Docker, smaller) -->
+  <div class="floating-icon" style="--fi-top: 82%; --fi-left: 8%; --fi-size: 72px; --fi-speed: 0.4; --fi-rotate: 18deg; --fi-opacity: 0.10;">
+    <img src="/images/shipping-container.svg" alt="" width="72" height="72" loading="lazy" />
+  </div>
+
+  <!-- Swiss army knife (tools, upper area) -->
+  <div class="floating-icon" style="--fi-top: 25%; --fi-left: 92%; --fi-size: 70px; --fi-speed: 0.45; --fi-rotate: 35deg; --fi-opacity: 0.10;">
+    <img src="/images/swiss-army-knife.svg" alt="" width="70" height="70" loading="lazy" />
+  </div>
+
+  <!-- Kubernetes logo (small, bottom) -->
+  <div class="floating-icon" style="--fi-top: 90%; --fi-left: 30%; --fi-size: 60px; --fi-speed: 0.5; --fi-rotate: 40deg; --fi-opacity: 0.09;">
+    <img src="/images/kubernetes.svg" alt="" data-original width="60" height="60" loading="lazy" />
+  </div>
+</div>
+
+<style>
+  .floating-icons-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .floating-icon {
+    position: absolute;
+    top: var(--fi-top);
+    left: var(--fi-left);
+    width: var(--fi-size);
+    height: var(--fi-size);
+    opacity: var(--fi-opacity);
+    color: oklch(0.75 0.05 260);
+    transform: rotate(var(--fi-rotate)) translateY(0px);
+    will-change: transform;
+    transition: none;
+  }
+
+  .floating-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* Colorize SVG images loaded via <img> to match the theme — skip originals */
+  .floating-icon img[src$=".svg"]:not([data-original]) {
+    filter: brightness(0) invert(0.75) sepia(0.1) saturate(0.5) hue-rotate(200deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .floating-icon {
+      transform: rotate(var(--fi-rotate)) !important;
+    }
+  }
+</style>

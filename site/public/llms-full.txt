@@ -1,0 +1,177 @@
+# RemoteKube — Full Documentation
+
+> An open-source AI-powered DevOps agent running inside your Kubernetes cluster, accessible from your phone via Claude Code's Remote Control.
+
+**Website:** https://remotekube.patrykgolabek.dev
+**Repository:** https://github.com/PatrykQuantumNomad/claude-in-a-box
+**Author:** Patryk Golabek (https://patrykgolabek.dev)
+**License:** MIT
+
+---
+
+## What is RemoteKube?
+
+RemoteKube (project name: claude-in-a-box) is an open-source tool that deploys Anthropic's Claude Code CLI as a containerized agent inside a Kubernetes cluster. Once deployed, the agent has access to kubectl, Helm, and 30+ pre-installed DevOps tools, and can be controlled remotely from any device — including mobile phones — through Claude's Remote Control feature via the Anthropic API.
+
+This enables DevOps engineers, SREs, and platform teams to:
+- Respond to incidents from their phone without needing a laptop or VPN
+- Debug pods, read logs, and inspect cluster state from anywhere
+- Run automated health checks and maintenance scripts in headless mode
+- Query Kubernetes resources through a natural language interface powered by MCP
+
+---
+
+## Architecture Overview
+
+The system follows a relay architecture:
+
+```
+Phone / claude.ai
+    ↓ (HTTPS)
+Anthropic API Relay
+    ↓ (HTTPS)
+Claude Code CLI (In-Cluster Pod)
+    ↓ (stdio)
+kubernetes-mcp-server (Sidecar Container)
+    ↓ (K8s API)
+Kubernetes Cluster Resources
+```
+
+### Infrastructure Components
+
+- **ServiceAccount:** Provides the pod with RBAC-scoped access to the Kubernetes API. Three tiers available: readonly, operator, airgapped.
+- **NetworkPolicy:** Restricts pod networking to egress-only. Allowed destinations: DNS (port 53), HTTPS (port 443), Kubernetes API server. No inbound ports are exposed.
+- **PersistentVolume:** Optional persistent storage for session history, tool caches, and configuration.
+
+---
+
+## Core Features
+
+### 1. Remote Control via Claude
+Manage your cluster from your phone or claude.ai. Open a Claude conversation, connect to your deployed agent, and run diagnostics, check pod status, or resolve incidents — all without opening a laptop or establishing a VPN connection.
+
+### 2. MCP Kubernetes Integration
+The agent includes kubernetes-mcp-server as a sidecar, providing Claude with structured, read-only access to 14 Kubernetes resource types:
+- Pods, Deployments, StatefulSets, DaemonSets
+- Services, Ingresses, ConfigMaps, Secrets (metadata only)
+- Namespaces, Nodes, Events
+- PersistentVolumes, PersistentVolumeClaims
+- Jobs, CronJobs
+
+### 3. Three Startup Modes
+- **Interactive:** Standard terminal session. SSH in and use Claude Code directly.
+- **Remote Control:** Starts with `--remote-control` flag. Accessible from claude.ai or the Claude mobile app.
+- **Headless:** Runs with a predefined prompt for automated scripted operations. Ideal for CI/CD pipelines, cron jobs, and automated health checks.
+
+### 4. Tiered RBAC Security
+Three security profiles with increasing permissions:
+- **readonly:** Can list and get resources. Cannot create, update, or delete anything. Safest for monitoring.
+- **operator:** Can create, update, and delete resources within designated namespaces. For active management.
+- **airgapped:** Full cluster-admin equivalent. For trusted environments where maximum capability is needed.
+
+### 5. Pre-installed DevOps Toolkit (32+ tools)
+The container image includes:
+- **Kubernetes:** kubectl, helm, k9s, stern, kubectx, kubens
+- **Security:** trivy, grype, kubeaudit, kube-bench
+- **Networking:** curl, wget, dig, nslookup, traceroute, netcat
+- **Debugging:** jq, yq, htop, strace, tcpdump
+- **Version Control:** git
+- **Languages/Runtimes:** Python 3, Node.js, bash
+
+### 6. NetworkPolicy Isolation
+Defense-in-depth networking:
+- Egress-only: no inbound ports exposed
+- DNS resolution allowed (UDP/TCP port 53)
+- HTTPS outbound allowed (TCP port 443) — required for Anthropic API
+- Kubernetes API server access allowed
+- All other traffic blocked by default
+
+---
+
+## Deployment Methods
+
+### KIND (Local Development)
+```bash
+git clone https://github.com/PatrykQuantumNomad/claude-in-a-box.git
+cd claude-in-a-box
+make bootstrap
+```
+This creates a local KIND cluster, builds the container image, and deploys the agent.
+
+### Docker Compose (Standalone)
+```bash
+export CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-...
+docker compose up -d
+docker attach claude-agent
+```
+Runs the agent as a standalone container. Useful for local testing without Kubernetes.
+
+### Helm (Production)
+```bash
+helm install claude-agent ./helm/claude-in-a-box \
+  --set image.repository=ghcr.io/PatrykQuantumNomad/claude-in-a-box \
+  --set image.tag=latest
+```
+Production-grade deployment with configurable values for RBAC tier, resource limits, persistence, and networking.
+
+---
+
+## Use Cases
+
+### Incident Response
+When you get paged at 2am, open Claude on your phone and check pod status, read recent logs, and diagnose the issue without getting out of bed. No VPN tunnel, no laptop, no SSH keys needed.
+
+### Remote Debugging
+Exec into pods, inspect ConfigMaps, trace network paths, and review resource manifests from anywhere. The full debugging toolkit is available through natural language commands.
+
+### Cluster Monitoring
+Watch deployment rollouts, check resource utilization, review cluster events, and verify service health. Get a real-time view of your cluster without setting up port forwards.
+
+### Automated Operations
+Use headless mode for:
+- Scheduled health checks that run every hour
+- Automated reporting on cluster state
+- Routine maintenance tasks (log rotation, resource cleanup)
+- CI/CD pipeline integration for deployment verification
+
+---
+
+## Comparison with Alternatives
+
+| Feature | RemoteKube | kubectl (direct) | Lens/K9s | Portainer |
+|---------|-----------|-------------------|----------|-----------|
+| Mobile access | Yes (phone) | No | No | Web UI |
+| Natural language | Yes (AI) | No | No | No |
+| In-cluster deployment | Yes | External | External | External |
+| RBAC tiers | 3 tiers | Manual | Manual | Manual |
+| 30+ tools bundled | Yes | kubectl only | Limited | Limited |
+| Headless automation | Yes | Scripts | No | No |
+| Open source | MIT | Apache-2.0 | MIT | Partial |
+
+---
+
+## FAQ
+
+**Q: Is my cluster data sent to Anthropic?**
+A: Claude Code communicates with the Anthropic API over HTTPS. Kubernetes data queried during a session is processed by Claude to generate responses. NetworkPolicy ensures no other outbound connections are made. Review Anthropic's data policies for details on data handling.
+
+**Q: Can I restrict what the agent can do?**
+A: Yes. Use the RBAC tiers (readonly, operator, airgapped) to control Kubernetes API access. The readonly tier cannot modify any resources.
+
+**Q: Does it work with EKS/GKE/AKS?**
+A: Yes. RemoteKube deploys as a standard Kubernetes workload and is compatible with any conformant Kubernetes distribution.
+
+**Q: What's the resource overhead?**
+A: The agent pod typically uses 256Mi–512Mi memory and 0.25–0.5 CPU cores. The MCP sidecar adds minimal overhead.
+
+**Q: Can I use this without Claude's Remote Control?**
+A: Yes. Interactive mode works with any terminal connection (SSH, kubectl exec). Remote Control is optional but enables mobile access.
+
+---
+
+## Links
+
+- **Website:** https://remotekube.patrykgolabek.dev
+- **GitHub:** https://github.com/PatrykQuantumNomad/claude-in-a-box
+- **Author:** https://patrykgolabek.dev
+- **LLM-readable summary:** https://remotekube.patrykgolabek.dev/llms.txt
