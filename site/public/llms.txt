@@ -43,3 +43,10 @@ Infrastructure components: ServiceAccount, NetworkPolicy, PersistentVolume.
 ## Documentation
 
 - [Full documentation](https://remotekube.patrykgolabek.dev/llms-full.txt)
+- [Getting Started Guide](https://remotekube.patrykgolabek.dev/docs/getting-started/) — Prerequisites, installation, and first deployment
+- [Claude Code & Remote Connect](https://remotekube.patrykgolabek.dev/docs/claude-code/) — What Claude Code is and how Remote Connect works
+- [Helm Chart Reference](https://remotekube.patrykgolabek.dev/docs/helm-chart/) — Values, RBAC, network policies, security profiles
+- [Dockerfile Reference](https://remotekube.patrykgolabek.dev/docs/dockerfile/) — Multi-stage build, tools, security config
+- [KIND Deployment Guide](https://remotekube.patrykgolabek.dev/docs/kind-deployment/) — Local dev cluster setup with Calico CNI
+- [Kustomize Reference](https://remotekube.patrykgolabek.dev/docs/kustomize/) — Base/overlay manifest management
+- [Scripts Reference](https://remotekube.patrykgolabek.dev/docs/scripts/) — All 8 shell scripts for lifecycle and CI

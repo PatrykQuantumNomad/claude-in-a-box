@@ -1,0 +1,151 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+import TerminalBlock from "../../components/ui/TerminalBlock.astro";
+---
+
+<DocsLayout title="Getting Started | RemoteKube" description="Get RemoteKube running in minutes. Prerequisites, three deployment methods, first connection, and next steps for managing Kubernetes from your phone." activeSlug="getting-started">
+  <h1 class="text-3xl md:text-4xl font-bold mb-6">
+    <span class="gradient-text">Getting Started</span>
+  </h1>
+
+  <p class="text-text-secondary mb-8">
+    Get RemoteKube running in your cluster in under 10 minutes. This guide covers prerequisites, your first deployment, and connecting from your phone or browser.
+  </p>
+
+  <!-- Prerequisites -->
+  <h2 id="prerequisites">Prerequisites</h2>
+  <p class="text-text-secondary">Before you begin, make sure you have:</p>
+  <ul>
+    <li><strong>A Kubernetes cluster</strong> — Any conformant distribution: EKS, GKE, AKS, k3s, KIND, minikube, or self-hosted. Kubernetes 1.24+ with RBAC enabled.</li>
+    <li><strong>kubectl</strong> — Configured to access your target cluster.</li>
+    <li><strong>Helm 3</strong> — For production deployments (optional for KIND/Docker Compose).</li>
+    <li><strong>A Claude Code OAuth token</strong> — Obtain from <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer">console.anthropic.com</a>. Required for the agent to connect to the Anthropic API.</li>
+    <li><strong>Docker</strong> — For building custom images or running via Docker Compose.</li>
+  </ul>
+
+  <!-- Choose Your Path -->
+  <h2 id="choose-deployment">Choose Your Deployment Method</h2>
+  <p class="text-text-secondary">
+    RemoteKube supports three deployment methods. Choose the one that fits your workflow.
+  </p>
+
+  <!-- KIND -->
+  <h3 id="kind-local">Option 1: KIND (Local Development)</h3>
+  <p class="text-text-secondary">
+    Best for trying RemoteKube locally. This creates a KIND cluster, installs Calico CNI for NetworkPolicy support, builds the image, and deploys with Helm — all in one command.
+  </p>
+  <TerminalBlock title="KIND bootstrap" commands={[
+    "git clone https://github.com/PatrykQuantumNomad/claude-in-a-box.git",
+    "cd claude-in-a-box",
+    "make bootstrap"
+  ]} />
+  <p class="text-text-secondary mt-4">
+    The bootstrap process takes 3-5 minutes. Once complete, the agent pod is running and ready.
+    See the <a href="/docs/kind-deployment/">KIND Deployment Guide</a> for details on the bootstrap flow, Calico CNI, and health probes.
+  </p>
+
+  <!-- Docker Compose -->
+  <h3 id="docker-compose">Option 2: Docker Compose (Standalone)</h3>
+  <p class="text-text-secondary">
+    Run the agent as a standalone container without Kubernetes. Useful for quick testing or environments where you don't need cluster-level access.
+  </p>
+  <TerminalBlock title="Docker Compose" commands={[
+    "git clone https://github.com/PatrykQuantumNomad/claude-in-a-box.git",
+    "cd claude-in-a-box",
+    "export CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-...",
+    "docker compose up -d",
+    "docker attach claude-agent"
+  ]} />
+
+  <!-- Helm -->
+  <h3 id="helm-production">Option 3: Helm (Production)</h3>
+  <p class="text-text-secondary">
+    Production-grade deployment with configurable RBAC tiers, resource limits, persistence, and NetworkPolicy isolation.
+  </p>
+  <TerminalBlock title="Helm install" commands={[
+    "helm install claude-agent ./helm/claude-in-a-box \\",
+    "  --set image.repository=ghcr.io/PatrykQuantumNomad/claude-in-a-box \\",
+    "  --set image.tag=latest"
+  ]} />
+  <p class="text-text-secondary mt-4">
+    See the <a href="/docs/helm-chart/">Helm Chart Reference</a> for all configurable values, RBAC profiles, and security settings.
+  </p>
+
+  <!-- Verify Installation -->
+  <h2 id="verify">Verify Installation</h2>
+  <p class="text-text-secondary">
+    After deployment, check that the agent pod is running:
+  </p>
+  <TerminalBlock title="Verify pod status" commands={[
+    "kubectl get pods -l app=claude-agent",
+    "# Expected: claude-agent-0   2/2   Running"
+  ]} />
+  <p class="text-text-secondary mt-4">
+    The pod should show <code>2/2</code> containers ready — the Claude Code agent and the kubernetes-mcp-server sidecar.
+  </p>
+
+  <!-- Connect Remotely -->
+  <h2 id="connect">Connect from Your Phone or Browser</h2>
+  <p class="text-text-secondary">
+    If you deployed with Remote Control mode (the default), you can connect from any device:
+  </p>
+  <ol>
+    <li>Open <a href="https://claude.ai" target="_blank" rel="noopener noreferrer">claude.ai</a> or the Claude mobile app.</li>
+    <li>Start a new conversation.</li>
+    <li>Your remote agent will appear as an available connection.</li>
+    <li>Start managing your cluster — ask Claude to check pod status, read logs, or diagnose issues.</li>
+  </ol>
+  <p class="text-text-secondary mt-4">
+    See <a href="/docs/claude-code/">Claude Code &amp; Remote Connect</a> for details on how the relay architecture works and how to configure startup modes.
+  </p>
+
+  <!-- Choose RBAC Tier -->
+  <h2 id="rbac">Choose a Security Tier</h2>
+  <p class="text-text-secondary">
+    RemoteKube supports three RBAC tiers with increasing permissions:
+  </p>
+  <div class="overflow-x-auto">
+    <table>
+      <thead>
+        <tr>
+          <th>Tier</th>
+          <th>Permissions</th>
+          <th>Best For</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>readonly</strong> (default)</td>
+          <td>List and get resources only</td>
+          <td>Monitoring, incident triage, on-call</td>
+        </tr>
+        <tr>
+          <td><strong>operator</strong></td>
+          <td>Create, update, delete within namespaces</td>
+          <td>Active management, deployments</td>
+        </tr>
+        <tr>
+          <td><strong>airgapped</strong></td>
+          <td>Cluster-admin equivalent</td>
+          <td>Trusted dev/staging environments</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="text-text-secondary mt-4">
+    To deploy with the operator tier:
+  </p>
+  <TerminalBlock title="Helm install (operator)" commands={[
+    "helm install claude-agent ./helm/claude-in-a-box \\",
+    "  -f helm/claude-in-a-box/values-operator.yaml"
+  ]} />
+
+  <!-- Next Steps -->
+  <h2 id="next-steps">Next Steps</h2>
+  <ul>
+    <li><a href="/docs/claude-code/">Claude Code &amp; Remote Connect</a> — Understand how remote access works</li>
+    <li><a href="/docs/helm-chart/">Helm Chart Reference</a> — Customize your deployment</li>
+    <li><a href="/docs/dockerfile/">Dockerfile Reference</a> — Build custom images with additional tools</li>
+    <li><a href="/docs/scripts/">Scripts Reference</a> — Understand the lifecycle scripts</li>
+  </ul>
+</DocsLayout>

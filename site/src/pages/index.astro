@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import FloatingIcons from "../components/ui/FloatingIcons.astro";
 import Hero from "../components/sections/Hero.astro";
+import About from "../components/sections/About.astro";
 import Features from "../components/sections/Features.astro";
 import Architecture from "../components/sections/Architecture.astro";
 import Quickstart from "../components/sections/Quickstart.astro";
@@ -9,10 +10,11 @@ import UseCases from "../components/sections/UseCases.astro";
 import Footer from "../components/sections/Footer.astro";
 ---
 
-<BaseLayout title="RemoteKube - Claude Code in Your Cluster">
+<BaseLayout title="RemoteKube — AI-Powered Kubernetes Management from Your Phone" description="Open-source AI DevOps agent running inside your Kubernetes cluster. Diagnose incidents, run kubectl, and manage pods remotely from your phone via Claude Code.">
   <FloatingIcons />
   <main class="relative z-[1]">
     <Hero />
+    <About />
     <div class="section-divider"></div>
     <Features />
     <Architecture />

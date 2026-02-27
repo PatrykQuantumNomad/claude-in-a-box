@@ -1,11 +1,18 @@
 ---
 import "../styles/global.css";
 
+interface Breadcrumb {
+  name: string;
+  href: string;
+}
+
 interface Props {
   title: string;
   description?: string;
   image?: string;
   noindex?: boolean;
+  ogType?: string;
+  breadcrumbs?: Breadcrumb[];
 }
 
 const {
@@ -13,6 +20,8 @@ const {
   description = "RemoteKube is an open-source AI-powered DevOps agent that runs inside your Kubernetes cluster. Manage pods, diagnose incidents, and run kubectl commands remotely from your phone via Claude Code's Remote Control. Supports Helm, KIND, and Docker Compose deployment.",
   image = "/og-image.png",
   noindex = false,
+  ogType = "website",
+  breadcrumbs,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -82,7 +91,17 @@ const jsonLd = {
       "isPartOf": { "@id": `${siteURL}/#website` },
       "about": { "@id": `${siteURL}/#software` },
       "inLanguage": "en-US",
+      "dateModified": new Date().toISOString().split("T")[0],
     },
+    ...(breadcrumbs ? [{
+      "@type": "BreadcrumbList",
+      "itemListElement": breadcrumbs.map((crumb, i) => ({
+        "@type": "ListItem",
+        "position": i + 1,
+        "name": crumb.name,
+        "item": new URL(crumb.href, Astro.site).toString(),
+      })),
+    }] : []),
   ],
 };
 ---
@@ -100,17 +119,17 @@ const jsonLd = {
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
     <!-- Primary Meta Tags -->
     <title>{title}</title>
     <meta name="title" content={title} />
     <meta name="description" content={description} />
-    <meta name="keywords" content="Kubernetes, kubectl, DevOps, Claude Code, AI agent, remote control, MCP server, incident response, cluster management, Helm, Docker, remote debugging, K8s, pod management, Claude AI" />
     <meta name="author" content="Patryk Golabek" />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />

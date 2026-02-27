@@ -9,9 +9,43 @@ interface Props {
 }
 
 const { title, description, activeSlug } = Astro.props;
+
+const allDocs = [
+  { slug: "overview", label: "Overview", href: "/docs/" },
+  { slug: "getting-started", label: "Getting Started", href: "/docs/getting-started/" },
+  { slug: "claude-code", label: "Claude Code", href: "/docs/claude-code/" },
+  { slug: "helm-chart", label: "Helm Chart", href: "/docs/helm-chart/" },
+  { slug: "dockerfile", label: "Dockerfile", href: "/docs/dockerfile/" },
+  { slug: "kind-deployment", label: "KIND Deployment", href: "/docs/kind-deployment/" },
+  { slug: "kustomize", label: "Kustomize", href: "/docs/kustomize/" },
+  { slug: "scripts", label: "Scripts Reference", href: "/docs/scripts/" },
+];
+
+const relatedMap: Record<string, string[]> = {
+  "overview": ["getting-started", "claude-code", "helm-chart"],
+  "getting-started": ["claude-code", "helm-chart", "kind-deployment"],
+  "claude-code": ["getting-started", "helm-chart", "kind-deployment"],
+  "helm-chart": ["kustomize", "dockerfile", "scripts"],
+  "dockerfile": ["helm-chart", "scripts", "kind-deployment"],
+  "kind-deployment": ["getting-started", "dockerfile", "scripts"],
+  "kustomize": ["helm-chart", "dockerfile", "kind-deployment"],
+  "scripts": ["dockerfile", "kind-deployment", "helm-chart"],
+};
+
+const relatedSlugs = relatedMap[activeSlug] || [];
+const relatedDocs = relatedSlugs
+  .map((slug) => allDocs.find((d) => d.slug === slug))
+  .filter(Boolean);
+
+const currentDoc = allDocs.find((d) => d.slug === activeSlug);
+const breadcrumbs = [
+  { name: "Home", href: "/" },
+  { name: "Docs", href: "/docs/" },
+  ...(activeSlug !== "overview" && currentDoc ? [{ name: currentDoc.label, href: currentDoc.href }] : []),
+];
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} ogType="article" breadcrumbs={breadcrumbs}>
   <div class="min-h-screen flex flex-col lg:flex-row">
     <!-- Sidebar -->
     <aside class="lg:w-64 lg:shrink-0 lg:border-r lg:border-border bg-bg-primary lg:bg-bg-secondary/50">
@@ -26,6 +60,22 @@ const { title, description, activeSlug } = Astro.props;
         <article class="docs-prose">
           <slot />
         </article>
+
+        {relatedDocs.length > 0 && (
+          <nav class="mt-16 pt-8 border-t border-border" aria-label="Related documentation">
+            <h2 class="text-lg font-semibold text-text-primary mb-4">Related Documentation</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {relatedDocs.map((doc) => (
+                <a
+                  href={doc!.href}
+                  class="glass-card rounded-lg px-4 py-3 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors no-underline"
+                >
+                  {doc!.label}
+                </a>
+              ))}
+            </div>
+          </nav>
+        )}
       </div>
     </main>
   </div>

@@ -21,6 +21,29 @@ This enables DevOps engineers, SREs, and platform teams to:
 
 ---
 
+## Who Is This For?
+
+- **SREs and On-Call Engineers** — Respond to PagerDuty/OpsGenie alerts from your phone. Check pod status, read logs, and resolve incidents without opening a laptop.
+- **DevOps Engineers** — Manage deployments, inspect Helm releases, and debug infrastructure across clusters from any device.
+- **Platform Teams** — Provide self-service cluster access to development teams with tiered RBAC security profiles.
+- **Solo Developers and Indie Hackers** — Manage your side-project Kubernetes cluster from your phone during commutes or downtime.
+- **Security Engineers** — Run Trivy and Grype scans, audit RBAC policies, and inspect NetworkPolicies remotely.
+
+---
+
+## Platform Compatibility
+
+RemoteKube deploys as a standard Kubernetes workload and is compatible with any conformant Kubernetes distribution:
+
+- **Managed Kubernetes:** Amazon EKS, Google GKE, Azure AKS, DigitalOcean DOKS, Linode LKE, Vultr VKE, Civo
+- **Self-Hosted:** kubeadm, Rancher RKE/RKE2, OpenShift, Tanzu, Charmed Kubernetes
+- **Lightweight/Edge:** k3s, MicroK8s, KIND, minikube, k0s
+- **CI/CD Environments:** GitHub Actions (with KIND), GitLab CI, Jenkins, Tekton
+
+The only hard requirement is Kubernetes 1.24+ with RBAC enabled and outbound HTTPS access to the Anthropic API.
+
+---
+
 ## Architecture Overview
 
 The system follows a relay architecture:
@@ -150,6 +173,18 @@ Use headless mode for:
 
 ---
 
+## When NOT to Use RemoteKube
+
+RemoteKube is not the right tool for every situation:
+
+- **Air-gapped clusters with no internet access** — The agent requires outbound HTTPS to the Anthropic API. Fully air-gapped environments cannot use it.
+- **High-frequency automated pipelines** — If you need sub-second automated responses (e.g., auto-scaling controllers, admission webhooks), use purpose-built Kubernetes operators instead.
+- **Multi-tenant clusters where pod isolation is critical** — While RemoteKube uses NetworkPolicy and RBAC, it runs as a privileged agent pod. Evaluate your security posture before deploying in shared multi-tenant environments.
+- **Teams that need a full GUI dashboard** — RemoteKube is CLI/chat-driven. If your team needs visual dashboards with charts and graphs, pair it with Grafana, Lens, or a similar tool.
+- **Production clusters where you want zero AI involvement** — If policy prohibits AI tools in production, RemoteKube is better suited for staging, development, or on-call triage environments.
+
+---
+
 ## FAQ
 
 **Q: Is my cluster data sent to Anthropic?**
@@ -175,3 +210,13 @@ A: Yes. Interactive mode works with any terminal connection (SSH, kubectl exec).
 - **GitHub:** https://github.com/PatrykQuantumNomad/claude-in-a-box
 - **Author:** https://patrykgolabek.dev
 - **LLM-readable summary:** https://remotekube.patrykgolabek.dev/llms.txt
+
+## Documentation Pages
+
+- **Getting Started:** https://remotekube.patrykgolabek.dev/docs/getting-started/
+- **Claude Code & Remote Connect:** https://remotekube.patrykgolabek.dev/docs/claude-code/
+- **Helm Chart Reference:** https://remotekube.patrykgolabek.dev/docs/helm-chart/
+- **Dockerfile Reference:** https://remotekube.patrykgolabek.dev/docs/dockerfile/
+- **KIND Deployment Guide:** https://remotekube.patrykgolabek.dev/docs/kind-deployment/
+- **Kustomize Reference:** https://remotekube.patrykgolabek.dev/docs/kustomize/
+- **Scripts Reference:** https://remotekube.patrykgolabek.dev/docs/scripts/
