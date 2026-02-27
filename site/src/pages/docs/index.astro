@@ -1,0 +1,42 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout title="Documentation | RemoteKube" description="Infrastructure reference for claude-in-a-box: Helm chart, Dockerfile, KIND deployment, and scripts." activeSlug="overview">
+  <h1 class="text-4xl md:text-5xl font-bold mb-4">
+    <span class="gradient-text">Documentation</span>
+  </h1>
+  <p class="text-text-secondary text-lg mb-10">
+    Infrastructure reference for claude-in-a-box
+  </p>
+
+  <p class="text-text-secondary mb-8">
+    Claude-in-a-box packages an AI-powered DevOps agent into a single Kubernetes pod. The infrastructure consists of a Helm chart for deployment, a multi-stage Dockerfile for building the container image, shell scripts for lifecycle management, and KIND for local development. These docs cover each layer in detail.
+  </p>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <a href="/docs/helm-chart/" class="glass-card rounded-xl p-6 block no-underline">
+      <div class="text-3xl mb-3">&#9781;</div>
+      <h2 class="text-lg font-semibold text-text-primary mb-2 !mt-0">Helm Chart</h2>
+      <p class="text-text-secondary text-sm !mb-0">Complete values reference, RBAC architecture, network policies, and security profiles.</p>
+    </a>
+
+    <a href="/docs/dockerfile/" class="glass-card rounded-xl p-6 block no-underline">
+      <div class="text-3xl mb-3">&#128230;</div>
+      <h2 class="text-lg font-semibold text-text-primary mb-2 !mt-0">Dockerfile</h2>
+      <p class="text-text-secondary text-sm !mb-0">Multi-stage build process, 32+ installed tools, version pins, and security configuration.</p>
+    </a>
+
+    <a href="/docs/kind-deployment/" class="glass-card rounded-xl p-6 block no-underline">
+      <div class="text-3xl mb-3">&#9096;</div>
+      <h2 class="text-lg font-semibold text-text-primary mb-2 !mt-0">KIND Deployment</h2>
+      <p class="text-text-secondary text-sm !mb-0">Bootstrap flow, Calico CNI setup, container startup, health probes, and integration testing.</p>
+    </a>
+
+    <a href="/docs/scripts/" class="glass-card rounded-xl p-6 block no-underline">
+      <div class="text-3xl mb-3">&#9881;</div>
+      <h2 class="text-lg font-semibold text-text-primary mb-2 !mt-0">Scripts Reference</h2>
+      <p class="text-text-secondary text-sm !mb-0">All 8 shell scripts for container lifecycle, cluster setup, and testing.</p>
+    </a>
+  </div>
+</DocsLayout>

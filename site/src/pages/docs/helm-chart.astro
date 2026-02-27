@@ -1,0 +1,293 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+import DiagramBlock from "../../components/ui/DiagramBlock.astro";
+import TerminalBlock from "../../components/ui/TerminalBlock.astro";
+---
+
+<DocsLayout title="Helm Chart Reference | RemoteKube" description="Complete Helm chart reference for claude-in-a-box: values, RBAC, network policies, security profiles, and installation." activeSlug="helm-chart">
+  <h1 class="text-3xl md:text-4xl font-bold mb-6">
+    <span class="gradient-text">Helm Chart Reference</span>
+  </h1>
+
+  <!-- Overview -->
+  <h2 id="overview">Overview</h2>
+  <p class="text-text-secondary">
+    The <code>claude-in-a-box</code> Helm chart deploys a StatefulSet running Claude Code with 32+ SRE/DevOps tools into any Kubernetes cluster. It manages RBAC permissions, network policies, persistent storage, and health probes.
+  </p>
+
+  <div class="docs-table">
+    <table>
+      <tbody>
+        <tr><td>Chart Name</td><td>claude-in-a-box</td></tr>
+        <tr><td>Version</td><td>0.1.0</td></tr>
+        <tr><td>App Version</td><td>dev</td></tr>
+        <tr><td>Type</td><td>application</td></tr>
+        <tr><td>API Version</td><td>v2 (Helm 3 required)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Security Profiles -->
+  <h2 id="security-profiles">Security Profiles</h2>
+  <p class="text-text-secondary">
+    The chart supports three security profiles, selected via values overlay files. The default profile is readonly -- safe for production use.
+  </p>
+
+  <div class="docs-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Readonly (default)</th>
+          <th>Operator</th>
+          <th>Airgapped</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>RBAC Level</td>
+          <td>get, list, watch</td>
+          <td>+ delete pods, create exec, update deployments</td>
+          <td>get, list, watch (readonly)</td>
+        </tr>
+        <tr>
+          <td>NetworkPolicy Egress</td>
+          <td>DNS + HTTPS + K8s API</td>
+          <td>DNS + HTTPS + K8s API</td>
+          <td>DNS + K8s API only (no HTTPS)</td>
+        </tr>
+        <tr>
+          <td>Registry Source</td>
+          <td>Public (DockerHub/GHCR)</td>
+          <td>Public (DockerHub/GHCR)</td>
+          <td>Private registry</td>
+        </tr>
+        <tr>
+          <td>Use Case</td>
+          <td>Safe cluster inspection</td>
+          <td>Active debugging / incident response</td>
+          <td>Air-gapped / restricted environments</td>
+        </tr>
+        <tr>
+          <td>Values File</td>
+          <td>values.yaml (default)</td>
+          <td>values-operator.yaml</td>
+          <td>values-airgapped.yaml</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Values Reference -->
+  <h2 id="values-reference">Values Reference</h2>
+  <p class="text-text-secondary">
+    Complete reference for all configurable values. Descriptions are sourced from the <code>-- comment</code> annotations in <code>values.yaml</code>.
+  </p>
+
+  <div class="docs-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Key</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>replicaCount</td><td>int</td><td>1</td><td>Number of replicas (StatefulSet)</td></tr>
+        <tr><td>image.repository</td><td>string</td><td>claude-in-a-box</td><td>Container image repository</td></tr>
+        <tr><td>image.pullPolicy</td><td>string</td><td>IfNotPresent</td><td>Image pull policy</td></tr>
+        <tr><td>image.tag</td><td>string</td><td>"dev"</td><td>Image tag (overrides appVersion)</td></tr>
+        <tr><td>imagePullSecrets</td><td>list</td><td>[]</td><td>Image pull secrets for private registries</td></tr>
+        <tr><td>nameOverride</td><td>string</td><td>""</td><td>Override the release name</td></tr>
+        <tr><td>fullnameOverride</td><td>string</td><td>"claude-agent"</td><td>Force resource names regardless of release name</td></tr>
+        <tr><td>serviceAccount.create</td><td>bool</td><td>true</td><td>Create a ServiceAccount</td></tr>
+        <tr><td>serviceAccount.name</td><td>string</td><td>""</td><td>ServiceAccount name (auto-generated if empty)</td></tr>
+        <tr><td>serviceAccount.automountServiceAccountToken</td><td>bool</td><td>true</td><td>Automount API credentials</td></tr>
+        <tr><td>claudeMode</td><td>string</td><td>"interactive"</td><td>Claude Code operating mode (interactive, remote-control, headless)</td></tr>
+        <tr><td>operator.enabled</td><td>bool</td><td>false</td><td>Enable operator ClusterRole and ClusterRoleBinding</td></tr>
+        <tr><td>networkPolicy.enabled</td><td>bool</td><td>true</td><td>Create NetworkPolicy resource</td></tr>
+        <tr><td>networkPolicy.egress.dns.enabled</td><td>bool</td><td>true</td><td>Allow DNS egress (UDP/TCP 53)</td></tr>
+        <tr><td>networkPolicy.egress.https.enabled</td><td>bool</td><td>true</td><td>Allow HTTPS egress (TCP 443)</td></tr>
+        <tr><td>networkPolicy.egress.https.cidr</td><td>string</td><td>"0.0.0.0/0"</td><td>CIDR for HTTPS egress (Anthropic API)</td></tr>
+        <tr><td>networkPolicy.egress.k8sApi.enabled</td><td>bool</td><td>true</td><td>Allow K8s API server egress (TCP 6443)</td></tr>
+        <tr><td>networkPolicy.egress.k8sApi.cidr</td><td>string</td><td>"0.0.0.0/0"</td><td>CIDR for K8s API server</td></tr>
+        <tr><td>podSecurityContext.runAsUser</td><td>int</td><td>10000</td><td>User ID for container process</td></tr>
+        <tr><td>podSecurityContext.runAsGroup</td><td>int</td><td>10000</td><td>Group ID for container process</td></tr>
+        <tr><td>podSecurityContext.fsGroup</td><td>int</td><td>10000</td><td>Filesystem group for volume mounts</td></tr>
+        <tr><td>podSecurityContext.fsGroupChangePolicy</td><td>string</td><td>OnRootMismatch</td><td>When to apply fsGroup ownership</td></tr>
+        <tr><td>podSecurityContext.runAsNonRoot</td><td>bool</td><td>true</td><td>Reject containers running as root</td></tr>
+        <tr><td>resources.requests.memory</td><td>string</td><td>"512Mi"</td><td>Memory request for scheduling</td></tr>
+        <tr><td>resources.requests.cpu</td><td>string</td><td>"250m"</td><td>CPU request for scheduling</td></tr>
+        <tr><td>resources.limits.memory</td><td>string</td><td>"2Gi"</td><td>Memory limit (caps burst)</td></tr>
+        <tr><td>resources.limits.cpu</td><td>string</td><td>"2000m"</td><td>CPU limit (caps burst)</td></tr>
+        <tr><td>persistence.size</td><td>string</td><td>"1Gi"</td><td>Storage size for PVC</td></tr>
+        <tr><td>persistence.storageClassName</td><td>string</td><td>""</td><td>Storage class (empty = cluster default)</td></tr>
+        <tr><td>persistence.accessMode</td><td>string</td><td>ReadWriteOnce</td><td>Access mode for PVC</td></tr>
+        <tr><td>livenessProbe.exec.command</td><td>list</td><td>["/usr/local/bin/healthcheck.sh"]</td><td>Liveness probe command (pgrep -f claude)</td></tr>
+        <tr><td>livenessProbe.initialDelaySeconds</td><td>int</td><td>10</td><td>Delay before first liveness check</td></tr>
+        <tr><td>livenessProbe.periodSeconds</td><td>int</td><td>30</td><td>Interval between liveness checks</td></tr>
+        <tr><td>livenessProbe.timeoutSeconds</td><td>int</td><td>5</td><td>Timeout for liveness check</td></tr>
+        <tr><td>readinessProbe.exec.command</td><td>list</td><td>["/usr/local/bin/readiness.sh"]</td><td>Readiness probe command (claude auth status)</td></tr>
+        <tr><td>readinessProbe.initialDelaySeconds</td><td>int</td><td>10</td><td>Delay before first readiness check</td></tr>
+        <tr><td>readinessProbe.periodSeconds</td><td>int</td><td>30</td><td>Interval between readiness checks</td></tr>
+        <tr><td>readinessProbe.timeoutSeconds</td><td>int</td><td>10</td><td>Timeout for readiness check</td></tr>
+        <tr><td>terminationGracePeriodSeconds</td><td>int</td><td>60</td><td>Grace period for pod shutdown</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- RBAC Architecture Diagram -->
+  <h2 id="rbac-architecture">RBAC Architecture</h2>
+  <p class="text-text-secondary">
+    The chart creates a ServiceAccount with reader-tier RBAC by default. Operator-tier permissions are opt-in via <code>operator.enabled: true</code>.
+  </p>
+
+  <DiagramBlock title="RBAC Architecture" description="ServiceAccount with two-tier ClusterRole bindings. Operator role is conditional (dashed when disabled).">
+    <svg viewBox="0 0 800 350" class="w-full h-auto" role="img" aria-label="RBAC architecture diagram showing ServiceAccount connected to reader and operator ClusterRoles">
+      <defs>
+        <marker id="arrow-rbac" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" style="fill: oklch(0.70 0.15 250)" />
+        </marker>
+      </defs>
+
+      <!-- ServiceAccount (center) -->
+      <rect x="300" y="20" width="200" height="60" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="400" y="48" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 14px; font-weight: 600">ServiceAccount</text>
+      <text x="400" y="66" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 11px">claude-agent</text>
+
+      <!-- ClusterRoleBinding-reader -->
+      <line x1="350" y1="80" x2="200" y2="120" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-rbac)" />
+      <text x="250" y="96" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">ClusterRoleBinding</text>
+
+      <!-- ClusterRole-reader -->
+      <rect x="50" y="120" width="300" height="190" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="200" y="148" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 14px; font-weight: 600">ClusterRole: reader</text>
+      <text x="200" y="166" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">Always created</text>
+
+      <!-- Reader permissions -->
+      <text x="75" y="190" style="fill: oklch(0.75 0.02 260); font-size: 11px">get, list, watch:</text>
+      <text x="75" y="208" style="fill: oklch(0.55 0.02 260); font-size: 10px">pods, services, events, nodes</text>
+      <text x="75" y="224" style="fill: oklch(0.55 0.02 260); font-size: 10px">namespaces, configmaps, PVCs</text>
+      <text x="75" y="244" style="fill: oklch(0.75 0.02 260); font-size: 11px">apps/v1:</text>
+      <text x="75" y="260" style="fill: oklch(0.55 0.02 260); font-size: 10px">deployments, statefulsets, daemonsets</text>
+      <text x="75" y="280" style="fill: oklch(0.75 0.02 260); font-size: 11px">batch/v1 + networking.k8s.io:</text>
+      <text x="75" y="296" style="fill: oklch(0.55 0.02 260); font-size: 10px">jobs, cronjobs, ingresses</text>
+
+      <!-- ClusterRoleBinding-operator (dashed) -->
+      <line x1="450" y1="80" x2="600" y2="120" style="stroke: oklch(0.70 0.15 250); stroke-width: 2; stroke-dasharray: 6 3" marker-end="url(#arrow-rbac)" />
+      <text x="550" y="96" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">ClusterRoleBinding</text>
+
+      <!-- ClusterRole-operator (dashed border) -->
+      <rect x="450" y="120" width="300" height="190" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5; stroke-dasharray: 6 3" />
+      <text x="600" y="148" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 14px; font-weight: 600">ClusterRole: operator</text>
+      <text x="600" y="166" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">Conditional (operator.enabled)</text>
+
+      <!-- Operator permissions -->
+      <text x="475" y="190" style="fill: oklch(0.75 0.02 260); font-size: 11px">delete:</text>
+      <text x="475" y="208" style="fill: oklch(0.55 0.02 260); font-size: 10px">pods</text>
+      <text x="475" y="232" style="fill: oklch(0.75 0.02 260); font-size: 11px">create:</text>
+      <text x="475" y="250" style="fill: oklch(0.55 0.02 260); font-size: 10px">pods/exec</text>
+      <text x="475" y="274" style="fill: oklch(0.75 0.02 260); font-size: 11px">update, patch:</text>
+      <text x="475" y="292" style="fill: oklch(0.55 0.02 260); font-size: 10px">deployments, statefulsets</text>
+    </svg>
+  </DiagramBlock>
+
+  <!-- Network Policy -->
+  <h2 id="network-policy">Network Policy</h2>
+  <p class="text-text-secondary">
+    The chart creates a default-deny-all NetworkPolicy with selective egress rules. All ingress is blocked. Egress is allowed only to DNS, HTTPS (Anthropic API), and the Kubernetes API server. A CNI that enforces NetworkPolicy (like Calico) is required -- the default KIND CNI (kindnet) silently ignores these rules.
+  </p>
+
+  <DiagramBlock title="Network Policy" description="Default-deny with selective egress. Ingress is fully blocked.">
+    <svg viewBox="0 0 800 250" class="w-full h-auto" role="img" aria-label="Network policy diagram showing pod with 3 egress paths and blocked ingress">
+      <defs>
+        <marker id="arrow-netpol" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" style="fill: oklch(0.70 0.15 250)" />
+        </marker>
+      </defs>
+
+      <!-- Pod -->
+      <rect x="30" y="70" width="140" height="80" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="100" y="103" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 14px; font-weight: 600">claude-agent</text>
+      <text x="100" y="121" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 11px">Pod</text>
+
+      <!-- Egress arrows -->
+      <!-- DNS -->
+      <line x1="170" y1="90" x2="310" y2="50" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-netpol)" />
+      <rect x="320" y="25" width="200" height="50" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="420" y="48" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 13px; font-weight: 600">DNS</text>
+      <text x="420" y="64" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">UDP/TCP 53</text>
+
+      <!-- HTTPS -->
+      <line x1="170" y1="110" x2="310" y2="115" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-netpol)" />
+      <rect x="320" y="90" width="200" height="50" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="420" y="113" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 13px; font-weight: 600">HTTPS</text>
+      <text x="420" y="129" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">TCP 443 (0.0.0.0/0)</text>
+
+      <!-- K8s API -->
+      <line x1="170" y1="130" x2="310" y2="180" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-netpol)" />
+      <rect x="320" y="155" width="200" height="50" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="420" y="178" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 13px; font-weight: 600">K8s API</text>
+      <text x="420" y="194" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">TCP 6443 (0.0.0.0/0)</text>
+
+      <!-- Blocked ingress -->
+      <line x1="660" y1="115" x2="575" y2="115" style="stroke: oklch(0.50 0.18 20); stroke-width: 2; stroke-dasharray: 6 3" />
+      <rect x="660" y="90" width="120" height="50" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.50 0.18 20); stroke-width: 1.5" />
+      <text x="720" y="113" text-anchor="middle" style="fill: oklch(0.50 0.18 20); font-size: 13px; font-weight: 600">Ingress</text>
+      <text x="720" y="129" text-anchor="middle" style="fill: oklch(0.50 0.18 20); font-size: 10px">BLOCKED</text>
+      <!-- X mark -->
+      <line x1="595" y1="105" x2="615" y2="125" style="stroke: oklch(0.50 0.18 20); stroke-width: 3" />
+      <line x1="615" y1="105" x2="595" y2="125" style="stroke: oklch(0.50 0.18 20); stroke-width: 3" />
+
+      <!-- Note -->
+      <rect x="320" y="218" width="280" height="26" rx="13" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
+      <text x="460" y="236" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">Requires CNI with NetworkPolicy support (Calico)</text>
+    </svg>
+  </DiagramBlock>
+
+  <!-- Template Files -->
+  <h2 id="template-files">Template Files</h2>
+  <p class="text-text-secondary">
+    The chart includes the following template files in <code>helm/claude-in-a-box/templates/</code>:
+  </p>
+
+  <div class="docs-table">
+    <table>
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Kind</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>statefulset.yaml</td><td>StatefulSet</td><td>Main workload with PVC template, probes, and security context</td></tr>
+        <tr><td>service.yaml</td><td>Service</td><td>ClusterIP service for internal pod access</td></tr>
+        <tr><td>serviceaccount.yaml</td><td>ServiceAccount</td><td>Pod identity with API token automount</td></tr>
+        <tr><td>networkpolicy.yaml</td><td>NetworkPolicy</td><td>Default-deny with selective egress rules</td></tr>
+        <tr><td>clusterrole-reader.yaml</td><td>ClusterRole</td><td>Read-only RBAC (get/list/watch across resource types)</td></tr>
+        <tr><td>clusterrole-operator.yaml</td><td>ClusterRole</td><td>Elevated RBAC for debugging (conditional on operator.enabled)</td></tr>
+        <tr><td>clusterrolebinding-reader.yaml</td><td>ClusterRoleBinding</td><td>Binds reader ClusterRole to ServiceAccount</td></tr>
+        <tr><td>clusterrolebinding-operator.yaml</td><td>ClusterRoleBinding</td><td>Binds operator ClusterRole to ServiceAccount (conditional)</td></tr>
+        <tr><td>_helpers.tpl</td><td>Template helpers</td><td>Reusable named templates for labels, names, and selectors</td></tr>
+        <tr><td>NOTES.txt</td><td>Post-install notes</td><td>Usage instructions displayed after helm install</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Installation Examples -->
+  <h2 id="installation">Installation Examples</h2>
+
+  <h3>Default (Readonly Profile)</h3>
+  <TerminalBlock title="helm install (readonly)" commands={["helm install claude-agent ./helm/claude-in-a-box"]} />
+
+  <h3>Operator Profile</h3>
+  <p class="text-text-secondary">Adds pod delete, exec, and deployment update permissions for active debugging.</p>
+  <TerminalBlock title="helm install (operator)" commands={["helm install claude-agent ./helm/claude-in-a-box -f helm/claude-in-a-box/values-operator.yaml"]} />
+
+  <h3>Airgapped Profile</h3>
+  <p class="text-text-secondary">Blocks external HTTPS egress and uses a private registry. For air-gapped or restricted environments.</p>
+  <TerminalBlock title="helm install (airgapped)" commands={["helm install claude-agent ./helm/claude-in-a-box -f helm/claude-in-a-box/values-airgapped.yaml"]} />
+</DocsLayout>
