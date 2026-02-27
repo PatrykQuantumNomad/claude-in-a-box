@@ -1,0 +1,208 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+import DiagramBlock from "../../components/ui/DiagramBlock.astro";
+import TerminalBlock from "../../components/ui/TerminalBlock.astro";
+---
+
+<DocsLayout title="KIND Deployment Guide | RemoteKube" description="KIND deployment guide: bootstrap flow, Calico CNI, container startup, health probes, and integration testing." activeSlug="kind-deployment">
+  <h1 class="text-3xl md:text-4xl font-bold mb-6">
+    <span class="gradient-text">KIND Deployment Guide</span>
+  </h1>
+
+  <!-- Overview -->
+  <h2 id="overview">Overview</h2>
+  <p class="text-text-secondary">
+    KIND (Kubernetes IN Docker) is used for local development and CI integration testing. The project provides a full bootstrap flow: create a KIND cluster, install Calico CNI for NetworkPolicy enforcement, build the container image, load it into KIND nodes, and deploy via Helm.
+  </p>
+
+  <!-- Bootstrap Flow -->
+  <h2 id="bootstrap-flow">Bootstrap Flow</h2>
+  <p class="text-text-secondary">
+    The bootstrap process follows five sequential steps from cluster creation to Helm deployment.
+  </p>
+
+  <DiagramBlock title="Bootstrap Flow" description="Five steps from cluster creation to deployment.">
+    <svg viewBox="0 0 800 200" class="w-full h-auto" role="img" aria-label="Bootstrap flow diagram showing 5 sequential steps: kind create, install calico, docker build, kind load, helm install">
+      <defs>
+        <marker id="arrow-boot" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" style="fill: oklch(0.70 0.15 250)" />
+        </marker>
+      </defs>
+
+      <!-- Step 1 -->
+      <rect x="10" y="50" width="130" height="70" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="75" y="78" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 12px; font-weight: 600">kind create</text>
+      <text x="75" y="95" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">cluster</text>
+      <text x="75" y="38" text-anchor="middle" style="fill: oklch(0.62 0.22 260); font-size: 11px; font-weight: 600">1</text>
+
+      <line x1="140" y1="85" x2="158" y2="85" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-boot)" />
+
+      <!-- Step 2 -->
+      <rect x="168" y="50" width="130" height="70" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="233" y="78" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 12px; font-weight: 600">install-calico.sh</text>
+      <text x="233" y="95" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">Calico CNI</text>
+      <text x="233" y="38" text-anchor="middle" style="fill: oklch(0.62 0.22 260); font-size: 11px; font-weight: 600">2</text>
+
+      <line x1="298" y1="85" x2="316" y2="85" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-boot)" />
+
+      <!-- Step 3 -->
+      <rect x="326" y="50" width="130" height="70" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="391" y="78" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 12px; font-weight: 600">docker build</text>
+      <text x="391" y="95" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">container image</text>
+      <text x="391" y="38" text-anchor="middle" style="fill: oklch(0.62 0.22 260); font-size: 11px; font-weight: 600">3</text>
+
+      <line x1="456" y1="85" x2="474" y2="85" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-boot)" />
+
+      <!-- Step 4 -->
+      <rect x="484" y="50" width="130" height="70" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="549" y="78" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 12px; font-weight: 600">kind load</text>
+      <text x="549" y="95" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">image into nodes</text>
+      <text x="549" y="38" text-anchor="middle" style="fill: oklch(0.62 0.22 260); font-size: 11px; font-weight: 600">4</text>
+
+      <line x1="614" y1="85" x2="632" y2="85" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-boot)" />
+
+      <!-- Step 5 -->
+      <rect x="642" y="50" width="130" height="70" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="707" y="78" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 12px; font-weight: 600">helm install</text>
+      <text x="707" y="95" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">deploy chart</text>
+      <text x="707" y="38" text-anchor="middle" style="fill: oklch(0.62 0.22 260); font-size: 11px; font-weight: 600">5</text>
+
+      <!-- Bottom note -->
+      <rect x="260" y="150" width="280" height="26" rx="13" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
+      <text x="400" y="168" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">make bootstrap runs all 5 steps</text>
+    </svg>
+  </DiagramBlock>
+
+  <!-- Calico CNI -->
+  <h2 id="calico-cni">Calico CNI</h2>
+  <p class="text-text-secondary">
+    KIND ships with a basic CNI (kindnet) that does <strong>not</strong> enforce NetworkPolicy resources. Calico replaces it with a full CNI that provides NetworkPolicy enforcement, ensuring the chart's NetworkPolicy templates actually take effect during integration tests.
+  </p>
+  <p class="text-text-secondary">
+    The <code>install-calico.sh</code> script handles the full installation:
+  </p>
+  <ul class="text-text-secondary">
+    <li><strong>Installs tigera-operator</strong> -- Deploys the Calico operator. Version configurable via <code>CALICO_VERSION</code> env (default: 3.31.4).</li>
+    <li><strong>Waits for CRDs</strong> -- The operator creates CRDs asynchronously. The script polls for <code>installations.operator.tigera.io</code> before applying custom resources.</li>
+    <li><strong>Fixes Reverse Path Filtering</strong> -- KIND nodes use loose RPF (<code>rp_filter=2</code>). Calico's Felix rejects this by default. Setting <code>FELIX_IGNORELOOSERPF=true</code> tells Felix to accept the loose setting.</li>
+    <li><strong>Restarts CoreDNS</strong> -- CoreDNS pods scheduled before Calico have stale network config from kindnet. Restarting ensures fresh Calico network interfaces for correct DNS with NetworkPolicy enforcement.</li>
+  </ul>
+
+  <!-- Container Startup Flow -->
+  <h2 id="container-startup">Container Startup Flow</h2>
+  <p class="text-text-secondary">
+    The container entrypoint (<code>entrypoint.sh</code>) is invoked by tini (PID 1) and handles mode validation, authentication, skill staging, and mode dispatch.
+  </p>
+
+  <DiagramBlock title="Container Startup Flow" description="Entrypoint decision tree from tini through mode dispatch.">
+    <svg viewBox="0 0 800 520" class="w-full h-auto" role="img" aria-label="Container startup flow diagram showing entrypoint decision tree with test mode bypass and 3 Claude mode branches">
+      <defs>
+        <marker id="arrow-start" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" style="fill: oklch(0.70 0.15 250)" />
+        </marker>
+      </defs>
+
+      <!-- tini -->
+      <rect x="300" y="10" width="200" height="44" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="400" y="37" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 13px; font-weight: 600">tini (PID 1)</text>
+
+      <line x1="400" y1="54" x2="400" y2="72" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-start)" />
+
+      <!-- entrypoint.sh -->
+      <rect x="300" y="80" width="200" height="44" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="400" y="107" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 13px; font-weight: 600">entrypoint.sh</text>
+
+      <line x1="400" y1="124" x2="400" y2="142" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-start)" />
+
+      <!-- Test mode decision -->
+      <polygon points="400,148 490,178 400,208 310,178" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="400" y="182" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 11px; font-weight: 600">TEST_MODE?</text>
+
+      <!-- Yes branch (right) -->
+      <line x1="490" y1="178" x2="570" y2="178" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-start)" />
+      <text x="530" y="170" style="fill: oklch(0.62 0.22 260); font-size: 10px">yes</text>
+      <rect x="580" y="156" width="150" height="44" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="655" y="183" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 12px; font-weight: 600">sleep infinity</text>
+
+      <!-- No branch (down) -->
+      <line x1="400" y1="208" x2="400" y2="232" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-start)" />
+      <text x="410" y="224" style="fill: oklch(0.62 0.22 260); font-size: 10px">no</text>
+
+      <!-- validate_auth -->
+      <rect x="300" y="240" width="200" height="44" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="400" y="267" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 12px; font-weight: 600">validate_auth</text>
+
+      <line x1="400" y1="284" x2="400" y2="302" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-start)" />
+
+      <!-- Stage skills -->
+      <rect x="300" y="310" width="200" height="44" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="400" y="337" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 12px; font-weight: 600">Stage skills + CLAUDE.md</text>
+
+      <line x1="400" y1="354" x2="400" y2="372" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-start)" />
+
+      <!-- Mode decision -->
+      <polygon points="400,378 510,413 400,448 290,413" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="400" y="417" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 11px; font-weight: 600">CLAUDE_MODE?</text>
+
+      <!-- Interactive branch (left) -->
+      <line x1="290" y1="413" x2="170" y2="413" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-start)" />
+      <rect x="20" y="391" width="150" height="44" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="95" y="410" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 11px; font-weight: 600">interactive</text>
+      <text x="95" y="426" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 9px">--dangerously-skip-permissions</text>
+
+      <!-- Remote-control branch (center/down) -->
+      <line x1="400" y1="448" x2="400" y2="468" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-start)" />
+      <rect x="310" y="475" width="180" height="44" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="400" y="494" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 11px; font-weight: 600">remote-control</text>
+      <text x="400" y="510" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 9px">--verbose</text>
+
+      <!-- Headless branch (right) -->
+      <line x1="510" y1="413" x2="630" y2="413" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-start)" />
+      <rect x="640" y="391" width="150" height="44" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="715" y="410" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 11px; font-weight: 600">headless</text>
+      <text x="715" y="426" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 9px">-p $PROMPT --output-format json</text>
+    </svg>
+  </DiagramBlock>
+
+  <!-- Health Probes -->
+  <h2 id="health-probes">Health Probes</h2>
+  <p class="text-text-secondary">
+    The chart configures two Kubernetes probes with distinct purposes and performance characteristics:
+  </p>
+
+  <h3>Liveness Probe (healthcheck.sh)</h3>
+  <ul class="text-text-secondary">
+    <li><strong>Check:</strong> <code>pgrep -f "claude"</code> -- Is the Claude Code process running?</li>
+    <li><strong>Weight:</strong> Lightweight -- no Node.js startup cost</li>
+    <li><strong>Failure action:</strong> Container restarted by kubelet</li>
+    <li><strong>CLAUDE_TEST_MODE bypass:</strong> Returns 0 immediately (CI pods run <code>sleep infinity</code>, not Claude)</li>
+  </ul>
+
+  <h3>Readiness Probe (readiness.sh)</h3>
+  <ul class="text-text-secondary">
+    <li><strong>Check:</strong> <code>claude auth status</code> -- Is Claude authenticated and ready?</li>
+    <li><strong>Weight:</strong> Heavy -- spawns Node.js process with ~3-5s startup latency</li>
+    <li><strong>Failure action:</strong> Pod removed from Service endpoints (not restarted)</li>
+    <li><strong>CLAUDE_TEST_MODE bypass:</strong> Returns 0 immediately</li>
+    <li><strong>Why periodSeconds=30:</strong> Shorter intervals would overlap Node.js processes and spike resource usage</li>
+  </ul>
+
+  <!-- Integration Testing -->
+  <h2 id="integration-testing">Integration Testing</h2>
+  <p class="text-text-secondary">
+    The project uses BATS (Bash Automated Testing System) for integration testing in KIND:
+  </p>
+  <ul class="text-text-secondary">
+    <li><strong>Test framework:</strong> BATS -- <code>setup-bats.sh</code> for local install, <code>apt-get install bats</code> in CI</li>
+    <li><strong>Test suites:</strong> RBAC permissions (01-rbac.bats), networking (02-networking.bats), tool verification (03-tools.bats), remote-control mode (05-remote-control.bats)</li>
+    <li><strong>Auth bypass:</strong> <code>CLAUDE_TEST_MODE=true</code> -- entrypoint runs <code>sleep infinity</code> instead of Claude, probes return 0, enabling auth-less testing of infrastructure</li>
+  </ul>
+
+  <!-- Quick Start -->
+  <h2 id="quick-start">Quick Start</h2>
+  <TerminalBlock title="bootstrap" commands={[
+    "git clone https://github.com/PatrykQuantumNomad/claude-in-a-box.git",
+    "cd claude-in-a-box",
+    "make bootstrap"
+  ]} />
+</DocsLayout>
