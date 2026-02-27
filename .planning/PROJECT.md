@@ -104,6 +104,8 @@ Known considerations:
 | Astro for landing page | Static site generator, great DX, fast builds, GitHub Pages native | — Pending |
 | Fresh marketing copy over README adaptation | Landing page needs punchier, visual-first copy | — Pending |
 | Custom domain remotekube.patrykgolabek.dev | Branded URL for the project site | — Pending |
+| CLAUDE_TEST_MODE env var for CI | Integration tests need pod running but auth fails without credentials; env var makes entrypoint sleep, probes return 0 | Good -- CI pipeline fully green, no auth tokens needed in CI |
+| Force-recreate pod after StatefulSet env patch | StatefulSet OrderedReady policy blocks pod replacement when template changes via `kubectl set env`; must delete pod to trigger recreation | Good -- reliable pod refresh in CI without StatefulSet delete |
 
 ---
-*Last updated: 2026-02-25 after v1.1 milestone start*
+*Last updated: 2026-02-26 after CI pipeline fix work*
