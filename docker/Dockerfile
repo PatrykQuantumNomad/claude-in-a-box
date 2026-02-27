@@ -25,7 +25,13 @@ ARG GRYPE_VERSION=0.109.0
 
 # =============================================================================
 # Stage 1: tools-downloader
-# Downloads and verifies all static binary tools for linux/amd64 and linux/arm64
+# Downloads and verifies all static binary tools for linux/amd64 and linux/arm64.
+#
+# Multi-arch strategy: TARGETARCH is set automatically by Docker BuildKit based
+# on the --platform flag (or the host architecture). Each tool download URL
+# maps TARGETARCH to the vendor's naming convention (e.g., kubectx uses "x86_64"
+# instead of "amd64", trivy uses "64bit"/"ARM64"). The case statements below
+# handle these per-vendor differences transparently.
 # =============================================================================
 FROM ubuntu:${UBUNTU_VERSION} AS tools-downloader
 
@@ -110,7 +116,13 @@ RUN ls -la /tools/bin/ && \
 
 # =============================================================================
 # Stage 2: claude-installer
-# Installs Node.js and Claude Code via npm
+# Installs Node.js and Claude Code via npm.
+#
+# Node.js is installed from the official binary tarball (nodejs.org) rather than
+# via apt because: (1) apt's nodejs package is often outdated and may not match
+# the version Claude Code requires, (2) binary tarballs provide exact version
+# pinning across both amd64 and arm64, and (3) it avoids pulling in apt
+# dependencies that are unnecessary in the final runtime stage.
 # =============================================================================
 FROM ubuntu:${UBUNTU_VERSION} AS claude-installer
 
@@ -216,7 +228,11 @@ COPY --from=claude-installer /usr/local/lib/node_modules /usr/local/lib/node_mod
 RUN ln -s /usr/local/lib/node_modules/@anthropic-ai/claude-code/cli.js /usr/local/bin/claude && \
     ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
-# -- Create non-root user (UID 10000 / GID 10000 per CONTEXT.md) -------------
+# -- Create non-root user (UID 10000 / GID 10000) ----------------------------
+# UID/GID 10000 is above the typical system user range (0-999) and the common
+# user range (1000-9999), following Kubernetes security best practices for
+# non-root containers. This avoids conflicts with host UIDs and satisfies
+# PodSecurityPolicy/PodSecurityStandard restricted profiles.
 RUN groupadd -g 10000 agent && \
     useradd -m -u 10000 -g 10000 -d /app -s /bin/bash agent && \
     mkdir -p /app/.claude /var/log && \
@@ -276,15 +292,25 @@ RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh /usr/loc
 COPY --chown=agent:agent .mcp.json /app/.mcp.json
 
 # -- Copy DevOps skills to staging location -----------------------------------
-# Skills are staged in /opt/claude-skills/ because the PVC mounts at /app/.claude/
-# and would overlay any files COPY'd into /app/.claude/skills/ at build time.
-# The entrypoint copies them from staging into the PVC on first start.
+# Skills are staged in /opt/claude-skills/ instead of directly in /app/.claude/skills/
+# because the Kubernetes PVC mounts at /app/.claude/, which overlays the container
+# filesystem. Any files COPY'd into /app/.claude/ at build time would be hidden by
+# the PVC mount. The entrypoint copies them from /opt/ staging into the PVC on
+# first start.
 COPY --chown=agent:agent .claude/skills/ /opt/claude-skills/
 
 # -- Docker HEALTHCHECK using liveness probe script ----------------------------
+# This HEALTHCHECK is for standalone Docker usage (docker run, Docker Compose).
+# In Kubernetes, the container's health is managed by the liveness/readiness
+# probes defined in the Helm chart's StatefulSet template, and this instruction
+# is ignored.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD ["/usr/local/bin/healthcheck.sh"]
 
 # -- Entrypoint: tini as PID 1 for proper signal handling --------------------
+# Docker does not provide init process behavior (zombie reaping, signal
+# forwarding) by default. tini acts as a minimal init system (PID 1) that
+# reaps zombie child processes and forwards signals (SIGTERM, SIGINT) to the
+# entrypoint script and ultimately to Claude Code.
 ENTRYPOINT ["/usr/local/bin/tini", "--"]
 CMD ["/usr/local/bin/entrypoint.sh"]

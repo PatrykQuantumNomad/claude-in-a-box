@@ -1,3 +1,13 @@
+{{/*
+Headless Service (clusterIP: None) required by the StatefulSet for stable DNS.
+
+StatefulSets require a headless service to provide DNS entries for each pod
+(e.g., claude-agent-0.claude-agent.<namespace>.svc.cluster.local). This service
+does not load-balance or expose any real ports.
+
+The placeholder port (80) exists because Kubernetes requires at least one port
+definition in a Service spec, even for headless services that don't serve traffic.
+*/}}
 apiVersion: v1
 kind: Service
 metadata:

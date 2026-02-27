@@ -1,7 +1,21 @@
 # Source: Helm chart specification https://helm.sh/docs/topics/charts/
+
+# apiVersion v2 indicates this chart requires Helm 3 (not compatible with Helm 2).
 apiVersion: v2
+
 name: claude-in-a-box
 description: AI-powered DevOps agent with full debugging toolkit
+
+# type: application means this chart deploys resources directly.
+# The alternative (library) would provide only reusable template helpers.
 type: application
+
+# Chart version -- this is the version of the Helm chart itself, independent of
+# the application it deploys. Follows semver. Bump this when chart templates,
+# values, or structure change.
 version: 0.1.0
+
+# appVersion tracks the container image tag. "dev" during development; in
+# production this would match the published image tag (e.g., "1.0.0").
+# Can be overridden via --set image.tag=<version> or in values.yaml.
 appVersion: "dev"

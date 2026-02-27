@@ -1,3 +1,14 @@
+{{/*
+Reader-tier RBAC ClusterRole (default).
+
+Grants read-only access (get, list, watch) to common Kubernetes resources across
+ALL namespaces. This is cluster-scoped (ClusterRole, not Role) so Claude can
+inspect resources in any namespace -- essential for cross-namespace diagnostics
+like tracing service dependencies or correlating events across workloads.
+
+Always created (not conditional). The reader tier is the baseline security
+profile. For elevated permissions, enable the operator tier via values-operator.yaml.
+*/}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:

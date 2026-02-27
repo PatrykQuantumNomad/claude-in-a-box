@@ -1,4 +1,12 @@
 {{/*
+_helpers.tpl - Reusable template functions for the claude-in-a-box chart.
+
+These named templates generate consistent names, labels, and selectors across
+all chart resources. Helm's 63-character limit on label values and resource
+names is enforced in each helper via trunc/trimSuffix.
+*/}}
+
+{{/*
 Chart name truncated to 63 chars.
 */}}
 {{- define "claude-in-a-box.name" -}}

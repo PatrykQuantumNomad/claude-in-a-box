@@ -1,3 +1,10 @@
+{{/*
+Binds the reader-tier ClusterRole to the chart's ServiceAccount.
+
+Always created (not conditional) -- the reader tier is the minimum RBAC required
+for Claude to function. Without this binding, MCP kubernetes queries and
+generate-claude-md.sh cluster discovery would fail with 403 Forbidden.
+*/}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:

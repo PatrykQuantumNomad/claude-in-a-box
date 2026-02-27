@@ -1,3 +1,19 @@
+{{/*
+StatefulSet for the Claude Code agent pod.
+
+Why StatefulSet instead of Deployment:
+  1. Stable pod identity -- the pod name (e.g., claude-agent-0) is predictable,
+     which makes `kubectl attach` commands consistent and scriptable.
+  2. Stable PVC binding -- the volumeClaimTemplate creates a PVC that persists
+     across pod restarts, so OAuth credentials, conversation history, and
+     staged skills survive rescheduling.
+
+Key design notes:
+  - stdin: true and tty: true enable interactive terminal attachment via
+    `kubectl attach -it`, which is the primary user interaction model.
+  - The single volumeMount at /app/.claude stores credentials, settings,
+    and skills. It overlays the container filesystem at that path.
+*/}}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:

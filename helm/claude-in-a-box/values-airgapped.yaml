@@ -11,4 +11,7 @@ networkPolicy:
     https:
       enabled: false
     k8sApi:
+      # 10.96.0.1/32 is the default Kubernetes API server ClusterIP in standard
+      # kubeadm/KIND clusters. In production airgapped environments, replace this
+      # with your cluster's actual API server ClusterIP (kubectl get svc kubernetes).
       cidr: "10.96.0.1/32"

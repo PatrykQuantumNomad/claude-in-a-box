@@ -1,3 +1,20 @@
+{{/*
+NetworkPolicy implementing a default-deny-all approach with selective egress allowlist.
+
+Security model:
+  - Ingress: ingress: [] blocks ALL inbound traffic. The claude-agent pod does not
+    serve any network traffic, so no ingress rules are needed.
+  - Egress: Only the following outbound traffic is permitted:
+      1. DNS (UDP/TCP 53) -- Required for name resolution of any external host.
+      2. HTTPS (TCP 443) -- Required for Anthropic API calls (api.anthropic.com).
+      3. K8s API (TCP 6443) -- Required for cluster introspection via ServiceAccount token.
+
+IMPORTANT: This policy requires a CNI that enforces NetworkPolicy (e.g., Calico).
+The default KIND CNI (kindnet) and some cloud CNIs silently ignore NetworkPolicy
+resources. See scripts/install-calico.sh for the integration test CNI setup.
+
+Created when networkPolicy.enabled is true (default).
+*/}}
 {{- if .Values.networkPolicy.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

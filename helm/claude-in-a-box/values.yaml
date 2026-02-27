@@ -1,5 +1,21 @@
-# Default values for claude-in-a-box.
-# This is the readonly security profile.
+# =============================================================================
+# Claude In A Box - Default Values (Readonly Security Profile)
+# =============================================================================
+#
+# This chart supports 3 security profiles, selected via values overlay files:
+#
+#   readonly  (default) - Read-only RBAC. Claude can inspect cluster resources
+#                         but cannot modify anything. Safe for production.
+#   operator            - Elevated RBAC for debugging. Adds pod delete, exec,
+#                         and deployment/statefulset update/patch permissions.
+#                         Use: -f values-operator.yaml
+#   airgapped           - Restricted egress. Blocks HTTPS to external APIs,
+#                         limits K8s API access to a single ClusterIP, and
+#                         uses a private registry. Use: -f values-airgapped.yaml
+#
+# Overlay files only override the values that differ from this default file.
+# For example, values-operator.yaml only sets operator.enabled: true.
+# =============================================================================
 
 # -- Number of replicas (StatefulSet)
 replicaCount: 1
@@ -55,7 +71,10 @@ networkPolicy:
       # -- CIDR for K8s API server
       cidr: "0.0.0.0/0"
 
-# Pod security context
+# -- Pod security context
+# Enforces non-root execution at the pod level. This is belt-and-suspenders with
+# the Dockerfile's USER directive -- even if someone builds a custom image that
+# forgets to set USER, Kubernetes will reject root execution here.
 podSecurityContext:
   runAsUser: 10000
   runAsGroup: 10000
@@ -63,7 +82,10 @@ podSecurityContext:
   fsGroupChangePolicy: OnRootMismatch
   runAsNonRoot: true
 
-# Resource requests and limits
+# -- Resource requests and limits
+# Conservative defaults suitable for a single Claude Code session. The request
+# (512Mi/250m) ensures scheduling on small nodes; the limit (2Gi/2000m) caps
+# burst usage during heavy tool execution (e.g., trivy scan, helm template).
 resources:
   requests:
     memory: "512Mi"
@@ -72,7 +94,10 @@ resources:
     memory: "2Gi"
     cpu: "2000m"
 
-# Persistent storage
+# -- Persistent storage
+# The PVC stores Claude's OAuth credentials, conversation history, settings,
+# and staged DevOps skills across pod restarts. Without persistence, every pod
+# restart would require re-authentication and lose all session context.
 persistence:
   # -- Storage size for PVC
   size: "1Gi"
@@ -81,7 +106,11 @@ persistence:
   # -- Access mode
   accessMode: ReadWriteOnce
 
-# Probes
+# -- Probes
+# Liveness: Is the Claude process alive? Uses healthcheck.sh (pgrep). Lightweight.
+# Readiness: Is Claude authenticated and ready? Uses readiness.sh (claude auth status).
+#   Spawns a Node.js process with ~3-5s startup latency, which is why periodSeconds
+#   is set to 30 -- shorter intervals would overlap probes and spike resource usage.
 livenessProbe:
   exec:
     command: ["/usr/local/bin/healthcheck.sh"]
@@ -97,4 +126,6 @@ readinessProbe:
   timeoutSeconds: 10
 
 # -- Termination grace period
+# 60 seconds allows Claude Code to gracefully save conversation state, flush
+# any pending writes to the PVC, and clean up child processes before SIGKILL.
 terminationGracePeriodSeconds: 60
