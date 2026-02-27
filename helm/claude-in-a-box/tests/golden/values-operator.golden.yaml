@@ -39,7 +39,6 @@ spec:
           port: 6443
 ---
 # Source: claude-in-a-box/templates/serviceaccount.yaml
-# Dedicated ServiceAccount for claude-agent pod.
 apiVersion: v1
 kind: ServiceAccount
 metadata:
