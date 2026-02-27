@@ -90,7 +90,7 @@ None -- GitHub Pages source and DNS CNAME configured during Phase 10 execution.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 001 | Update .continue-here.md | 2026-02-27 | 9e3a980 | [001-update-continue-here-md](./quick/001-update-continue-here-md/) |
-| 002 | Update STATE.md and PROJECT.md for CI fix | 2026-02-26 | (pending) | [002-update-state-md-for-ci-fix](./quick/002-update-state-md-for-ci-fix/) |
+| 002 | Update STATE.md and PROJECT.md for CI fix | 2026-02-26 | e9a6917 | [002-update-state-md-for-ci-fix](./quick/002-update-state-md-for-ci-fix/) |
 
 ### Post-Milestone Activity
 
