@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 Phase: 13 of 13 (Fix Stagger Animation Bug) -- COMPLETE
 Plan: 1 of 1 in Phase 13 complete
 Status: v1.1 Landing Page milestone complete -- all phases shipped, all gaps closed
-Last activity: 2026-02-26 -- Completed 13-01 (Fix inView stagger callback signature)
+Last activity: 2026-02-26 -- CI pipeline integration test fixes (3 commits: 790f324, 094aef3, a676b16)
 
 Progress: [██████████] 100% (Phase 13: 1/1 plans complete)
 
@@ -75,6 +75,7 @@ Recent for v1.1:
 - Absolute URLs via new URL(path, Astro.site) for OG/Twitter image and URL tags
 - @astrojs/sitemap for build-time sitemap-index.xml generation
 - [Phase 13]: Two-character fix matching existing line 60 pattern -- no architectural changes needed
+- CI integration tests use CLAUDE_TEST_MODE=true to bypass auth in test environments
 
 ### Pending Todos
 
@@ -87,5 +88,5 @@ None -- GitHub Pages source and DNS CNAME configured during Phase 10 execution.
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 13-01-PLAN.md (Fix inView stagger callback signature) -- v1.1 milestone complete with all gaps closed
+Stopped at: CI pipeline fully green -- fixed integration test failures with CLAUDE_TEST_MODE env var, pod force-recreation, and BATS test corrections
 Resume file: .planning/ROADMAP.md
