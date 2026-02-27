@@ -1,7 +1,18 @@
 #!/usr/bin/env bash
-# Download and install BATS (Bash Automated Testing System) for integration tests.
-# Clones bats-core into tests/bats/ if not already present.
+# =============================================================================
+# setup-bats.sh - Install BATS for Local Development
+# =============================================================================
+#
+# Downloads and installs BATS (Bash Automated Testing System) for running
+# integration tests locally. Clones bats-core into tests/bats/ if not already
+# present.
+#
+# This is for LOCAL development only. In CI, BATS is installed by the
+# ci.yaml workflow directly (apt-get install bats), so this script is not
+# used in the CI pipeline.
+#
 # Usage: ./scripts/setup-bats.sh
+# =============================================================================
 set -euo pipefail
 
 BATS_DIR="tests/bats"
@@ -21,7 +32,9 @@ git clone --depth 1 --branch "${BATS_VERSION}" \
 echo "==> Verifying BATS installation..."
 "${BATS_BIN}" --version
 
-# Add tests/bats/ to .gitignore if not already present
+# Add tests/bats/ to .gitignore if not already present.
+# tests/bats/ is a cloned third-party repo (bats-core), not project code,
+# so it must not be committed to the repository.
 if [ -f .gitignore ]; then
   if ! grep -qF "tests/bats/" .gitignore; then
     echo "tests/bats/" >> .gitignore

@@ -3,6 +3,9 @@
 # verify-tools.sh - Claude In A Box Tool Verification
 # Confirms all 32+ installed tools execute correctly as non-root.
 #
+# Called during the Dockerfile build to catch missing tools at image build
+# time, and available at runtime via `verify-tools.sh` for on-demand checks.
+#
 # Exit codes:
 #   0 - All non-privileged tools pass (SKIP does not count as failure)
 #   1 - One or more non-privileged tools failed

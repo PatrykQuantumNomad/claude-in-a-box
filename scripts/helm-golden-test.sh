@@ -1,10 +1,21 @@
 #!/usr/bin/env bash
-# Golden file test for Helm chart.
-# Compares helm template output against stored golden files.
+# =============================================================================
+# helm-golden-test.sh - Helm Chart Golden File Tests
+# =============================================================================
+#
+# Golden file testing is a pattern where you render template output once,
+# store the result as a "known-good" (golden) file, and then compare future
+# renders against it. Any difference indicates an unintended change to the
+# chart's rendered output, catching regressions from template logic changes,
+# value defaults shifting, or helper function modifications.
+#
+# Compares helm template output against stored golden files in
+# helm/claude-in-a-box/tests/golden/.
 #
 # Usage:
 #   bash scripts/helm-golden-test.sh            # Compare against golden files
 #   bash scripts/helm-golden-test.sh --update   # Regenerate golden files
+# =============================================================================
 set -euo pipefail
 
 CHART_DIR="helm/claude-in-a-box"

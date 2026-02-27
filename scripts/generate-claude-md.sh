@@ -2,8 +2,12 @@
 # =============================================================================
 # Claude In A Box - CLAUDE.md Generator
 # Queries the Kubernetes API at startup and writes /app/CLAUDE.md with
-# cluster context so Claude Code knows its environment. Idempotent --
-# overwrites CLAUDE.md on every run.
+# cluster context so Claude Code knows its environment.
+#
+# Idempotent: Runs on every container start via entrypoint.sh and overwrites
+# the previous CLAUDE.md. This ensures cluster metadata (node count, K8s
+# version, namespace) stays current even if the cluster changes between pod
+# restarts.
 # =============================================================================
 set -euo pipefail
 

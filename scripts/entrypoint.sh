@@ -3,6 +3,14 @@
 # Claude In A Box - Container Entrypoint
 # Validates authentication, dispatches to the correct Claude Code mode,
 # and uses exec to hand off the process for direct signal delivery.
+#
+# Supported modes:
+#   interactive    - Local dev or `kubectl attach`. Opens the Claude REPL for
+#                    live terminal interaction. Default mode.
+#   remote-control - Phone/web access via `claude remote-control`. Exposes a
+#                    remote session you can connect to from any device.
+#   headless       - One-shot scripted tasks. Runs a single prompt from
+#                    CLAUDE_PROMPT env var and exits with JSON output.
 # =============================================================================
 set -euo pipefail
 
@@ -139,10 +147,12 @@ echo "[entrypoint] Generating CLAUDE.md with cluster context..."
 case "$CLAUDE_MODE" in
     remote-control)
         echo "[entrypoint] Starting Claude Code in remote-control mode"
+        # exec replaces this shell so signals from tini (PID 1) reach Claude directly
         exec claude remote-control --verbose
         ;;
     interactive)
         echo "[entrypoint] Starting Claude Code in interactive mode"
+        # exec replaces this shell so signals from tini (PID 1) reach Claude directly
         exec claude --dangerously-skip-permissions
         ;;
     headless)
@@ -153,6 +163,7 @@ case "$CLAUDE_MODE" in
             exit 1
         fi
         echo "[entrypoint] Starting Claude Code in headless mode"
+        # exec replaces this shell so signals from tini (PID 1) reach Claude directly
         exec claude -p "$CLAUDE_PROMPT" --output-format json --dangerously-skip-permissions
         ;;
     *)
