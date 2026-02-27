@@ -18,11 +18,11 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
   <!-- Build Stages -->
   <h2 id="build-stages">Build Stages</h2>
   <p class="text-text-secondary">
-    The Dockerfile uses three build stages. Stage 1 downloads static binary tools, Stage 2 installs Node.js and Claude Code, and Stage 3 assembles the final runtime image by copying artifacts from both prior stages.
+    The Dockerfile uses two build stages. Stage 1 downloads static binary tools, and Stage 2 assembles the final runtime image — installing apt packages, copying tools from Stage 1, and installing Claude Code via its native binary installer.
   </p>
 
-  <DiagramBlock title="Multi-Stage Build" description="Three stages with COPY --from convergence into the runtime image.">
-    <svg viewBox="0 0 800 400" class="w-full h-auto" role="img" aria-label="Three-stage Dockerfile build diagram showing tools-downloader and claude-installer converging into runtime">
+  <DiagramBlock title="Multi-Stage Build" description="Two stages: tools-downloader feeds static binaries into the runtime image.">
+    <svg viewBox="0 0 800 320" class="w-full h-auto" role="img" aria-label="Two-stage Dockerfile build diagram showing tools-downloader feeding into runtime">
       <defs>
         <marker id="arrow-docker" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
           <polygon points="0 0, 10 3.5, 0 7" style="fill: oklch(0.70 0.15 250)" />
@@ -30,51 +30,44 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
       </defs>
 
       <!-- Stage 1: tools-downloader -->
-      <rect x="30" y="30" width="220" height="180" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
-      <text x="140" y="58" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 14px; font-weight: 600">Stage 1</text>
-      <text x="140" y="76" text-anchor="middle" style="fill: oklch(0.62 0.22 260); font-size: 12px">tools-downloader</text>
-      <text x="50" y="102" style="fill: oklch(0.55 0.02 260); font-size: 10px">tini, kubectl, helm</text>
-      <text x="50" y="118" style="fill: oklch(0.55 0.02 260); font-size: 10px">k9s, stern, kubectx</text>
-      <text x="50" y="134" style="fill: oklch(0.55 0.02 260); font-size: 10px">kubens, jq, yq</text>
-      <text x="50" y="150" style="fill: oklch(0.55 0.02 260); font-size: 10px">trivy, grype</text>
-      <rect x="50" y="164" width="180" height="26" rx="13" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
-      <text x="140" y="182" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">11 static binaries</text>
+      <rect x="30" y="50" width="220" height="200" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="140" y="78" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 14px; font-weight: 600">Stage 1</text>
+      <text x="140" y="96" text-anchor="middle" style="fill: oklch(0.62 0.22 260); font-size: 12px">tools-downloader</text>
+      <text x="50" y="122" style="fill: oklch(0.55 0.02 260); font-size: 10px">tini, kubectl, helm</text>
+      <text x="50" y="138" style="fill: oklch(0.55 0.02 260); font-size: 10px">k9s, stern, kubectx</text>
+      <text x="50" y="154" style="fill: oklch(0.55 0.02 260); font-size: 10px">kubens, jq, yq</text>
+      <text x="50" y="170" style="fill: oklch(0.55 0.02 260); font-size: 10px">trivy, grype</text>
+      <rect x="50" y="186" width="180" height="26" rx="13" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
+      <text x="140" y="204" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">11 static binaries</text>
 
-      <!-- Stage 2: claude-installer -->
-      <rect x="30" y="240" width="220" height="130" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
-      <text x="140" y="268" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 14px; font-weight: 600">Stage 2</text>
-      <text x="140" y="286" text-anchor="middle" style="fill: oklch(0.62 0.22 260); font-size: 12px">claude-installer</text>
-      <text x="50" y="312" style="fill: oklch(0.55 0.02 260); font-size: 10px">Node.js (binary tarball)</text>
-      <text x="50" y="328" style="fill: oklch(0.55 0.02 260); font-size: 10px">Claude Code (npm)</text>
-      <rect x="50" y="340" width="180" height="26" rx="13" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
-      <text x="140" y="358" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">node + claude CLI</text>
+      <!-- COPY --from arrow -->
+      <line x1="250" y1="150" x2="400" y2="150" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-docker)" />
+      <text x="310" y="140" style="fill: oklch(0.70 0.15 250); font-size: 10px; font-weight: 500">COPY --from</text>
 
-      <!-- COPY --from arrows -->
-      <line x1="250" y1="120" x2="400" y2="170" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-docker)" />
-      <text x="310" y="132" style="fill: oklch(0.70 0.15 250); font-size: 10px; font-weight: 500">COPY --from</text>
+      <!-- Stage 2: runtime -->
+      <rect x="410" y="30" width="360" height="260" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="590" y="58" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 14px; font-weight: 600">Stage 2: runtime</text>
+      <text x="590" y="76" text-anchor="middle" style="fill: oklch(0.62 0.22 260); font-size: 12px">Ubuntu 24.04</text>
 
-      <line x1="250" y1="305" x2="400" y2="240" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-docker)" />
-      <text x="310" y="292" style="fill: oklch(0.70 0.15 250); font-size: 10px; font-weight: 500">COPY --from</text>
-
-      <!-- Stage 3: runtime -->
-      <rect x="410" y="100" width="360" height="200" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
-      <text x="590" y="130" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 14px; font-weight: 600">Stage 3: runtime</text>
-      <text x="590" y="148" text-anchor="middle" style="fill: oklch(0.62 0.22 260); font-size: 12px">Ubuntu 24.04</text>
-
-      <text x="435" y="174" style="fill: oklch(0.55 0.02 260); font-size: 10px">+ apt tools (curl, dig, nmap, htop, git...)</text>
-      <text x="435" y="192" style="fill: oklch(0.55 0.02 260); font-size: 10px">+ database clients (psql, mysql, redis-cli)</text>
-      <text x="435" y="210" style="fill: oklch(0.55 0.02 260); font-size: 10px">+ scripts (entrypoint, healthcheck, readiness)</text>
-      <text x="435" y="228" style="fill: oklch(0.55 0.02 260); font-size: 10px">+ MCP config + DevOps skills</text>
+      <text x="435" y="102" style="fill: oklch(0.55 0.02 260); font-size: 10px">+ apt tools (curl, dig, nmap, htop, git...)</text>
+      <text x="435" y="120" style="fill: oklch(0.55 0.02 260); font-size: 10px">+ database clients (psql, mysql, redis-cli)</text>
+      <text x="435" y="138" style="fill: oklch(0.55 0.02 260); font-size: 10px">+ Claude Code (native binary installer)</text>
+      <text x="435" y="156" style="fill: oklch(0.55 0.02 260); font-size: 10px">+ scripts (entrypoint, healthcheck, readiness)</text>
+      <text x="435" y="174" style="fill: oklch(0.55 0.02 260); font-size: 10px">+ MCP config + DevOps skills</text>
 
       <!-- Key attributes pills -->
-      <rect x="435" y="248" width="110" height="26" rx="13" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
-      <text x="490" y="266" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">UID 10000</text>
+      <rect x="435" y="198" width="110" height="26" rx="13" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
+      <text x="490" y="216" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">UID 10000</text>
 
-      <rect x="555" y="248" width="90" height="26" rx="13" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
-      <text x="600" y="266" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">tini PID 1</text>
+      <rect x="555" y="198" width="90" height="26" rx="13" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
+      <text x="600" y="216" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">tini PID 1</text>
 
-      <rect x="655" y="248" width="90" height="26" rx="13" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
-      <text x="700" y="266" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">32+ tools</text>
+      <rect x="655" y="198" width="90" height="26" rx="13" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
+      <text x="700" y="216" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">32+ tools</text>
+
+      <!-- Install method note -->
+      <rect x="435" y="240" width="310" height="26" rx="13" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
+      <text x="590" y="258" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">curl https://claude.ai/install.sh | bash</text>
     </svg>
   </DiagramBlock>
 
@@ -95,8 +88,7 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
       </thead>
       <tbody>
         <tr><td>UBUNTU_VERSION</td><td>24.04</td><td>Base OS image</td></tr>
-        <tr><td>NODE_VERSION</td><td>22.22.0</td><td>Node.js runtime for Claude Code</td></tr>
-        <tr><td>CLAUDE_CODE_VERSION</td><td>2.0.25</td><td>Claude Code CLI</td></tr>
+        <tr><td>CLAUDE_CODE_VERSION</td><td>2.1.62</td><td>Claude Code CLI (native binary)</td></tr>
         <tr><td>TINI_VERSION</td><td>0.19.0</td><td>Minimal init system (PID 1)</td></tr>
         <tr><td>KUBECTL_VERSION</td><td>1.35.1</td><td>Kubernetes CLI</td></tr>
         <tr><td>HELM_VERSION</td><td>4.1.1</td><td>Helm package manager</td></tr>
@@ -134,7 +126,7 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
         <tr><td>Database Clients</td><td>3</td><td>psql, mysql, redis-cli</td></tr>
         <tr><td>Security</td><td>2</td><td>trivy, grype</td></tr>
         <tr><td>Standard</td><td>8</td><td>git, vim, nano, unzip, file, tree, ripgrep, bash</td></tr>
-        <tr><td>Claude Code</td><td>2</td><td>claude, node</td></tr>
+        <tr><td>Claude Code</td><td>1</td><td>claude</td></tr>
       </tbody>
     </table>
   </div>
@@ -148,7 +140,7 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
   <ul class="text-text-secondary">
     <li><strong>Non-root execution</strong> -- UID/GID 10000, above the typical system (0-999) and user (1000-9999) ranges. Avoids host UID conflicts and satisfies PodSecurityStandard restricted profiles.</li>
     <li><strong>podSecurityContext alignment</strong> -- The Helm chart sets <code>runAsUser: 10000</code>, <code>runAsGroup: 10000</code>, <code>runAsNonRoot: true</code> as belt-and-suspenders with the Dockerfile's USER directive.</li>
-    <li><strong>Pre-configured Claude settings</strong> -- Bypasses permission prompts, disables telemetry, autoupdater, and error reporting. Settings are baked into <code>/app/.claude/settings.json</code> and reinforced via ENV vars.</li>
+    <li><strong>Pre-configured Claude settings</strong> -- Bypasses permission prompts, disables telemetry, autoupdater, and error reporting. Settings are staged in <code>/app/.claude-settings.json</code> and copied into the PVC at <code>/app/.claude/settings.json</code> by the entrypoint on each startup.</li>
     <li><strong>tini as PID 1</strong> -- Provides proper signal forwarding (SIGTERM, SIGINT) and zombie process reaping. Docker does not provide init behavior by default.</li>
   </ul>
 
@@ -161,7 +153,7 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
     <li><strong>Standard</strong> (amd64/arm64) -- kubectl, helm, k9s, stern, jq, yq, grype</li>
     <li><strong>kubectx/kubens</strong> -- uses <code>x86_64</code> instead of <code>amd64</code></li>
     <li><strong>trivy</strong> -- uses <code>64bit</code> (amd64) and <code>ARM64</code> (arm64)</li>
-    <li><strong>Node.js</strong> -- uses <code>x64</code> instead of <code>amd64</code></li>
+    <li><strong>Claude Code</strong> -- native installer auto-detects architecture</li>
   </ul>
 
   <!-- Build Command -->

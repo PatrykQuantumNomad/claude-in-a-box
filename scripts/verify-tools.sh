@@ -48,7 +48,7 @@ check_tool() {
         return
     fi
 
-    if eval "$cmd" &>/dev/null 2>&1; then
+    if bash -c "$cmd" >/dev/null 2>&1; then
         echo "[PASS] $name"
         ((PASS++)) || true
     else
@@ -142,11 +142,10 @@ check_tool "bash" "bash --version"
 echo ""
 
 # =============================================================================
-# Claude Code (2 checks)
+# Claude Code (1 check)
 # =============================================================================
 echo "--- Claude Code ---"
 check_tool "claude" "claude --version"
-check_tool "node" "node --version"
 echo ""
 
 # =============================================================================
@@ -157,7 +156,7 @@ echo "=== Results ==="
 echo "PASS: $PASS | FAIL: $FAIL | SKIP (privileged): $SKIP"
 echo "Total tools: $TOTAL"
 
-if [ ${#ERRORS[@]} -gt 0 ]; then
+if [ "${#ERRORS[@]}" -gt 0 ]; then
     echo ""
     echo "=== Failures ==="
     for err in "${ERRORS[@]}"; do

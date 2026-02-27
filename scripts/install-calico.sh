@@ -25,13 +25,20 @@ kubectl create -f "https://raw.githubusercontent.com/projectcalico/calico/v${CAL
 # creates CRDs asynchronously -- applying custom resources before CRDs exist
 # would fail with "no matches for kind" errors.
 echo "==> Waiting for Calico CRDs to be registered..."
-for i in $(seq 1 30); do
+CRD_READY=false
+for ((i=1; i<=60; i++)); do
   if kubectl get crd installations.operator.tigera.io &>/dev/null; then
     echo "    CRDs ready after ${i}s"
+    CRD_READY=true
     break
   fi
   sleep 1
 done
+
+if [ "$CRD_READY" = false ]; then
+  echo "ERROR: Calico CRDs not registered after 60s" >&2
+  exit 1
+fi
 
 echo "==> Installing Calico custom resources..."
 kubectl create -f "https://raw.githubusercontent.com/projectcalico/calico/v${CALICO_VERSION}/manifests/custom-resources.yaml"
@@ -42,7 +49,7 @@ kubectl wait --for=condition=Available deployment/tigera-operator \
 
 echo "==> Waiting for calico-node daemonset to be created..."
 CALICO_NS=""
-for i in $(seq 1 60); do
+for ((i=1; i<=60; i++)); do
   if kubectl -n calico-system get daemonset/calico-node &>/dev/null; then
     CALICO_NS="calico-system"
     echo "    calico-node found in calico-system after ${i}s"
@@ -56,7 +63,7 @@ for i in $(seq 1 60); do
 done
 
 if [ -z "$CALICO_NS" ]; then
-  echo "ERROR: calico-node daemonset not found after 120s"
+  echo "ERROR: calico-node daemonset not found after 120s" >&2
   exit 1
 fi
 

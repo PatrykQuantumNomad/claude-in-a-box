@@ -16,38 +16,18 @@ EXEC_TIMEOUT=30
 # Wait for the claude-agent pod to reach Ready state.
 wait_for_pod() {
   kubectl wait --for=condition=Ready "pod/${POD_NAME}" \
-    -n "${NAMESPACE}" --timeout=120s
+    -n "${NAMESPACE}" --timeout="${WAIT_FOR_POD_TIMEOUT:-120}s"
 }
 
 # Execute a command inside the claude-agent pod.
 # Usage: exec_in_pod <command> [args...]
 exec_in_pod() {
-  kubectl exec "${POD_NAME}" -n "${NAMESPACE}" -- "$@"
-}
-
-# Check if the service account has a specific permission.
-# Usage: can_i <verb> <resource>
-# Returns: "yes" or "no"
-can_i() {
-  local verb="$1"
-  local resource="$2"
-  kubectl auth can-i "${verb}" "${resource}" --as="${SA_FULL}" 2>/dev/null
-}
-
-# Check permission for resources with API group (e.g., deployments.apps).
-# Semantic alias for can_i -- same implementation, clearer intent for grouped resources.
-# Usage: can_i_resource <verb> <resource.group>
-# Returns: "yes" or "no"
-can_i_resource() {
-  local verb="$1"
-  local resource="$2"
-  kubectl auth can-i "${verb}" "${resource}" --as="${SA_FULL}" 2>/dev/null
+  kubectl exec "${POD_NAME}" -n "${NAMESPACE}" --request-timeout="${EXEC_TIMEOUT}s" -- "$@"
 }
 
 # Assert that the service account CAN perform an action.
 # Usage: assert_can <verb> <resource>
 # Fails the test if permission is denied.
-# Uses exit code (not string comparison) for cross-version kubectl compatibility.
 assert_can() {
   local verb="$1"
   local resource="$2"
@@ -60,11 +40,11 @@ assert_can() {
 # Assert that the service account CANNOT perform an action.
 # Usage: assert_cannot <verb> <resource>
 # Fails the test if permission is granted.
-# Uses exit code (not string comparison) for cross-version kubectl compatibility.
 assert_cannot() {
-  local verb="$1"
-  local resource="$2"
-  if kubectl auth can-i "${verb}" "${resource}" --as="${SA_FULL}" >/dev/null 2>&1; then
+  local verb="$1" resource="$2"
+  local result
+  result=$(kubectl auth can-i "${verb}" "${resource}" --as="${SA_FULL}" 2>/dev/null) || true
+  if [ "$result" = "yes" ]; then
     echo "FAIL: expected denial for can-i ${verb} ${resource}" >&2
     return 1
   fi

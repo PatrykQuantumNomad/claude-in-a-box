@@ -9,15 +9,15 @@
 #
 # How it differs from readiness.sh:
 #   - Liveness (this script): Is the process alive? If not, Kubernetes
-#     restarts the container. Lightweight -- no Node.js startup cost.
+#     restarts the container. Lightweight -- single pgrep call.
 #   - Readiness (readiness.sh): Is the process authenticated and ready to
 #     serve? If not, Kubernetes removes the pod from service endpoints.
-#     Heavier -- spawns Node.js to verify credentials.
+#     Heavier -- runs `claude auth status` subprocess.
 #
 # How it works:
 #   Uses `pgrep -f "claude"` to search for any running process whose command
-#   line contains the string "claude". This matches the Claude Code Node.js
-#   process started by the entrypoint. The -f flag matches against the full
+#   line contains the string "claude". This matches the Claude Code native
+#   binary started by the entrypoint. The -f flag matches against the full
 #   command line, not just the process name.
 #
 # CLAUDE_TEST_MODE bypass:
@@ -32,7 +32,9 @@
 # See also: readiness.sh (readiness probe -- checks auth, not just process)
 # =============================================================================
 
+set -euo pipefail
+
 [ "${CLAUDE_TEST_MODE:-}" = "true" ] && exit 0
 
-# Match any process with "claude" in its command line (e.g., node .../claude-code/cli.js)
-pgrep -f "claude" > /dev/null 2>&1
+# Match any process with "claude" in its command line (native claude binary)
+pgrep -f "bin/claude" > /dev/null 2>&1

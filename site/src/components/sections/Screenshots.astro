@@ -1,0 +1,58 @@
+---
+---
+
+<section class="reveal-section section-glow py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8">
+  <div class="glow-orb w-[500px] h-[500px] top-[30%] -left-[200px] bg-[oklch(0.35_0.12_260_/_0.12)]"></div>
+  <div class="max-w-6xl mx-auto relative z-10">
+    <h2 class="text-3xl md:text-4xl font-bold text-text-primary text-center mb-4">
+      See It in Action
+    </h2>
+    <p class="text-text-secondary text-center mb-12">
+      Claude Code running inside a KIND cluster with full access to Kubernetes APIs and network tools
+    </p>
+
+    <div class="space-y-12">
+      <!-- MCP Screenshot -->
+      <div>
+        <div class="flex items-center gap-3 mb-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[oklch(0.25_0.08_250)] text-[oklch(0.75_0.15_250)] border border-[oklch(0.35_0.08_250)]">MCP</span>
+          <h3 class="text-lg font-semibold text-text-primary">Cluster-Wide Pod Status via Kubernetes MCP Server</h3>
+        </div>
+        <p class="text-text-secondary text-sm mb-4">
+          Ask a natural language question and get structured output from the Kubernetes API — no kubectl needed.
+        </p>
+        <div class="rounded-xl overflow-hidden border border-[oklch(0.25_0.03_260)] shadow-2xl">
+          <img
+            src="/images/mcp.png"
+            alt="Claude Code listing all pods across namespaces using the Kubernetes MCP server, showing 14 pods across 3 namespaces all in Running state"
+            class="w-full h-auto"
+            width="1280"
+            height="800"
+            loading="lazy"
+          />
+        </div>
+      </div>
+
+      <!-- Tool Screenshot -->
+      <div>
+        <div class="flex items-center gap-3 mb-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[oklch(0.25_0.08_160)] text-[oklch(0.75_0.15_160)] border border-[oklch(0.35_0.08_160)]">CLI Tools</span>
+          <h3 class="text-lg font-semibold text-text-primary">In-Cluster DNS Verification &amp; CoreDNS Health Check</h3>
+        </div>
+        <p class="text-text-secondary text-sm mb-4">
+          Network tools run directly inside the pod — dig, curl, nmap all have cluster network access without kubectl exec.
+        </p>
+        <div class="rounded-xl overflow-hidden border border-[oklch(0.25_0.03_260)] shadow-2xl">
+          <img
+            src="/images/tool.png"
+            alt="Claude Code running dig for DNS resolution and kubectl to check CoreDNS health, showing successful DNS resolution and 2 healthy CoreDNS replicas"
+            class="w-full h-auto"
+            width="1280"
+            height="800"
+            loading="lazy"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

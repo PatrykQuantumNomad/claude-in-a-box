@@ -17,14 +17,14 @@ const navItems = [
 ];
 ---
 
-<nav class="docs-nav">
+<nav class="docs-nav" aria-label="Documentation navigation">
   <!-- Mobile toggle -->
   <button
     class="docs-nav-toggle lg:hidden flex items-center gap-2 w-full px-4 py-3 text-text-secondary hover:text-text-primary transition-colors font-medium text-sm"
     aria-expanded="false"
     aria-controls="docs-nav-links"
   >
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
     </svg>
     Navigation

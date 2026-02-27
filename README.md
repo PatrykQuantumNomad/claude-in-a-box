@@ -43,6 +43,8 @@ flowchart TD
 
 The agent runs as a StatefulSet with a single replica. Claude Code communicates with the Anthropic API over HTTPS (port 443) and queries the Kubernetes API (port 6443) through an in-cluster MCP server. A NetworkPolicy restricts all ingress and limits egress to DNS, HTTPS, and the Kubernetes API. Persistent storage survives pod restarts.
 
+> **Note:** Remote Control is currently available on macOS only — it is server-gated on Linux even with a Max subscription. The entrypoint code is in place for when Linux support ships.
+
 ## Features
 
 - **Remote Control access** -- manage your cluster from your phone or claude.ai/code
@@ -66,7 +68,7 @@ The agent runs as a StatefulSet with a single replica. Claude Code communicates 
 | Database Clients | psql, mysql, redis-cli |
 | Security | trivy, grype |
 | Utilities | git, vim, nano, unzip, file, tree, ripgrep, bash |
-| Claude Code | claude, node |
+| Claude Code | claude |
 
 </details>
 
@@ -80,7 +82,7 @@ The agent runs as a StatefulSet with a single replica. Claude Code communicates 
 | Docker Compose v2 | Standalone method | Included with Docker Desktop |
 | Helm 3+ | Production method | [helm.sh/docs/intro/install](https://helm.sh/docs/intro/install/) |
 
-**Authentication:** An Anthropic Pro or Max subscription is required for Remote Control mode. An API key (`ANTHROPIC_API_KEY`) or OAuth token (`CLAUDE_CODE_OAUTH_TOKEN`) is required for non-interactive modes. Interactive mode can authenticate on first launch.
+**Authentication:** An Anthropic Pro or Max subscription is required for Remote Control mode. Run `/login` inside Claude Code to authenticate via browser OAuth on first use — credentials persist in the PVC at `/app/.claude/.credentials.json`.
 
 ## Quickstart (KIND)
 
@@ -157,15 +159,7 @@ kubectl logs claude-agent-0 -c claude-agent
 
 **Prerequisites:** Docker, Docker Compose v2.
 
-Set at least one authentication method before starting:
-
-```bash
-# Option 1: OAuth token (from `claude setup-token` on your local machine)
-export CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-...
-
-# Option 2: API key
-export ANTHROPIC_API_KEY=sk-ant-...
-```
+**Authentication:** Start the agent, attach, and run `/login` inside Claude Code to authenticate via browser OAuth. Credentials are saved to the `claude-data` volume and persist across restarts.
 
 ```bash
 # Start the agent
@@ -178,7 +172,7 @@ docker attach claude-agent
 docker compose down
 ```
 
-The Compose file mounts a named volume (`claude-data`) at `/app/.claude` for persistence. Environment variables `CLAUDE_MODE`, `CLAUDE_CODE_OAUTH_TOKEN`, and `ANTHROPIC_API_KEY` are passed through from the host.
+The Compose file mounts a named volume (`claude-data`) at `/app/.claude` for persistence. The `CLAUDE_MODE` environment variable is passed through from the host.
 
 To start in remote-control mode:
 
@@ -235,7 +229,14 @@ helm install claude-agent ./helm/claude-in-a-box \
   --set image.tag=latest
 ```
 
-Pass credentials via a Kubernetes Secret mounted as environment variables, or use `kubectl exec` to authenticate interactively after deployment.
+Authenticate after deployment by attaching to the interactive session and running `/login`:
+
+```bash
+kubectl attach claude-agent-0 -c claude-agent -it
+# Inside Claude Code: run /login
+```
+
+Credentials are saved to the PVC and persist across pod restarts.
 
 **Verification:**
 
@@ -257,8 +258,6 @@ helm uninstall claude-agent
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `CLAUDE_MODE` | `interactive` | Startup mode: `interactive`, `remote-control`, or `headless` |
-| `CLAUDE_CODE_OAUTH_TOKEN` | (none) | OAuth token from `claude setup-token` |
-| `ANTHROPIC_API_KEY` | (none) | Direct Anthropic API key |
 | `CLAUDE_PROMPT` | (none) | Prompt for headless mode (required when `CLAUDE_MODE=headless`) |
 
 ### Startup Modes
@@ -269,30 +268,18 @@ helm uninstall claude-agent
 | `remote-control` | `claude remote-control --verbose` | Accessible via [Claude Remote Control](https://docs.anthropic.com/en/docs/claude-code/remote-control) -- control from your phone or claude.ai/code |
 | `headless` | `claude -p "$CLAUDE_PROMPT" --output-format json --dangerously-skip-permissions` | Single prompt execution, outputs JSON |
 
-Remote Control mode requires an Anthropic Pro or Max subscription and an OAuth token (`CLAUDE_CODE_OAUTH_TOKEN`). It cannot use an API key.
+Remote Control mode requires an Anthropic Pro or Max subscription and credentials saved in the PVC from a prior `/login` session. Note: Remote Control is currently server-gated on Linux and may not be available.
 
 ## Authentication
 
-The entrypoint validates authentication before starting Claude Code. Four methods are supported, checked in this order:
+The entrypoint validates authentication before starting Claude Code. Two methods are supported:
 
-| Priority | Method | Environment Variable / Path | Notes |
-|----------|--------|-----------------------------|-------|
-| 1 | OAuth token | `CLAUDE_CODE_OAUTH_TOKEN` | Run `claude setup-token` on your local machine to generate |
-| 2 | API key | `ANTHROPIC_API_KEY` | Direct API key from [console.anthropic.com](https://console.anthropic.com/) |
-| 3 | Mounted credentials | Volume mount `~/.claude:/app/.claude` | Reuse existing credentials from your host machine |
-| 4 | Interactive login | (none) | Available in `interactive` mode only -- prompts on first launch |
+| Priority | Method | Path | Notes |
+|----------|--------|------|-------|
+| 1 | Credential file in PVC | `/app/.claude/.credentials.json` | Created by running `/login` in interactive mode. Persists across restarts. |
+| 2 | Interactive login | (none) | Attach to `interactive` mode and run `/login` on first launch |
 
-Non-interactive modes (`remote-control`, `headless`) require method 1, 2, or 3. If no credentials are found, the entrypoint exits with an actionable error message explaining all options.
-
-**Setting credentials in Kubernetes:**
-
-```bash
-# Create a secret
-kubectl create secret generic claude-auth \
-  --from-literal=CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-...
-
-# Reference it in the StatefulSet env (or use Helm --set)
-```
+Non-interactive modes (`remote-control`, `headless`) require method 1. If no credentials are found, the entrypoint exits with an actionable error message explaining the `/login` flow.
 
 ## RBAC Tiers
 
@@ -360,19 +347,18 @@ helm install claude-agent ./helm/claude-in-a-box \
 
 **Symptom:** Pod logs show the `AUTHENTICATION REQUIRED` banner and the container exits.
 
-**Cause:** No `CLAUDE_CODE_OAUTH_TOKEN`, `ANTHROPIC_API_KEY`, or credential file is present, and the mode is not `interactive`.
+**Cause:** No credential file (`/app/.claude/.credentials.json`) is present in the PVC, and the mode is not `interactive`.
 
 **Fix:**
 ```bash
 # Check pod logs for the auth error
 kubectl logs claude-agent-0 -c claude-agent
 
-# Set credentials via environment variable
-kubectl set env statefulset/claude-agent CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-...
-
-# Or switch to interactive mode to log in manually
+# Switch to interactive mode and log in
 kubectl set env statefulset/claude-agent CLAUDE_MODE=interactive
 kubectl attach claude-agent-0 -c claude-agent -it
+# Inside Claude Code: run /login to complete OAuth flow
+# Credentials are saved to the PVC for subsequent starts
 ```
 
 ### 2. NetworkPolicy Blocking Egress

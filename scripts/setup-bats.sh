@@ -26,6 +26,11 @@ if [ -x "${BATS_BIN}" ]; then
 fi
 
 echo "==> Installing BATS ${BATS_VERSION}..."
+# Remove partial state from interrupted clone so git clone can succeed
+if [ -d "${BATS_DIR}" ]; then
+  echo "    Removing incomplete ${BATS_DIR}/ directory..."
+  rm -rf "${BATS_DIR}"
+fi
 git clone --depth 1 --branch "${BATS_VERSION}" \
   https://github.com/bats-core/bats-core.git "${BATS_DIR}"
 

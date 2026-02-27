@@ -8,6 +8,8 @@ description: >
 
 # Pod Diagnosis Workflow
 
+> **You are running inside the cluster pod.** Run network tools (dig, curl, nmap) directly via Bash — do NOT use `kubectl exec`. Use kubectl for Kubernetes API queries (get, describe, logs, top, events).
+
 ## Step 1: Get Pod Status
 
 Use MCP kubernetes tools to list pods and their statuses:

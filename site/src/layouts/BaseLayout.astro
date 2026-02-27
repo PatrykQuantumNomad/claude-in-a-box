@@ -115,6 +115,7 @@ const jsonLd = {
 
     <!-- Canonical URL -->
     <link rel="canonical" href={canonicalURL} />
+    <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -123,7 +124,6 @@ const jsonLd = {
 
     <!-- Primary Meta Tags -->
     <title>{title}</title>
-    <meta name="title" content={title} />
     <meta name="description" content={description} />
     <meta name="author" content="Patryk Golabek" />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
@@ -154,48 +154,53 @@ const jsonLd = {
   <body class="bg-bg-primary text-text-primary font-sans antialiased">
     <slot />
     <script>
-      import { animate, inView, stagger } from "motion";
+      const hasAnimations = document.querySelector('.reveal-section') || document.querySelector('.reveal-stagger') || document.querySelector('.floating-icon');
+      if (hasAnimations) {
+        const { animate, inView, stagger } = await import("motion");
 
-      // Reveal sections with fade-up on scroll
-      inView(".reveal-section", (element) => {
-        animate(
-          element,
-          { opacity: [0, 1], y: [30, 0] },
-          { duration: 0.6, ease: [0.17, 0.55, 0.55, 1] }
-        );
-      }, { amount: 0.15 });
+        if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          // Reveal sections with fade-up on scroll
+          inView(".reveal-section", (element) => {
+            animate(
+              element,
+              { opacity: [0, 1], y: [30, 0] },
+              { duration: 0.6, ease: [0.17, 0.55, 0.55, 1] }
+            );
+          }, { amount: 0.15 });
 
-      // Stagger reveal cards within their parent container
-      inView(".reveal-stagger", (element) => {
-        const cards = element.querySelectorAll(".reveal-card");
-        if (cards.length > 0) {
-          animate(
-            cards,
-            { opacity: [0, 1], y: [20, 0] },
-            { duration: 0.5, ease: [0.17, 0.55, 0.55, 1], delay: stagger(0.1) }
-          );
+          // Stagger reveal cards within their parent container
+          inView(".reveal-stagger", (element) => {
+            const cards = element.querySelectorAll(".reveal-card");
+            if (cards.length > 0) {
+              animate(
+                cards,
+                { opacity: [0, 1], y: [20, 0] },
+                { duration: 0.5, ease: [0.17, 0.55, 0.55, 1], delay: stagger(0.1) }
+              );
+            }
+          }, { amount: 0.15 });
         }
-      }, { amount: 0.15 });
 
-      // Floating icons parallax on scroll
-      const floatingIcons = document.querySelectorAll<HTMLElement>(".floating-icon");
-      if (floatingIcons.length > 0 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        let ticking = false;
-        window.addEventListener("scroll", () => {
-          if (!ticking) {
-            requestAnimationFrame(() => {
-              const scrollY = window.scrollY;
-              floatingIcons.forEach((icon) => {
-                const speed = parseFloat(icon.style.getPropertyValue("--fi-speed") || "0.3");
-                const rotate = icon.style.getPropertyValue("--fi-rotate") || "0deg";
-                const offset = scrollY * speed * -0.5;
-                icon.style.transform = `rotate(${rotate}) translateY(${offset}px)`;
+        // Floating icons parallax on scroll
+        const floatingIcons = document.querySelectorAll<HTMLElement>(".floating-icon");
+        if (floatingIcons.length > 0 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          let ticking = false;
+          window.addEventListener("scroll", () => {
+            if (!ticking) {
+              requestAnimationFrame(() => {
+                const scrollY = window.scrollY;
+                floatingIcons.forEach((icon) => {
+                  const speed = parseFloat(icon.style.getPropertyValue("--fi-speed") || "0.3");
+                  const rotate = icon.style.getPropertyValue("--fi-rotate") || "0deg";
+                  const offset = scrollY * speed * -0.5;
+                  icon.style.transform = `rotate(${rotate}) translateY(${offset}px)`;
+                });
+                ticking = false;
               });
-              ticking = false;
-            });
-            ticking = true;
-          }
-        }, { passive: true });
+              ticking = true;
+            }
+          }, { passive: true });
+        }
       }
     </script>
   </body>

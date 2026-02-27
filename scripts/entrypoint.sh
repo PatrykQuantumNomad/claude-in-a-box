@@ -4,13 +4,20 @@
 # Validates authentication, dispatches to the correct Claude Code mode,
 # and uses exec to hand off the process for direct signal delivery.
 #
+# Authentication:
+#   Run /login inside Claude Code to authenticate via browser OAuth.
+#   Credentials are stored in the PVC at /app/.claude/ and persist
+#   across pod restarts. Only needed once per PVC.
+#
 # Supported modes:
 #   interactive    - Local dev or `kubectl attach`. Opens the Claude REPL for
 #                    live terminal interaction. Default mode.
 #   remote-control - Phone/web access via `claude remote-control`. Exposes a
 #                    remote session you can connect to from any device.
+#                    Requires Max plan and /login credentials in PVC.
 #   headless       - One-shot scripted tasks. Runs a single prompt from
 #                    CLAUDE_PROMPT env var and exits with JSON output.
+#                    Requires /login credentials in PVC.
 # =============================================================================
 set -euo pipefail
 
@@ -26,8 +33,8 @@ validate_mode() {
             return 0
             ;;
         *)
-            echo "[entrypoint] ERROR: Unknown CLAUDE_MODE '${CLAUDE_MODE}'"
-            echo "  Valid modes: remote-control, interactive, headless"
+            echo "[entrypoint] ERROR: Unknown CLAUDE_MODE '${CLAUDE_MODE}'" >&2
+            echo "  Valid modes: remote-control, interactive, headless" >&2
             exit 1
             ;;
     esac
@@ -35,56 +42,45 @@ validate_mode() {
 
 # =============================================================================
 # Auth Validation
-# Checks for credentials via env vars or credential files.
-# Does NOT call `claude auth status` (avoids 3-5s Node.js startup latency).
+# Checks for credentials in the PVC (from a previous /login).
+# Does NOT call `claude auth status` (avoids subprocess startup latency).
 # =============================================================================
 validate_auth() {
-    if [ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
-        echo "[entrypoint] OAuth token provided via CLAUDE_CODE_OAUTH_TOKEN"
-        return 0
-    fi
-
-    if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
-        echo "[entrypoint] API key provided via ANTHROPIC_API_KEY"
-        return 0
-    fi
-
     if [ -f "${HOME}/.claude/.credentials.json" ]; then
-        echo "[entrypoint] Found existing credentials file"
+        echo "[entrypoint] Found existing credentials in PVC"
         return 0
     fi
 
     if [ "$CLAUDE_MODE" = "interactive" ]; then
-        echo "[entrypoint] No credentials found; interactive login will be prompted"
+        echo "[entrypoint] No credentials found -- run /login after attaching"
         return 0
     fi
 
-    # Non-interactive mode with no auth -- print remediation and exit
-    echo ""
-    echo "========================================="
-    echo "  AUTHENTICATION REQUIRED"
-    echo "========================================="
-    echo ""
-    echo "  No authentication credentials found."
-    echo "  Claude Code cannot start in '${CLAUDE_MODE}' mode without auth."
-    echo ""
-    echo "  To fix this, do ONE of the following:"
-    echo ""
-    echo "  1. Set CLAUDE_CODE_OAUTH_TOKEN env var:"
-    echo "     Run 'claude setup-token' on your local machine,"
-    echo "     then pass the token to the container:"
-    echo "     -e CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-..."
-    echo ""
-    echo "  2. Set ANTHROPIC_API_KEY env var:"
-    echo "     -e ANTHROPIC_API_KEY=sk-ant-..."
-    echo ""
-    echo "  3. Mount credentials from host:"
-    echo "     -v ~/.claude:/app/.claude"
-    echo ""
-    echo "  4. Start in interactive mode to log in:"
-    echo "     -e CLAUDE_MODE=interactive"
-    echo "========================================="
-    echo ""
+    # Non-interactive mode with no credentials -- print remediation and exit
+    cat >&2 << 'AUTH_EOF'
+
+=========================================
+  AUTHENTICATION REQUIRED
+=========================================
+
+  No credentials found in PVC.
+
+  To authenticate, start in interactive mode first:
+
+  1. kubectl attach claude-agent-0 -it
+  2. Run /login inside Claude Code
+  3. Complete the OAuth flow in your browser
+  4. Credentials are saved to the PVC
+
+  Then switch to your desired mode:
+    kubectl set env statefulset/claude-agent CLAUDE_MODE=remote-control
+    (Note: remote-control is coming soon on Linux — server-side feature gate)
+
+=========================================
+
+AUTH_EOF
+    echo "[entrypoint] ERROR: Claude Code cannot start in '${CLAUDE_MODE}' mode without auth." >&2
+    echo "[entrypoint] Run /login in interactive mode first to save credentials to PVC." >&2
     exit 1
 }
 
@@ -118,11 +114,18 @@ fi
 validate_auth
 
 # =============================================================================
-# Stage DevOps Skills into PVC
-# Skills are baked into the image at /opt/claude-skills/ but the PVC mounted
-# at /app/.claude/ overlays the container filesystem. Copy skills into the
-# PVC-mounted directory if they are not already present.
+# Stage Settings and Skills into PVC
+# The PVC mounted at /app/.claude/ overlays the container filesystem, so files
+# baked into the image at /app/.claude/ are hidden. Copy them from staging
+# locations (/app/.claude-settings.json, /opt/claude-skills/) into the PVC.
+# Settings are always refreshed (image may have updated config).
+# Skills are only copied on first start.
 # =============================================================================
+if [ -f /app/.claude-settings.json ]; then
+    cp /app/.claude-settings.json /app/.claude/settings.json
+    echo "[entrypoint] Staged settings.json into PVC"
+fi
+
 if [ -d /opt/claude-skills ] && [ ! -d /app/.claude/skills ]; then
     echo "[entrypoint] Staging DevOps skills into PVC..."
     cp -r /opt/claude-skills /app/.claude/skills
@@ -157,9 +160,9 @@ case "$CLAUDE_MODE" in
         ;;
     headless)
         if [ -z "${CLAUDE_PROMPT:-}" ]; then
-            echo "[entrypoint] ERROR: Headless mode requires CLAUDE_PROMPT env var"
-            echo "  Set CLAUDE_PROMPT to the prompt you want Claude to execute."
-            echo "  Example: -e CLAUDE_PROMPT='List all pods in the default namespace'"
+            echo "[entrypoint] ERROR: Headless mode requires CLAUDE_PROMPT env var" >&2
+            echo "  Set CLAUDE_PROMPT to the prompt you want Claude to execute." >&2
+            echo "  Example: -e CLAUDE_PROMPT='List all pods in the default namespace'" >&2
             exit 1
         fi
         echo "[entrypoint] Starting Claude Code in headless mode"
@@ -167,8 +170,8 @@ case "$CLAUDE_MODE" in
         exec claude -p "$CLAUDE_PROMPT" --output-format json --dangerously-skip-permissions
         ;;
     *)
-        echo "[entrypoint] ERROR: Unknown CLAUDE_MODE '${CLAUDE_MODE}'"
-        echo "  Valid modes: remote-control, interactive, headless"
+        echo "[entrypoint] ERROR: Unknown CLAUDE_MODE '${CLAUDE_MODE}'" >&2
+        echo "  Valid modes: remote-control, interactive, headless" >&2
         exit 1
         ;;
 esac

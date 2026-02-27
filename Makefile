@@ -29,10 +29,11 @@ build: ## Build the Docker image
 load: ## Load image into KIND cluster
 	kind load docker-image $(IMAGE_NAME):$(IMAGE_TAG) --name $(CLUSTER_NAME)
 
-deploy: ## Apply k8s manifests and wait for Ready
+deploy: ## Apply k8s manifests and wait for pod to start
 	kubectl apply -f $(K8S_MANIFESTS)
-	kubectl wait --for=condition=Ready pod -l app=claude-agent \
-		-n $(NAMESPACE) --timeout=120s
+	@until kubectl get pod claude-agent-0 -n $(NAMESPACE) &>/dev/null; do sleep 1; done
+	@kubectl wait --for=condition=Ready pod -l app=claude-agent \
+		-n $(NAMESPACE) --timeout=120s 2>/dev/null || true
 
 deploy-operator: ## Apply operator-tier RBAC (opt-in elevated permissions)
 	kubectl apply -f $(OPERATOR_RBAC)
@@ -47,7 +48,18 @@ bootstrap: build ## Create KIND cluster, build image, load, and deploy
 	else \
 		echo "Cluster '$(CLUSTER_NAME)' already exists, skipping creation"; \
 	fi
-	$(MAKE) load deploy
+	$(MAKE) load
+	kubectl apply -f $(K8S_MANIFESTS)
+	@echo ""
+	@echo "==> Waiting for pod to start..."
+	@until kubectl get pod claude-agent-0 -n $(NAMESPACE) &>/dev/null; do sleep 1; done
+	@kubectl wait --for=condition=Ready pod -l app=claude-agent \
+		-n $(NAMESPACE) --timeout=60s 2>/dev/null || true
+	@echo ""
+	@echo "==> Attach and authenticate:"
+	@echo "    kubectl attach claude-agent-0 -n $(NAMESPACE) -it"
+	@echo ""
+	@echo "    First time: run /login to authenticate (credentials persist in PVC)."
 
 teardown: ## Destroy the KIND cluster
 	kind delete cluster --name $(CLUSTER_NAME)
@@ -55,8 +67,9 @@ teardown: ## Destroy the KIND cluster
 redeploy: build load ## Rebuild image, load into KIND, restart pod
 	kubectl delete pod -l app=claude-agent -n $(NAMESPACE) --ignore-not-found
 	kubectl apply -f $(K8S_MANIFESTS)
+	@until kubectl get pod claude-agent-0 -n $(NAMESPACE) &>/dev/null; do sleep 1; done
 	kubectl wait --for=condition=Ready pod -l app=claude-agent \
-		-n $(NAMESPACE) --timeout=120s
+		-n $(NAMESPACE) --timeout=120s 2>/dev/null || true
 
 status: ## Show cluster and pod status
 	@kind get clusters 2>/dev/null || echo "No clusters"
@@ -76,6 +89,9 @@ test-setup: build ## Create test cluster with Calico and deploy
 	fi
 	kind load docker-image $(IMAGE_NAME):$(IMAGE_TAG) --name $(TEST_CLUSTER_NAME)
 	kubectl apply -f $(K8S_MANIFESTS)
+	kubectl set env statefulset/claude-agent CLAUDE_TEST_MODE=true -n $(NAMESPACE)
+	@until kubectl get pod claude-agent-0 -n $(NAMESPACE) &>/dev/null; do sleep 1; done
+	kubectl delete pod claude-agent-0 -n $(NAMESPACE) --grace-period=0 --force 2>/dev/null || true
 	kubectl wait --for=condition=Ready pod -l app=claude-agent \
 		-n $(NAMESPACE) --timeout=120s
 

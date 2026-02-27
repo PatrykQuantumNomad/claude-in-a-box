@@ -8,6 +8,8 @@ description: >
 
 # Log Analysis Workflow
 
+> **You are running inside the cluster pod.** Run kubectl and stern directly — they are installed locally and configured with the pod's ServiceAccount.
+
 ## Step 1: Identify Target Pods
 
 Use MCP kubernetes tools or kubectl to find the relevant pods:
@@ -23,6 +25,12 @@ For multi-replica deployments, check all replicas -- the issue may be on one pod
 kubectl logs <pod> -n <namespace> --tail=200
 kubectl logs <pod> -n <namespace> --since=1h
 kubectl logs -l app=<label> -n <namespace> --tail=50  # all replicas
+```
+
+Use stern for multi-pod tailing with color-coded output:
+```bash
+stern <pod-name-prefix> -n <namespace> --tail=100
+stern -l app=<label> -n <namespace> --since=10m
 ```
 
 ## Step 3: Check Previous Container

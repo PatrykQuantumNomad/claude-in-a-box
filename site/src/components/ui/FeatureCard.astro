@@ -14,7 +14,7 @@ const rowClass = rowSpan === 2 ? "md:row-span-2" : "";
 ---
 
 <div class:list={["reveal-card glass-card rounded-2xl p-6", colClass, rowClass]}>
-  <div class="text-3xl mb-4">{icon}</div>
+  <span class="text-3xl mb-4 block" aria-hidden="true">{icon}</span>
   <h3 class="text-lg font-semibold text-text-primary mb-2">{title}</h3>
   <p class="text-text-secondary text-sm leading-relaxed">{description}</p>
 </div>

@@ -40,6 +40,18 @@ setup_file() {
   [ "$output" = "ok" ]
 }
 
+@test "egress: TLS certificate verification succeeds with api.anthropic.com" {
+  run exec_in_pod curl -s --max-time 10 -o /dev/null \
+    -w "%{http_code}:%{ssl_verify_result}" https://api.anthropic.com/v1/messages
+  # If http_code is 000, no TCP connection was made (no external egress)
+  http_code="${output%%:*}"
+  if [ "$http_code" = "000" ] || [ -z "$output" ]; then
+    skip "External HTTPS egress not available (NetworkPolicy or DNS may be blocking)"
+  fi
+  # ssl_verify_result 0 = certificate chain verified successfully
+  [[ "$output" == *:0 ]]
+}
+
 @test "egress: blocked on non-allowed port 8080" {
   # Use short timeout -- expect timeout or connection refused from NetworkPolicy.
   run exec_in_pod curl -sf --max-time 3 -o /dev/null http://1.1.1.1:8080

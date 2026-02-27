@@ -41,9 +41,9 @@ test_values_file() {
     # For the default values.yaml, render without -f flag
     local rendered
     if [[ "$basename" == "values" ]]; then
-        rendered=$(helm template test-release "${CHART_DIR}" 2>&1)
+        rendered=$(helm template test-release "${CHART_DIR}")
     else
-        rendered=$(helm template test-release "${CHART_DIR}" -f "${values_file}" 2>&1)
+        rendered=$(helm template test-release "${CHART_DIR}" -f "${values_file}")
     fi
 
     if $UPDATE; then
@@ -79,7 +79,11 @@ else
 fi
 
 # Test each overlay values file
-for values_file in "${CHART_DIR}"/values-*.yaml; do
+shopt -s nullglob
+overlay_files=("${CHART_DIR}"/values-*.yaml)
+shopt -u nullglob
+
+for values_file in "${overlay_files[@]}"; do
     if test_values_file "$values_file"; then
         PASSED=$((PASSED + 1))
     else

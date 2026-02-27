@@ -10,8 +10,7 @@
 # Declared before first FROM so they can be redeclared in any stage.
 # =============================================================================
 ARG UBUNTU_VERSION=24.04
-ARG NODE_VERSION=22.22.0
-ARG CLAUDE_CODE_VERSION=2.0.25
+ARG CLAUDE_CODE_VERSION=2.1.62
 ARG TINI_VERSION=0.19.0
 ARG KUBECTL_VERSION=1.35.1
 ARG HELM_VERSION=4.1.1
@@ -112,51 +111,10 @@ RUN curl -fsSL "https://github.com/anchore/grype/releases/download/v${GRYPE_VERS
 # Verify all binaries are present and executable
 RUN ls -la /tools/bin/ && \
     echo "=== Tools downloaded ===" && \
-    for f in /tools/bin/*; do echo "  $(basename $f): $(file $f)"; done
+    for f in /tools/bin/*; do echo "  $(basename "$f"): $(file "$f")"; done
 
 # =============================================================================
-# Stage 2: claude-installer
-# Installs Node.js and Claude Code via npm.
-#
-# Node.js is installed from the official binary tarball (nodejs.org) rather than
-# via apt because: (1) apt's nodejs package is often outdated and may not match
-# the version Claude Code requires, (2) binary tarballs provide exact version
-# pinning across both amd64 and arm64, and (3) it avoids pulling in apt
-# dependencies that are unnecessary in the final runtime stage.
-# =============================================================================
-FROM ubuntu:${UBUNTU_VERSION} AS claude-installer
-
-# Redeclare ARGs needed in this stage
-ARG TARGETARCH
-ARG NODE_VERSION
-ARG CLAUDE_CODE_VERSION
-
-# Install dependencies for Node.js download and extraction
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    curl \
-    xz-utils \
-    && rm -rf /var/lib/apt/lists/*
-
-# Download and install Node.js binary from nodejs.org
-# nodejs.org uses "x64" not "amd64" for the download URL
-RUN NODE_ARCH="${TARGETARCH}" && \
-    case "${NODE_ARCH}" in \
-        amd64) NODE_ARCH="x64" ;; \
-    esac && \
-    curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz" \
-    | tar -xJ -C /usr/local --strip-components=1 && \
-    node --version && npm --version
-
-# Install Claude Code via npm (locked decision)
-RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION} && \
-    npm cache clean --force
-
-# Verify Claude Code installation
-RUN claude --version
-
-# =============================================================================
-# Stage 3: runtime
+# Stage 2: runtime
 # Minimal runtime with all tools, non-root user, and Claude Code pre-configured
 # =============================================================================
 FROM ubuntu:${UBUNTU_VERSION} AS runtime
@@ -218,16 +176,6 @@ COPY --from=tools-downloader /tools/bin/yq /usr/local/bin/
 COPY --from=tools-downloader /tools/bin/trivy /usr/local/bin/
 COPY --from=tools-downloader /tools/bin/grype /usr/local/bin/
 
-# -- Copy Node.js + Claude Code from claude-installer -------------------------
-COPY --from=claude-installer /usr/local/bin/node /usr/local/bin/
-COPY --from=claude-installer /usr/local/lib/node_modules /usr/local/lib/node_modules
-
-# Create symlinks for claude and nodejs
-# npm global installs put bin entries in /usr/local/bin/ in the installer stage,
-# but we only copy /usr/local/lib/node_modules, so we recreate the symlinks manually.
-RUN ln -s /usr/local/lib/node_modules/@anthropic-ai/claude-code/cli.js /usr/local/bin/claude && \
-    ln -s /usr/local/bin/node /usr/local/bin/nodejs
-
 # -- Create non-root user (UID 10000 / GID 10000) ----------------------------
 # UID/GID 10000 is above the typical system user range (0-999) and the common
 # user range (1000-9999), following Kubernetes security best practices for
@@ -236,7 +184,7 @@ RUN ln -s /usr/local/lib/node_modules/@anthropic-ai/claude-code/cli.js /usr/loca
 RUN groupadd -g 10000 agent && \
     useradd -m -u 10000 -g 10000 -d /app -s /bin/bash agent && \
     mkdir -p /app/.claude /var/log && \
-    chown -R agent:agent /app /tmp /var/log
+    chown -R agent:agent /app /var/log
 
 # Switch to non-root user
 USER agent
@@ -247,46 +195,53 @@ WORKDIR /app
 RUN echo '{"hasCompletedOnboarding": true}' > /app/.claude.json
 
 # Configure permissions, bypass mode, and disable telemetry/autoupdater
-RUN cat > /app/.claude/settings.json << 'SETTINGS'
-{
-  "permissions": {
-    "allow": [
-      "Bash",
-      "Read",
-      "Edit",
-      "Write",
-      "mcp__kubernetes__*"
-    ],
-    "defaultMode": "bypassPermissions"
-  },
-  "env": {
-    "DISABLE_AUTOUPDATER": "1",
-    "DISABLE_TELEMETRY": "1",
-    "DISABLE_ERROR_REPORTING": "1"
-  }
-}
-SETTINGS
+# Written to /app/.claude-settings.json (not /app/.claude/settings.json) because
+# the PVC mount at /app/.claude/ overlays the container filesystem. The entrypoint
+# copies this file into the PVC on each startup.
+RUN printf '%s\n' \
+  '{' \
+  '  "permissions": {' \
+  '    "allow": ["Bash", "Read", "Edit", "Write", "mcp__kubernetes__*"],' \
+  '    "defaultMode": "bypassPermissions"' \
+  '  },' \
+  '  "env": {' \
+  '    "DISABLE_AUTOUPDATER": "1",' \
+  '    "DISABLE_TELEMETRY": "1",' \
+  '    "DISABLE_ERROR_REPORTING": "1"' \
+  '  }' \
+  '}' > /app/.claude-settings.json
 
 # -- Environment variables (belt-and-suspenders with settings.json) -----------
 ENV DISABLE_AUTOUPDATER=1 \
     DISABLE_TELEMETRY=1 \
     DISABLE_ERROR_REPORTING=1 \
     DISABLE_INSTALLATION_CHECKS=1 \
-    CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1 \
     HOME=/app \
     PATH="/usr/local/bin:${PATH}"
 
+# -- Install Claude Code (native binary) ------------------------------------
+# The official installer downloads a self-contained binary (no Node.js needed)
+# to ~/.claude/ and symlinks it into ~/.local/bin/. We then copy the real
+# binary to /usr/local/bin/ because the Kubernetes PVC mounted at /app/.claude/
+# would overlay the installer's files under ~/.claude/.
+ARG CLAUDE_CODE_VERSION
+RUN curl -fsSL https://claude.ai/install.sh | bash -s -- "${CLAUDE_CODE_VERSION}" \
+    && /app/.local/bin/claude --version \
+    && cp "$(readlink -f /app/.local/bin/claude)" /tmp/claude-binary
+# Copy the resolved binary to a stable location outside ~/.claude/
+USER root
+RUN mv /tmp/claude-binary /usr/local/bin/claude && chmod +x /usr/local/bin/claude
+USER agent
+
 # -- Copy tool verification script from build context ------------------------
 # Build context is the project root, so path is scripts/verify-tools.sh
-COPY --chown=agent:agent scripts/verify-tools.sh /usr/local/bin/verify-tools.sh
-RUN chmod +x /usr/local/bin/verify-tools.sh
+COPY --chmod=0755 --chown=agent:agent scripts/verify-tools.sh /usr/local/bin/verify-tools.sh
 
 # -- Copy entrypoint and health check scripts from build context ----------------
-COPY --chown=agent:agent scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
-COPY --chown=agent:agent scripts/healthcheck.sh /usr/local/bin/healthcheck.sh
-COPY --chown=agent:agent scripts/readiness.sh /usr/local/bin/readiness.sh
-COPY --chown=agent:agent scripts/generate-claude-md.sh /usr/local/bin/generate-claude-md.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh /usr/local/bin/readiness.sh /usr/local/bin/generate-claude-md.sh
+COPY --chmod=0755 --chown=agent:agent scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY --chmod=0755 --chown=agent:agent scripts/healthcheck.sh /usr/local/bin/healthcheck.sh
+COPY --chmod=0755 --chown=agent:agent scripts/readiness.sh /usr/local/bin/readiness.sh
+COPY --chmod=0755 --chown=agent:agent scripts/generate-claude-md.sh /usr/local/bin/generate-claude-md.sh
 
 # -- Copy MCP server configuration (project scope) ----------------------------
 COPY --chown=agent:agent .mcp.json /app/.mcp.json

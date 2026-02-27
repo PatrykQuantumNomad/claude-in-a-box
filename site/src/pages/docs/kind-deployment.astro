@@ -154,7 +154,7 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
       <line x1="400" y1="448" x2="400" y2="468" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-start)" />
       <rect x="310" y="475" width="180" height="44" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
       <text x="400" y="494" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 11px; font-weight: 600">remote-control</text>
-      <text x="400" y="510" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 9px">--verbose</text>
+      <text x="400" y="510" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 9px">--verbose (coming soon on Linux)</text>
 
       <!-- Headless branch (right) -->
       <line x1="510" y1="413" x2="630" y2="413" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-start)" />
@@ -173,7 +173,7 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
   <h3>Liveness Probe (healthcheck.sh)</h3>
   <ul class="text-text-secondary">
     <li><strong>Check:</strong> <code>pgrep -f "claude"</code> -- Is the Claude Code process running?</li>
-    <li><strong>Weight:</strong> Lightweight -- no Node.js startup cost</li>
+    <li><strong>Weight:</strong> Lightweight -- single pgrep call</li>
     <li><strong>Failure action:</strong> Container restarted by kubelet</li>
     <li><strong>CLAUDE_TEST_MODE bypass:</strong> Returns 0 immediately (CI pods run <code>sleep infinity</code>, not Claude)</li>
   </ul>
@@ -181,10 +181,10 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
   <h3>Readiness Probe (readiness.sh)</h3>
   <ul class="text-text-secondary">
     <li><strong>Check:</strong> <code>claude auth status</code> -- Is Claude authenticated and ready?</li>
-    <li><strong>Weight:</strong> Heavy -- spawns Node.js process with ~3-5s startup latency</li>
+    <li><strong>Weight:</strong> Heavier -- runs <code>claude auth status</code> subprocess</li>
     <li><strong>Failure action:</strong> Pod removed from Service endpoints (not restarted)</li>
     <li><strong>CLAUDE_TEST_MODE bypass:</strong> Returns 0 immediately</li>
-    <li><strong>Why periodSeconds=30:</strong> Shorter intervals would overlap Node.js processes and spike resource usage</li>
+    <li><strong>Why periodSeconds=30:</strong> Shorter intervals would overlap auth-check subprocesses and spike resource usage</li>
   </ul>
 
   <!-- Integration Testing -->
@@ -194,15 +194,20 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
   </p>
   <ul class="text-text-secondary">
     <li><strong>Test framework:</strong> BATS -- <code>setup-bats.sh</code> for local install, <code>apt-get install bats</code> in CI</li>
-    <li><strong>Test suites:</strong> RBAC permissions (01-rbac.bats), networking (02-networking.bats), tool verification (03-tools.bats), remote-control mode (05-remote-control.bats)</li>
+    <li><strong>Test suites:</strong> RBAC permissions (01-rbac.bats), networking (02-networking.bats), tool verification (03-tools.bats), persistence (04-persistence.bats)</li>
     <li><strong>Auth bypass:</strong> <code>CLAUDE_TEST_MODE=true</code> -- entrypoint runs <code>sleep infinity</code> instead of Claude, probes return 0, enabling auth-less testing of infrastructure</li>
   </ul>
 
   <!-- Quick Start -->
   <h2 id="quick-start">Quick Start</h2>
+  <p class="text-text-secondary">
+    Bootstrap the cluster, then attach and run <code>/login</code> to authenticate via browser OAuth. Credentials are saved to the PVC and persist across pod restarts — only needed once.
+  </p>
   <TerminalBlock title="bootstrap" commands={[
     "git clone https://github.com/PatrykQuantumNomad/claude-in-a-box.git",
     "cd claude-in-a-box",
-    "make bootstrap"
+    "make bootstrap",
+    "kubectl attach claude-agent-0 -it",
+    "# Inside Claude Code: /login"
   ]} />
 </DocsLayout>

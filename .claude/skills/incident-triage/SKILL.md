@@ -8,6 +8,8 @@ description: >
 
 # Incident Triage Workflow
 
+> **You are running inside the cluster pod.** Run network tools (dig, curl, nmap) directly via Bash — do NOT use `kubectl exec`. Use kubectl for Kubernetes API queries (get, describe, logs, top, events).
+
 ## Step 1: Assess Scope
 
 Determine how widespread the issue is:

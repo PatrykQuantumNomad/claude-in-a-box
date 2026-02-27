@@ -19,7 +19,7 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
     <li><strong>A Kubernetes cluster</strong> — Any conformant distribution: EKS, GKE, AKS, k3s, KIND, minikube, or self-hosted. Kubernetes 1.24+ with RBAC enabled.</li>
     <li><strong>kubectl</strong> — Configured to access your target cluster.</li>
     <li><strong>Helm 3</strong> — For production deployments (optional for KIND/Docker Compose).</li>
-    <li><strong>A Claude Code OAuth token</strong> — Obtain from <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer">console.anthropic.com</a>. Required for the agent to connect to the Anthropic API.</li>
+    <li><strong>A Claude account</strong> — Pro or Max plan. You'll authenticate inside the container via <code>/login</code> (browser OAuth). Credentials persist in the PVC.</li>
     <li><strong>Docker</strong> — For building custom images or running via Docker Compose.</li>
   </ul>
 
@@ -52,9 +52,9 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
   <TerminalBlock title="Docker Compose" commands={[
     "git clone https://github.com/PatrykQuantumNomad/claude-in-a-box.git",
     "cd claude-in-a-box",
-    "export CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-...",
     "docker compose up -d",
-    "docker attach claude-agent"
+    "docker attach claude-agent",
+    "# Inside Claude Code: /login"
   ]} />
 
   <!-- Helm -->
@@ -78,16 +78,19 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
   </p>
   <TerminalBlock title="Verify pod status" commands={[
     "kubectl get pods -l app=claude-agent",
-    "# Expected: claude-agent-0   2/2   Running"
+    "# Expected: claude-agent-0   1/1   Running"
   ]} />
   <p class="text-text-secondary mt-4">
-    The pod should show <code>2/2</code> containers ready — the Claude Code agent and the kubernetes-mcp-server sidecar.
+    The pod should show <code>1/1</code> containers ready — the Claude Code agent.
   </p>
 
   <!-- Connect Remotely -->
   <h2 id="connect">Connect from Your Phone or Browser</h2>
+  <div class="glass-card rounded-xl p-4 my-4 border border-yellow-500/30 bg-yellow-500/5">
+    <p class="text-yellow-300 text-sm mb-0"><strong>Note:</strong> Remote Control mode is currently <strong>not available on Linux</strong> (server-side feature gate). The entrypoint keeps the code path for when Anthropic enables it. For now, use <code>interactive</code> mode with <code>kubectl attach</code>.</p>
+  </div>
   <p class="text-text-secondary">
-    If you deployed with Remote Control mode (the default), you can connect from any device:
+    When Remote Control becomes available on Linux, you'll be able to connect from any device:
   </p>
   <ol>
     <li>Open <a href="https://claude.ai" target="_blank" rel="noopener noreferrer">claude.ai</a> or the Claude mobile app.</li>

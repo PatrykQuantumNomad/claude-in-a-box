@@ -26,7 +26,8 @@ K8S_API="https://kubernetes.default.svc"
 k8s_get() {
     local path="$1"
     local token
-    token=$(cat "$SA_TOKEN_PATH")
+    token=$(<"$SA_TOKEN_PATH") || { echo "{}"; return; }
+
     curl -s --max-time 5 \
         --cacert "$SA_CA_PATH" \
         -H "Authorization: Bearer ${token}" \
@@ -59,7 +60,7 @@ fi
 # =============================================================================
 K8S_VERSION=$(k8s_get "/version" | jq -r '.gitVersion // "unknown"')
 NODE_COUNT=$(k8s_get "/api/v1/nodes" | jq -r '.items | length // 0')
-NAMESPACE=$(cat "$SA_NS_PATH" 2>/dev/null || echo "unknown")
+NAMESPACE=$(cat "$SA_NS_PATH" 2>/dev/null) || NAMESPACE="unknown"
 POD_NAME="${HOSTNAME:-unknown}"
 CLUSTER_NAME="${CLUSTER_NAME:-unknown}"
 
@@ -69,7 +70,7 @@ CLUSTER_NAME="${CLUSTER_NAME:-unknown}"
 cat > "$CLAUDE_MD_PATH" << CLAUDE_EOF
 # Claude In A Box - DevOps Agent
 
-You are a Kubernetes DevOps agent running inside the cluster. Use MCP tools for structured queries instead of shelling out to kubectl.
+You are a Kubernetes DevOps agent running **inside a pod** in the cluster. All CLI tools (dig, curl, nmap, psql, etc.) are installed locally in this container — run them directly, NOT via \`kubectl exec\`. You do not need \`kubectl exec\` to run commands in your own pod. Use MCP tools for structured Kubernetes queries instead of shelling out to kubectl.
 
 ## Cluster Environment
 
@@ -109,10 +110,12 @@ Standard DevOps CLI tools are installed:
 
 ## Guidelines
 
-1. **Prefer MCP over kubectl** -- MCP tools provide structured output and are safer than shell commands.
-2. **Check events with pod status** -- Always correlate pod status with recent events for accurate diagnosis.
-3. **Use skills for structured workflows** -- Skills provide step-by-step diagnostic runbooks tuned for common issues.
-4. **Read-only access by default** -- The ServiceAccount has read-only RBAC. Mutations require operator-tier privileges.
+1. **Run tools directly** -- You are inside the pod. Run \`dig\`, \`curl\`, \`nmap\`, \`psql\`, etc. directly via Bash. Do NOT use \`kubectl exec\` to run commands in your own container.
+2. **Prefer MCP over kubectl for cluster queries** -- MCP tools provide structured output and are safer than shell commands for listing/getting Kubernetes resources.
+3. **Use kubectl for operations MCP doesn't cover** -- \`kubectl logs\`, \`kubectl top\`, \`kubectl events\`, \`kubectl rollout\` are fine to run directly.
+4. **Check events with pod status** -- Always correlate pod status with recent events for accurate diagnosis.
+5. **Use skills for structured workflows** -- Skills provide step-by-step diagnostic runbooks tuned for common issues.
+6. **Read-only access by default** -- The ServiceAccount has read-only RBAC. Mutations require operator-tier privileges.
 CLAUDE_EOF
 
 echo "[claude-md] Generated CLAUDE.md: K8s ${K8S_VERSION}, ${NODE_COUNT} nodes, ns=${NAMESPACE}"

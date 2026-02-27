@@ -20,7 +20,7 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
   <div class="glass-card rounded-xl p-6 my-6">
     <h3 class="text-lg font-semibold text-text-primary !mt-0 mb-2">entrypoint.sh</h3>
     <p class="text-text-secondary text-sm mb-3">
-      Container entrypoint dispatched by tini. Validates operating mode, checks authentication credentials (OAuth token, API key, or credentials file), stages DevOps skills from <code>/opt/</code> into the PVC, generates <code>CLAUDE.md</code> with cluster context, then <code>exec</code>'s into Claude Code.
+      Container entrypoint dispatched by tini. Validates operating mode, checks for credentials in the PVC (from a previous <code>/login</code>), stages DevOps skills from <code>/opt/</code> into the PVC, generates <code>CLAUDE.md</code> with cluster context, then <code>exec</code>'s into Claude Code.
     </p>
     <p class="text-text-secondary text-sm mb-3">
       <strong>Modes:</strong> <code>interactive</code> (REPL), <code>remote-control</code> (phone/web access), <code>headless</code> (one-shot prompt with JSON output).
@@ -34,7 +34,7 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
   <div class="glass-card rounded-xl p-6 my-6">
     <h3 class="text-lg font-semibold text-text-primary !mt-0 mb-2">healthcheck.sh</h3>
     <p class="text-text-secondary text-sm mb-3">
-      Liveness probe for both Docker HEALTHCHECK and Kubernetes exec probe. Uses <code>pgrep -f "claude"</code> to check if the Claude Code process is running. Lightweight -- no Node.js startup cost.
+      Liveness probe for both Docker HEALTHCHECK and Kubernetes exec probe. Uses <code>pgrep -f "claude"</code> to check if the Claude Code process is running. Lightweight -- single pgrep call.
     </p>
     <p class="text-text-secondary text-sm mb-2">
       <strong>Exit codes:</strong> 0 = alive (or CLAUDE_TEST_MODE=true), 1 = no Claude process found (container restarted).
@@ -44,10 +44,10 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
   <div class="glass-card rounded-xl p-6 my-6">
     <h3 class="text-lg font-semibold text-text-primary !mt-0 mb-2">readiness.sh</h3>
     <p class="text-text-secondary text-sm mb-3">
-      Kubernetes readiness probe. Runs <code>claude auth status</code> which spawns a Node.js process (~3-5s startup latency) to verify the OAuth token or API key is valid.
+      Kubernetes readiness probe. Runs <code>claude auth status</code> to verify the session credentials are valid.
     </p>
     <p class="text-text-secondary text-sm mb-2">
-      <strong>Exit codes:</strong> 0 = authenticated and ready (or CLAUDE_TEST_MODE=true), 1 = not authenticated. Probe <code>periodSeconds</code> must be 30s+ to avoid overlapping Node.js processes.
+      <strong>Exit codes:</strong> 0 = authenticated and ready (or CLAUDE_TEST_MODE=true), 1 = not authenticated. Probe <code>periodSeconds</code> should be 30s+ to avoid overlapping auth-check subprocesses.
     </p>
   </div>
 

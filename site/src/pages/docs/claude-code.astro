@@ -9,6 +9,13 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
     <span class="gradient-text">Claude Code & Remote Connect</span>
   </h1>
 
+  <!-- Linux Notice -->
+  <div class="glass-card rounded-xl p-6 my-6 border border-yellow-500/30">
+    <p class="text-text-secondary text-sm mb-0">
+      <strong>Coming Soon on Linux:</strong> Remote Control is currently only available on macOS. The Linux native binary does not yet support `claude remote-control` due to a server-side feature gate. For now, use <strong>interactive mode</strong> with <code>kubectl attach</code> and the Kubernetes MCP tools. This page documents the architecture for when Linux support is enabled.
+    </p>
+  </div>
+
   <!-- Overview -->
   <h2 id="overview">Overview</h2>
   <p class="text-text-secondary">
@@ -83,7 +90,7 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
   <!-- How RemoteKube Uses Remote Connect -->
   <h2 id="remotekube-integration">How RemoteKube Uses Remote Connect</h2>
   <p class="text-text-secondary">
-    RemoteKube deploys Claude Code inside a Kubernetes pod as a persistent, long-lived process. The pod's entrypoint script (<code>entrypoint.sh</code>) starts Claude Code, and a PersistentVolumeClaim provides a workspace directory at <code>/home/claude/workspace</code> that survives pod restarts. Inside the pod, Claude Code has full access to cluster tools -- <code>kubectl</code>, <code>helm</code>, <code>kustomize</code>, and 30+ other utilities installed in the container image.
+    RemoteKube deploys Claude Code inside a Kubernetes pod as a persistent, long-lived process. The pod's entrypoint script (<code>entrypoint.sh</code>) starts Claude Code, and a PersistentVolumeClaim at <code>/app/.claude</code> persists credentials, settings, and skills across pod restarts. Inside the pod, Claude Code has full access to cluster tools -- <code>kubectl</code>, <code>helm</code>, <code>k9s</code>, <code>stern</code>, and 32+ other utilities installed in the container image.
   </p>
   <p class="text-text-secondary">
     Remote Connect turns this pod-hosted session into something you can access from anywhere. The pod's NetworkPolicy already permits outbound HTTPS on port 443, which is exactly what Remote Connect needs to poll the Anthropic API. No additional networking configuration is required -- the same egress rule that allows Claude Code to reach the Anthropic API for inference also enables Remote Connect.
@@ -133,7 +140,7 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
 
       <rect x="340" y="246" width="130" height="34" rx="6" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
       <text x="405" y="260" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 9px">PVC</text>
-      <text x="405" y="274" text-anchor="middle" style="fill: oklch(0.62 0.22 260); font-size: 9px; font-family: monospace">/home/claude/workspace</text>
+      <text x="405" y="274" text-anchor="middle" style="fill: oklch(0.62 0.22 260); font-size: 9px; font-family: monospace">/app/.claude</text>
 
       <!-- NetworkPolicy box -->
       <rect x="530" y="226" width="150" height="60" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
@@ -204,6 +211,10 @@ import TerminalBlock from "../../components/ui/TerminalBlock.astro";
   <h2 id="getting-started">Getting Started</h2>
   <p class="text-text-secondary">
     Once your RemoteKube pod is running, start Remote Connect from inside the Claude Code session.
+  </p>
+
+  <p class="text-text-secondary text-sm mt-4">
+    <strong>Note:</strong> Remote Control currently works on macOS only. Linux support is pending a server-side feature gate from Anthropic.
   </p>
 
   <TerminalBlock title="Start Remote Connect" commands={["claude remote-control"]} />

@@ -1,6 +1,11 @@
 # Docker Compose standalone deployment for Claude In A Box.
 # Usage: docker compose up
 # No Kubernetes required — runs the container directly with Docker.
+#
+# Authentication:
+#   docker compose up
+#   docker attach claude-agent
+#   Run /login inside Claude Code to authenticate (credentials persist in volume).
 services:
   claude-agent:
     build:
@@ -10,8 +15,6 @@ services:
     container_name: claude-agent
     environment:
       - CLAUDE_MODE=${CLAUDE_MODE:-interactive}
-      - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN:-}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
     volumes:
       - claude-data:/app/.claude
     stdin_open: true

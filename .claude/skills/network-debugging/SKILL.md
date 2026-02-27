@@ -9,15 +9,18 @@ description: >
 
 # Network Debugging Workflow
 
+> **You are running inside the cluster pod.** Run dig, curl, nmap, etc. directly — do NOT use `kubectl exec`. All network tools are installed locally in this container.
+
 ## Step 1: Verify DNS Resolution
 
+Run these directly (you are inside the cluster network):
 ```bash
-kubectl exec <pod> -n <namespace> -- nslookup <service-name>
-kubectl exec <pod> -n <namespace> -- nslookup <service>.<namespace>.svc.cluster.local
-kubectl exec <pod> -n <namespace> -- cat /etc/resolv.conf
+dig <service-name>.<namespace>.svc.cluster.local
+nslookup <service-name>.<namespace>.svc.cluster.local
+cat /etc/resolv.conf
 ```
 
-If DNS fails, check CoreDNS:
+If DNS fails, check CoreDNS via kubectl:
 ```bash
 kubectl get pods -n kube-system -l k8s-app=kube-dns
 kubectl logs -n kube-system -l k8s-app=kube-dns --tail=50
@@ -25,12 +28,13 @@ kubectl logs -n kube-system -l k8s-app=kube-dns --tail=50
 
 ## Step 2: Test Service Connectivity
 
+Run directly from this pod:
 ```bash
-kubectl exec <pod> -n <namespace> -- curl -v http://<service>:<port>/health
-kubectl exec <pod> -n <namespace> -- wget -qO- --timeout=5 http://<service>:<port>
+curl -v --connect-timeout 5 http://<service>.<namespace>.svc.cluster.local:<port>/health
+wget -qO- --timeout=5 http://<service>.<namespace>.svc.cluster.local:<port>
 ```
 
-Check service and endpoints:
+Check service and endpoints via kubectl:
 ```bash
 kubectl get svc <service> -n <namespace> -o wide
 kubectl get endpoints <service> -n <namespace>
@@ -38,7 +42,15 @@ kubectl get endpoints <service> -n <namespace>
 
 If endpoints list is empty, the selector does not match any running pods.
 
-## Step 3: Check NetworkPolicy
+## Step 3: Port Scanning
+
+Scan specific ports directly:
+```bash
+nmap -p <port> <service>.<namespace>.svc.cluster.local
+nmap -sT -p 5432,3306,6379 <service>.<namespace>.svc.cluster.local
+```
+
+## Step 4: Check NetworkPolicy
 
 ```bash
 kubectl get networkpolicy -n <namespace>
@@ -51,7 +63,7 @@ Common NetworkPolicy issues:
 - Missing port in policy spec
 - Label selector mismatch
 
-## Step 4: Inspect Ingress and Service Endpoints
+## Step 5: Inspect Ingress and Service Endpoints
 
 ```bash
 kubectl get ingress -n <namespace>
@@ -77,11 +89,11 @@ kubectl get svc <name> -n <namespace> -o jsonpath='{.spec.ports[*]}'
 
 ## Tools Reference
 
-| Tool | Use Case |
-|------|----------|
-| `dig` / `nslookup` | DNS resolution testing |
-| `curl` / `wget` | HTTP connectivity and response testing |
-| `nmap` | Port scanning, service discovery |
-| `kubectl port-forward` | Direct pod access bypassing service/ingress |
-| MCP `list_services` | Enumerate services and their selectors |
-| MCP `list_pods` | Find pods matching service selectors |
+| Tool | Use Case | How to run |
+|------|----------|------------|
+| `dig` / `nslookup` | DNS resolution testing | Directly (installed locally) |
+| `curl` / `wget` | HTTP connectivity and response testing | Directly (installed locally) |
+| `nmap` | Port scanning, service discovery | Directly (installed locally) |
+| `kubectl get svc/endpoints` | Enumerate services and their selectors | Directly (kubectl configured with ServiceAccount) |
+| MCP `list_services` | Structured service listing | Via MCP tool call |
+| MCP `list_pods` | Find pods matching service selectors | Via MCP tool call |

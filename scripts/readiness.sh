@@ -8,15 +8,14 @@
 # Helm chart's StatefulSet template.
 #
 # How it works:
-#   Runs `claude auth status`, which spawns a Node.js process to verify that
-#   the current OAuth token or API key is valid. This is a heavier check than
-#   the liveness probe (healthcheck.sh) because it validates credentials, not
-#   just process existence.
+#   Runs `claude auth status` to verify that the session credentials (from
+#   /login) are valid. This is a heavier check than the liveness probe
+#   (healthcheck.sh) because it validates credentials, not just process
+#   existence.
 #
 # Performance note:
-#   Each invocation spawns a Node.js runtime (~3-5 seconds startup latency).
-#   The Kubernetes probe periodSeconds MUST be 30s or higher to avoid
-#   overlapping probes that spike CPU and memory on the container.
+#   Each invocation spawns a subprocess. The Kubernetes probe periodSeconds
+#   should be 30s or higher to avoid overlapping probes.
 #
 # CLAUDE_TEST_MODE bypass:
 #   When CLAUDE_TEST_MODE=true, the probe returns 0 immediately without
@@ -31,8 +30,10 @@
 # See also: healthcheck.sh (liveness probe -- checks process, not auth)
 # =============================================================================
 
+set -euo pipefail
+
 [ "${CLAUDE_TEST_MODE:-}" = "true" ] && exit 0
 
-# Verify the Claude OAuth/API key is valid by querying auth status.
+# Verify the Claude session credentials are valid by querying auth status.
 # Stdout/stderr suppressed -- only the exit code matters to Kubernetes.
 claude auth status > /dev/null 2>&1
