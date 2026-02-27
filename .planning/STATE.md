@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 Phase: 13 of 13 (Fix Stagger Animation Bug) -- COMPLETE
 Plan: 1 of 1 in Phase 13 complete
 Status: v1.1 Landing Page milestone complete -- all phases shipped, all gaps closed
-Last activity: 2026-02-27 -- Completed quick task 006: Kustomize documentation page
+Last activity: 2026-02-27 -- Completed quick task 007: Claude Code & Remote Connect documentation page
 
 Progress: [██████████] 100% (Phase 13: 1/1 plans complete)
 
@@ -79,6 +79,7 @@ Recent for v1.1:
 - DocsLayout wraps BaseLayout with responsive sidebar (collapses on mobile via JS toggle)
 - SVG diagrams in docs use same oklch color tokens as Architecture.astro
 - Docs CSS utilities (docs-prose, docs-table) appended to global.css, not a separate file
+- Claude Code nav item placed second (after Overview) as the core product concept docs support
 
 ### Pending Todos
 
@@ -98,6 +99,7 @@ None -- GitHub Pages source and DNS CNAME configured during Phase 10 execution.
 | 004 | Add inline documentation to shell scripts, Helm chart, and Dockerfile (21 files) | 2026-02-27 | 1ec1a45 | [004-add-documentation-to-shell-scripts-helm-](./quick/004-add-documentation-to-shell-scripts-helm-/) |
 | 005 | Documentation pages: Helm chart, Dockerfile, KIND deployment, scripts (5 pages, 5 SVG diagrams) | 2026-02-27 | d15de14 | [005-document-helm-chart-dockerfile-kind-depl](./quick/005-document-helm-chart-dockerfile-kind-depl/) |
 | 006 | Kustomize documentation page with base/overlays reference, 2 SVG diagrams | 2026-02-27 | 20dbf0c | [006-add-kustomize-documentation-page-to-the-](./quick/006-add-kustomize-documentation-page-to-the-/) |
+| 007 | Claude Code & Remote Connect documentation page with 2 SVG diagrams | 2026-02-27 | 160e0c7 | [007-add-claude-code-and-remote-connect-docum](./quick/007-add-claude-code-and-remote-connect-docum/) |
 
 ### Post-Milestone Activity
 
@@ -116,5 +118,5 @@ Files modified: scripts/entrypoint.sh, scripts/readiness.sh, scripts/healthcheck
 ## Session Continuity
 
 Last session: 2026-02-27
-Stopped at: Completed quick task 006 -- Kustomize documentation page
+Stopped at: Completed quick task 007 -- Claude Code & Remote Connect documentation page
 Resume file: .planning/ROADMAP.md
