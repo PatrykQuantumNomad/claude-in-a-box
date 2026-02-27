@@ -1,0 +1,244 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+import DiagramBlock from "../../components/ui/DiagramBlock.astro";
+import TerminalBlock from "../../components/ui/TerminalBlock.astro";
+---
+
+<DocsLayout title="Kustomize Reference | RemoteKube" description="Kubernetes manifest management with base/overlays directory convention: ServiceAccount, RBAC, NetworkPolicy, StatefulSet, and operator overlay." activeSlug="kustomize">
+  <h1 class="text-3xl md:text-4xl font-bold mb-6">
+    <span class="gradient-text">Kustomize Reference</span>
+  </h1>
+
+  <!-- Overview -->
+  <h2 id="overview">Overview</h2>
+  <p class="text-text-secondary">
+    The <code>k8s/</code> directory provides a Helm-free alternative for deploying claude-in-a-box using plain <code>kubectl</code>. It follows the Kustomize base/overlays directory convention for organizing manifests, though it uses direct <code>kubectl apply</code> rather than the <code>kustomize build</code> CLI -- there are no <code>kustomization.yaml</code> files.
+  </p>
+  <p class="text-text-secondary">
+    The <code>base/</code> directory contains 4 numbered manifests applied in order, and <code>overlays/</code> contains optional additive patches that extend the base configuration. The Helm chart remains the primary deployment method; the <code>k8s/</code> directory is suited for quick local testing and CI pipelines where Helm is not available.
+  </p>
+
+  <!-- Directory Structure -->
+  <h2 id="directory-structure">Directory Structure</h2>
+
+  <DiagramBlock title="Directory Structure" description="The k8s/ directory tree with base resources and overlays.">
+    <svg viewBox="0 0 800 320" class="w-full h-auto" role="img" aria-label="Directory structure diagram showing k8s/ parent with base/ containing 4 numbered YAML files and overlays/ containing rbac-operator.yaml">
+      <defs>
+        <marker id="arrow-dir" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" style="fill: oklch(0.70 0.15 250)" />
+        </marker>
+      </defs>
+
+      <!-- k8s/ root -->
+      <rect x="320" y="15" width="160" height="44" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="400" y="42" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 14px; font-weight: 600">k8s/</text>
+
+      <!-- Connectors from k8s/ to base/ and overlays/ -->
+      <line x1="360" y1="59" x2="200" y2="90" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-dir)" />
+      <line x1="440" y1="59" x2="600" y2="90" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-dir)" />
+
+      <!-- base/ directory box -->
+      <rect x="50" y="90" width="300" height="210" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="200" y="118" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 14px; font-weight: 600">base/</text>
+      <text x="200" y="136" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">Applied with kubectl apply -f k8s/base/</text>
+
+      <!-- Base files -->
+      <rect x="75" y="152" width="250" height="28" rx="4" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
+      <text x="90" y="171" style="fill: oklch(0.62 0.22 260); font-size: 12px; font-family: monospace">01-serviceaccount.yaml</text>
+
+      <rect x="75" y="186" width="250" height="28" rx="4" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
+      <text x="90" y="205" style="fill: oklch(0.62 0.22 260); font-size: 12px; font-family: monospace">02-rbac-reader.yaml</text>
+
+      <rect x="75" y="220" width="250" height="28" rx="4" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
+      <text x="90" y="239" style="fill: oklch(0.62 0.22 260); font-size: 12px; font-family: monospace">03-networkpolicy.yaml</text>
+
+      <rect x="75" y="254" width="250" height="28" rx="4" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
+      <text x="90" y="273" style="fill: oklch(0.62 0.22 260); font-size: 12px; font-family: monospace">04-statefulset.yaml</text>
+
+      <!-- overlays/ directory box -->
+      <rect x="450" y="90" width="300" height="130" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5; stroke-dasharray: 6 3" />
+      <text x="600" y="118" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 14px; font-weight: 600">overlays/</text>
+      <text x="600" y="136" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">Optional, applied separately</text>
+
+      <!-- Overlay files -->
+      <rect x="475" y="152" width="250" height="28" rx="4" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
+      <text x="490" y="171" style="fill: oklch(0.62 0.22 260); font-size: 12px; font-family: monospace">rbac-operator.yaml</text>
+
+      <!-- Note -->
+      <rect x="460" y="240" width="280" height="26" rx="13" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
+      <text x="600" y="258" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">No kustomization.yaml -- uses plain kubectl apply</text>
+    </svg>
+  </DiagramBlock>
+
+  <!-- Base Resources -->
+  <h2 id="base-resources">Base Resources</h2>
+  <p class="text-text-secondary">
+    The four base manifests are numbered to enforce apply order. Together they create a minimal, secure deployment of claude-in-a-box with read-only cluster access.
+  </p>
+
+  <div class="docs-table">
+    <table>
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Kind</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>01-serviceaccount.yaml</td>
+          <td>ServiceAccount</td>
+          <td>Dedicated identity for claude-agent pod, automounts API token</td>
+        </tr>
+        <tr>
+          <td>02-rbac-reader.yaml</td>
+          <td>ClusterRole + ClusterRoleBinding</td>
+          <td>Read-only access (get/list/watch) to 14 resource types across 4 API groups</td>
+        </tr>
+        <tr>
+          <td>03-networkpolicy.yaml</td>
+          <td>NetworkPolicy</td>
+          <td>Egress-only policy: DNS (53), HTTPS (443), K8s API (6443). All ingress blocked</td>
+        </tr>
+        <tr>
+          <td>04-statefulset.yaml</td>
+          <td>Service + StatefulSet</td>
+          <td>Headless Service for DNS identity, StatefulSet with PVC, non-root (UID 10000), probes</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Overlay: Operator RBAC -->
+  <h2 id="operator-overlay">Overlay: Operator RBAC</h2>
+  <p class="text-text-secondary">
+    The operator overlay is <strong>additive</strong> -- it grants elevated permissions without removing the base reader role. It lives in <code>overlays/</code> so it is <strong>not applied by default</strong> when deploying with <code>kubectl apply -f k8s/base/</code>. Apply or revoke it manually as needed.
+  </p>
+
+  <div class="docs-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Resource</th>
+          <th>Verb</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>pods</td>
+          <td>delete</td>
+          <td>Force-restart pods via StatefulSet controller recreation</td>
+        </tr>
+        <tr>
+          <td>pods/exec</td>
+          <td>create</td>
+          <td>Interactive debugging inside running containers</td>
+        </tr>
+        <tr>
+          <td>deployments, statefulsets</td>
+          <td>update, patch</td>
+          <td>Rollout restarts and spec modifications</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Deployment Workflow -->
+  <h2 id="deployment-workflow">Deployment Workflow</h2>
+  <p class="text-text-secondary">
+    Two deployment paths are available. The Helm chart is recommended for production and multi-environment use. The <code>k8s/</code> directory provides a simpler path for quick testing and CI.
+  </p>
+
+  <DiagramBlock title="Deployment Workflow" description="Decision between Helm and kubectl paths, with optional operator overlay.">
+    <svg viewBox="0 0 800 250" class="w-full h-auto" role="img" aria-label="Deployment workflow diagram showing decision diamond between Helm install and kubectl apply paths, with optional operator overlay">
+      <defs>
+        <marker id="arrow-deploy" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" style="fill: oklch(0.70 0.15 250)" />
+        </marker>
+      </defs>
+
+      <!-- Decision diamond -->
+      <polygon points="400,20 510,70 400,120 290,70" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="400" y="66" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 12px; font-weight: 600">Deployment</text>
+      <text x="400" y="80" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 12px; font-weight: 600">method?</text>
+
+      <!-- Left: Helm path -->
+      <line x1="290" y1="70" x2="170" y2="70" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-deploy)" />
+      <text x="230" y="60" text-anchor="middle" style="fill: oklch(0.62 0.22 260); font-size: 11px">Helm</text>
+      <rect x="30" y="48" width="140" height="44" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="100" y="74" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 13px; font-weight: 600">helm install</text>
+
+      <!-- Right: kubectl path -->
+      <line x1="510" y1="70" x2="570" y2="70" style="stroke: oklch(0.70 0.15 250); stroke-width: 2" marker-end="url(#arrow-deploy)" />
+      <text x="540" y="60" text-anchor="middle" style="fill: oklch(0.62 0.22 260); font-size: 11px">kubectl</text>
+      <rect x="580" y="48" width="190" height="44" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5" />
+      <text x="675" y="67" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 12px; font-weight: 600">kubectl apply</text>
+      <text x="675" y="83" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">-f k8s/base/</text>
+
+      <!-- Optional overlay (dashed arrow from kubectl box) -->
+      <line x1="675" y1="92" x2="675" y2="148" style="stroke: oklch(0.70 0.15 250); stroke-width: 2; stroke-dasharray: 6 3" marker-end="url(#arrow-deploy)" />
+      <text x="720" y="130" style="fill: oklch(0.55 0.02 260); font-size: 10px">optional</text>
+      <rect x="545" y="156" width="260" height="44" rx="8" style="fill: oklch(0.16 0.03 260 / 0.70); stroke: oklch(0.28 0.04 260); stroke-width: 1.5; stroke-dasharray: 6 3" />
+      <text x="675" y="175" text-anchor="middle" style="fill: oklch(0.97 0.005 260); font-size: 12px; font-weight: 600">kubectl apply</text>
+      <text x="675" y="191" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">-f k8s/overlays/rbac-operator.yaml</text>
+
+      <!-- Note -->
+      <rect x="20" y="210" width="320" height="26" rx="13" style="fill: oklch(0.14 0.03 260 / 0.60); stroke: oklch(0.24 0.04 260); stroke-width: 1" />
+      <text x="180" y="228" text-anchor="middle" style="fill: oklch(0.55 0.02 260); font-size: 10px">Helm chart is the primary deployment method</text>
+    </svg>
+  </DiagramBlock>
+
+  <!-- Usage -->
+  <h2 id="usage">Usage</h2>
+
+  <h3>Deploy with base resources</h3>
+  <TerminalBlock title="kubectl apply (base)" commands={["kubectl apply -f k8s/base/"]} />
+
+  <h3>Add operator permissions</h3>
+  <TerminalBlock title="kubectl apply (operator overlay)" commands={["kubectl apply -f k8s/overlays/rbac-operator.yaml"]} />
+
+  <h3>Revoke operator permissions</h3>
+  <TerminalBlock title="kubectl delete (operator overlay)" commands={["kubectl delete -f k8s/overlays/rbac-operator.yaml"]} />
+
+  <!-- Helm vs kubectl -->
+  <h2 id="helm-vs-kubectl">Helm vs kubectl</h2>
+  <p class="text-text-secondary">
+    Both deployment methods produce equivalent base infrastructure. The choice depends on your operational needs.
+  </p>
+
+  <div class="docs-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Helm Chart</th>
+          <th>kubectl (k8s/)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Templating</td>
+          <td>Values-driven (values.yaml)</td>
+          <td>Static manifests</td>
+        </tr>
+        <tr>
+          <td>Security profiles</td>
+          <td>3 profiles via values overlays</td>
+          <td>Base + manual operator overlay</td>
+        </tr>
+        <tr>
+          <td>Lifecycle</td>
+          <td>helm install/upgrade/rollback</td>
+          <td>kubectl apply/delete</td>
+        </tr>
+        <tr>
+          <td>Best for</td>
+          <td>Production, multi-env</td>
+          <td>Quick local testing, CI</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</DocsLayout>
