@@ -89,7 +89,11 @@ load helpers
 }
 
 @test "operator: can create pods/exec" {
-  assert_can create pods/exec
+  # Use --subresource flag for kubectl v1.31+ compatibility
+  if ! kubectl auth can-i create pods --subresource=exec --as="${SA_FULL}" >/dev/null 2>&1; then
+    echo "FAIL: expected permission for can-i create pods --subresource=exec" >&2
+    return 1
+  fi
 }
 
 @test "operator: can update deployments.apps" {

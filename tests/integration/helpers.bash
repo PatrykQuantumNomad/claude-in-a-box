@@ -47,13 +47,12 @@ can_i_resource() {
 # Assert that the service account CAN perform an action.
 # Usage: assert_can <verb> <resource>
 # Fails the test if permission is denied.
+# Uses exit code (not string comparison) for cross-version kubectl compatibility.
 assert_can() {
   local verb="$1"
   local resource="$2"
-  local result
-  result=$(can_i "${verb}" "${resource}")
-  if [ "${result}" != "yes" ]; then
-    echo "FAIL: expected 'yes' for can-i ${verb} ${resource}, got '${result}'" >&2
+  if ! kubectl auth can-i "${verb}" "${resource}" --as="${SA_FULL}" >/dev/null 2>&1; then
+    echo "FAIL: expected permission for can-i ${verb} ${resource}" >&2
     return 1
   fi
 }
@@ -61,13 +60,12 @@ assert_can() {
 # Assert that the service account CANNOT perform an action.
 # Usage: assert_cannot <verb> <resource>
 # Fails the test if permission is granted.
+# Uses exit code (not string comparison) for cross-version kubectl compatibility.
 assert_cannot() {
   local verb="$1"
   local resource="$2"
-  local result
-  result=$(can_i "${verb}" "${resource}")
-  if [ "${result}" != "no" ]; then
-    echo "FAIL: expected 'no' for can-i ${verb} ${resource}, got '${result}'" >&2
+  if kubectl auth can-i "${verb}" "${resource}" --as="${SA_FULL}" >/dev/null 2>&1; then
+    echo "FAIL: expected denial for can-i ${verb} ${resource}" >&2
     return 1
   fi
 }

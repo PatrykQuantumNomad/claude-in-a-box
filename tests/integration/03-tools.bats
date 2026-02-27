@@ -11,6 +11,7 @@ setup_file() {
 
 @test "tools: verify-tools.sh passes inside pod" {
   run exec_in_pod /usr/local/bin/verify-tools.sh
+  echo "$output"
   [ "$status" -eq 0 ]
 }
 
