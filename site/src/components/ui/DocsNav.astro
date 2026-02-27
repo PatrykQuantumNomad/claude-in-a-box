@@ -1,0 +1,69 @@
+---
+interface Props {
+  activeSlug: string;
+}
+
+const { activeSlug } = Astro.props;
+
+const navItems = [
+  { slug: "overview", label: "Overview", href: "/docs/" },
+  { slug: "helm-chart", label: "Helm Chart", href: "/docs/helm-chart/" },
+  { slug: "dockerfile", label: "Dockerfile", href: "/docs/dockerfile/" },
+  { slug: "kind-deployment", label: "KIND Deployment", href: "/docs/kind-deployment/" },
+  { slug: "scripts", label: "Scripts Reference", href: "/docs/scripts/" },
+];
+---
+
+<nav class="docs-nav">
+  <!-- Mobile toggle -->
+  <button
+    class="docs-nav-toggle lg:hidden flex items-center gap-2 w-full px-4 py-3 text-text-secondary hover:text-text-primary transition-colors font-medium text-sm"
+    aria-expanded="false"
+    aria-controls="docs-nav-links"
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+    Navigation
+  </button>
+
+  <div id="docs-nav-links" class="docs-nav-links hidden lg:block">
+    <a
+      href="/"
+      class="flex items-center gap-2 px-4 py-2 mb-4 text-sm text-text-muted hover:text-text-primary transition-colors"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      Back to Home
+    </a>
+
+    <div class="space-y-1">
+      {navItems.map((item) => (
+        <a
+          href={item.href}
+          class:list={[
+            "block px-4 py-2 text-sm rounded-md transition-colors",
+            item.slug === activeSlug
+              ? "text-accent bg-accent-glow border-l-2 border-accent font-medium"
+              : "text-text-secondary hover:text-text-primary hover:bg-[oklch(0.16_0.03_260_/_0.40)]",
+          ]}
+        >
+          {item.label}
+        </a>
+      ))}
+    </div>
+  </div>
+</nav>
+
+<script>
+  const toggle = document.querySelector('.docs-nav-toggle');
+  const links = document.getElementById('docs-nav-links');
+  if (toggle && links) {
+    toggle.addEventListener('click', () => {
+      const expanded = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', String(!expanded));
+      links.classList.toggle('hidden');
+    });
+  }
+</script>

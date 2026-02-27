@@ -1,0 +1,32 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import DocsNav from "../components/ui/DocsNav.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+  activeSlug: string;
+}
+
+const { title, description, activeSlug } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="min-h-screen flex flex-col lg:flex-row">
+    <!-- Sidebar -->
+    <aside class="lg:w-64 lg:shrink-0 lg:border-r lg:border-border bg-bg-primary lg:bg-bg-secondary/50">
+      <div class="lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto lg:py-8">
+        <DocsNav activeSlug={activeSlug} />
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <main class="flex-1 min-w-0">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+        <article class="docs-prose">
+          <slot />
+        </article>
+      </div>
+    </main>
+  </div>
+</BaseLayout>
