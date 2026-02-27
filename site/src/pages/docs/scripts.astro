@@ -1,0 +1,136 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+import TerminalBlock from "../../components/ui/TerminalBlock.astro";
+---
+
+<DocsLayout title="Scripts Reference | RemoteKube" description="Reference for all 8 shell scripts: container lifecycle, build verification, and cluster setup." activeSlug="scripts">
+  <h1 class="text-3xl md:text-4xl font-bold mb-6">
+    <span class="gradient-text">Scripts Reference</span>
+  </h1>
+
+  <!-- Overview -->
+  <h2 id="overview">Overview</h2>
+  <p class="text-text-secondary">
+    The <code>scripts/</code> directory contains 8 shell scripts for container lifecycle management, build verification, and cluster setup. All scripts use <code>set -euo pipefail</code> for strict error handling and include inline documentation headers.
+  </p>
+
+  <!-- Container Lifecycle Scripts -->
+  <h2 id="container-lifecycle">Container Lifecycle Scripts</h2>
+
+  <div class="glass-card rounded-xl p-6 my-6">
+    <h3 class="text-lg font-semibold text-text-primary !mt-0 mb-2">entrypoint.sh</h3>
+    <p class="text-text-secondary text-sm mb-3">
+      Container entrypoint dispatched by tini. Validates operating mode, checks authentication credentials (OAuth token, API key, or credentials file), stages DevOps skills from <code>/opt/</code> into the PVC, generates <code>CLAUDE.md</code> with cluster context, then <code>exec</code>'s into Claude Code.
+    </p>
+    <p class="text-text-secondary text-sm mb-3">
+      <strong>Modes:</strong> <code>interactive</code> (REPL), <code>remote-control</code> (phone/web access), <code>headless</code> (one-shot prompt with JSON output).
+    </p>
+    <p class="text-text-secondary text-sm mb-2">
+      <strong>CLAUDE_TEST_MODE bypass:</strong> Skips auth and Claude startup, runs <code>sleep infinity</code> for CI.
+    </p>
+    <TerminalBlock title="entrypoint.sh" commands={["# Set via Helm values or docker run -e", "CLAUDE_MODE=remote-control", "CLAUDE_TEST_MODE=true  # CI only"]} />
+  </div>
+
+  <div class="glass-card rounded-xl p-6 my-6">
+    <h3 class="text-lg font-semibold text-text-primary !mt-0 mb-2">healthcheck.sh</h3>
+    <p class="text-text-secondary text-sm mb-3">
+      Liveness probe for both Docker HEALTHCHECK and Kubernetes exec probe. Uses <code>pgrep -f "claude"</code> to check if the Claude Code process is running. Lightweight -- no Node.js startup cost.
+    </p>
+    <p class="text-text-secondary text-sm mb-2">
+      <strong>Exit codes:</strong> 0 = alive (or CLAUDE_TEST_MODE=true), 1 = no Claude process found (container restarted).
+    </p>
+  </div>
+
+  <div class="glass-card rounded-xl p-6 my-6">
+    <h3 class="text-lg font-semibold text-text-primary !mt-0 mb-2">readiness.sh</h3>
+    <p class="text-text-secondary text-sm mb-3">
+      Kubernetes readiness probe. Runs <code>claude auth status</code> which spawns a Node.js process (~3-5s startup latency) to verify the OAuth token or API key is valid.
+    </p>
+    <p class="text-text-secondary text-sm mb-2">
+      <strong>Exit codes:</strong> 0 = authenticated and ready (or CLAUDE_TEST_MODE=true), 1 = not authenticated. Probe <code>periodSeconds</code> must be 30s+ to avoid overlapping Node.js processes.
+    </p>
+  </div>
+
+  <div class="glass-card rounded-xl p-6 my-6">
+    <h3 class="text-lg font-semibold text-text-primary !mt-0 mb-2">generate-claude-md.sh</h3>
+    <p class="text-text-secondary text-sm mb-3">
+      Generates <code>/app/CLAUDE.md</code> at container startup by querying the Kubernetes API for cluster metadata (K8s version, node count, namespace, pod name). Runs idempotently on every start via <code>entrypoint.sh</code>.
+    </p>
+    <p class="text-text-secondary text-sm mb-2">
+      <strong>Standalone fallback:</strong> If no ServiceAccount token exists (Docker Compose or local Docker), writes a minimal CLAUDE.md without cluster context.
+    </p>
+  </div>
+
+  <!-- Build & Verification Scripts -->
+  <h2 id="build-verification">Build & Verification Scripts</h2>
+
+  <div class="glass-card rounded-xl p-6 my-6">
+    <h3 class="text-lg font-semibold text-text-primary !mt-0 mb-2">verify-tools.sh</h3>
+    <p class="text-text-secondary text-sm mb-3">
+      Validates all 32+ installed tools. Run during the Docker build (<code>RUN verify-tools.sh</code>) and available at runtime for on-demand checks. Tests are organized by category: network, process/system, Kubernetes, data/log, database clients, security, standard utilities, and Claude Code.
+    </p>
+    <p class="text-text-secondary text-sm mb-2">
+      <strong>Privileged tools</strong> (strace, tcpdump, perf, bpftrace) are checked for binary existence only (SKIP, not FAIL) since they require elevated capabilities.
+    </p>
+    <TerminalBlock title="verify-tools.sh" commands={["verify-tools.sh"]} />
+  </div>
+
+  <div class="glass-card rounded-xl p-6 my-6">
+    <h3 class="text-lg font-semibold text-text-primary !mt-0 mb-2">helm-golden-test.sh</h3>
+    <p class="text-text-secondary text-sm mb-3">
+      Golden file testing for the Helm chart. Renders <code>helm template</code> output and compares against stored golden files in <code>helm/claude-in-a-box/tests/golden/</code>. Any difference indicates an unintended change to the chart's rendered output, catching regressions from template logic changes.
+    </p>
+    <TerminalBlock title="helm-golden-test.sh" commands={[
+      "bash scripts/helm-golden-test.sh            # Compare against golden files",
+      "bash scripts/helm-golden-test.sh --update   # Regenerate golden files"
+    ]} />
+  </div>
+
+  <!-- Cluster Setup Scripts -->
+  <h2 id="cluster-setup">Cluster Setup Scripts</h2>
+
+  <div class="glass-card rounded-xl p-6 my-6">
+    <h3 class="text-lg font-semibold text-text-primary !mt-0 mb-2">install-calico.sh</h3>
+    <p class="text-text-secondary text-sm mb-3">
+      Installs Calico CNI into a KIND cluster for NetworkPolicy enforcement. Handles the full lifecycle: install tigera-operator, wait for CRDs, apply custom resources, fix Felix Reverse Path Filtering for KIND nodes (<code>FELIX_IGNORELOOSERPF=true</code>), and restart CoreDNS to recover from pre-CNI scheduling.
+    </p>
+    <TerminalBlock title="install-calico.sh" commands={[
+      "./scripts/install-calico.sh",
+      "CALICO_VERSION=3.31.4 ./scripts/install-calico.sh  # custom version"
+    ]} />
+  </div>
+
+  <div class="glass-card rounded-xl p-6 my-6">
+    <h3 class="text-lg font-semibold text-text-primary !mt-0 mb-2">setup-bats.sh</h3>
+    <p class="text-text-secondary text-sm mb-3">
+      Installs BATS (Bash Automated Testing System) for local development. Clones <code>bats-core</code> into <code>tests/bats/</code> and adds it to <code>.gitignore</code>. Not used in CI -- the CI workflow installs BATS via <code>apt-get install bats</code>.
+    </p>
+    <TerminalBlock title="setup-bats.sh" commands={["./scripts/setup-bats.sh"]} />
+  </div>
+
+  <!-- Summary Table -->
+  <h2 id="summary">Script Summary</h2>
+
+  <div class="docs-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Script</th>
+          <th>Category</th>
+          <th>Used In</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>entrypoint.sh</td><td>Lifecycle</td><td>Container</td><td>Validate auth, stage skills, dispatch to Claude mode</td></tr>
+        <tr><td>healthcheck.sh</td><td>Lifecycle</td><td>Container</td><td>Liveness probe (pgrep -f claude)</td></tr>
+        <tr><td>readiness.sh</td><td>Lifecycle</td><td>Container</td><td>Readiness probe (claude auth status)</td></tr>
+        <tr><td>generate-claude-md.sh</td><td>Lifecycle</td><td>Container</td><td>Generate CLAUDE.md with K8s cluster context</td></tr>
+        <tr><td>verify-tools.sh</td><td>Build</td><td>Container, CI</td><td>Validate all 32+ installed tools</td></tr>
+        <tr><td>helm-golden-test.sh</td><td>Build</td><td>Local Dev, CI</td><td>Golden file testing for Helm chart templates</td></tr>
+        <tr><td>install-calico.sh</td><td>Cluster Setup</td><td>Local Dev, CI</td><td>Install Calico CNI into KIND for NetworkPolicy</td></tr>
+        <tr><td>setup-bats.sh</td><td>Cluster Setup</td><td>Local Dev</td><td>Install BATS test framework locally</td></tr>
+      </tbody>
+    </table>
+  </div>
+</DocsLayout>
